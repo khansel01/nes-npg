@@ -1,10 +1,9 @@
-import gym
 import numpy as np
-from Polynomial_Regression import PolynomialRegression
+import gym
 import matplotlib.pyplot as plt
 
 #######################################
-# NPG using Gaussian Policy
+# NPG using Softmax Policy
 # Value is estimated with multiple regression
 #######################################
 
@@ -19,13 +18,9 @@ env = gym.make('CartPole-v0')
 # Define Parameters [W, b, sigma]
 # --------------------------------
 # W consists of 4 weights - one for each observation
-# sigma is the variance in the gaussian distribution
 # delta is the normalized step size of the parameter update
-# W1 = np.multiply(np.ones((1, 4)), np.random.sample(1))
-# W2 = np.multiply(np.ones((1, 4)), np.random.sample(1))
-W1 = np.random.randint(1, 10, (1, 4))*1.0
-W2 = np.random.randint(1, 10, (1, 4))*1.0
-sigma = np.sqrt(0.02)
+W1 = np.zeros((1, 4))*0.0
+W2 = np.zeros((1, 4))*0.0
 delta = 0.05
 
 # Define training setup
@@ -33,66 +28,65 @@ delta = 0.05
 # gamma is the discount factor
 # T is the max number of steps in a single run of the simulation
 # K is the number of iterations for training the algorithm
-# Log_PI are the derivations for the policy towards the parameters in iteration k for each state, action
-# lda is lambda for bias-variance tradeoff of generalized advantage estimation (GAE)
-T = 1000
-K = 400
+T = 200
+K = 1000
 lambda_ = 0.95
 gamma_ = 0.98
-baseline = 1
 Reward = 0
 
 
 # Choose an action based on higher probability using policy function
 # TODO: Implement for arbitrary amount of actions
 def choose_action(observation):
-    a1 = policy(observation, W1, sigma, 1)  # +policy(observation, W2, sigma, 1)
-    a2 = policy(observation, W2, sigma, 0)  # +policy(observation, W1, sigma, -1)
-    # print(a1, a2)
-    if a1 >= a2:
+    a1 = softmax_policy(observation, 1.0, W1)
+    a2 = softmax_policy(observation, 0.0, W2)
+    # print("Exp: ", a1, a2)
+    p1 = a1 / (a1+a2)
+    p2 = a2 / (a1+a2)
+    # print("Prob: ", p1, p2)
+    if p1 >= p2:
         return 1
     else:
         return 0
 
 
-# Returns a probability for an action in the current state
-# The expectation is based on the observation weighted by W plus the belief b
-def policy(observation, W, sigma, action):
-    mu = np.dot(np.asmatrix(observation), np.transpose(W))
-    return (1/np.sqrt(2*np.pi*sigma**2))*np.exp(-((action-mu)**2)/(2*(sigma**2)))
+def softmax_policy(observation, action, W):
+    obs = np.zeros(len(observation))
+    W = np.append(W, 1)
+    for i, ele in enumerate(observation):
+        obs[i] = ele
+    phi = np.append(obs, action)
+    return np.exp(np.dot(phi, np.transpose(W)))
 
 
-def compute_delta_function(estimator, curr_transition, next_transition):
-    curr_obs, curr_action, curr_reward = curr_transition
-    next_obs = next_transition[0]
-    return curr_reward - estimator.predict_value(curr_obs) + estimator.predict_value(next_obs)
-
-
-def compute_advantage(estimator, transitions):
+def compute_advantage(transitions):
     advantage = np.zeros(len(transitions))
     for i, transition in enumerate(transitions):
         for remainingsteps in range(len(transitions)-i-1):
-            curr_transition = transitions[i+remainingsteps]
-            next_transition = transitions[i+remainingsteps+1]
-            delta_function = compute_delta_function(estimator, curr_transition, next_transition)
-            advantage[i] += ((gamma_*lambda_)**remainingsteps) * delta_function
+            advantage[i] += ((gamma_*lambda_)**remainingsteps) * transition[2]
+    advantage = (advantage - np.mean(advantage))/(np.std(advantage) + 0.0001)
     return advantage
 
 
-def log_policy_gradient(transitions):
+def log_policy_gradient_softmax(transitions):
     log_p_gradient = np.random.sample((8, len(transitions)))
     for i, transition in enumerate(transitions):
         observation = transition[0]
         action = transition[1]
+        obs = np.zeros(len(observation))
+        for i, ele in enumerate(observation):
+            obs[i] = ele
+        phi = np.transpose(np.append(obs, action))
+        a1 = softmax_policy(observation, 1.0, W1)
+        a2 = softmax_policy(observation, 0.0, W2)
+        p1 = a1 / (a1 + a2)
+        p2 = a2 / (a1 + a2)
+        phi1 = np.transpose(np.append(obs, 1.0))
+        phi2 = np.transpose(np.append(obs, 0.0))
         if action == 1:
-            mu = np.dot(observation, np.transpose(W1))
-            log_p_gradient[0:4, i] = np.multiply((action - mu) / (sigma ** 2), observation)
+            log_p_gradient[0:4, i] = (phi - phi1*p1 - phi2*p2)[0:4]
         else:
-            mu = np.dot(observation, np.transpose(W2))
-            log_p_gradient[4:8, i] = np.multiply((action - mu) / (sigma ** 2), observation)
-        # log_p_gradient[0:4, i] = np.multiply((action - mu) / (sigma ** 2), observation)
-        # log_p_gradient[4, i] = ((action - mu) ** 2 - sigma ** 2) / (sigma ** 3)
-
+            log_p_gradient[4:8, i] = (phi - phi1 * p1 - phi2 * p2)[0:4]
     return log_p_gradient
 
 
@@ -119,25 +113,6 @@ def update_parameters(log_p_gradient, advantage):
     return
 
 
-def findValueEstimator(transitions):
-    x = np.zeros((len(transitions), 4))
-    y = np.zeros((len(transitions), 1))
-    for i, transition in enumerate(transitions):
-        obs, actions, reward = transition
-        for ii, element in enumerate(obs):
-            x[i, ii] = element
-        global Reward
-        Reward += reward
-        for remainingsteps in range(len(transitions) - i):
-            y[i, 0] += (gamma_**remainingsteps) * transitions[i+remainingsteps][2]
-    print("True y: ", y[0, 0])
-    estimator = PolynomialRegression(x, y, pow(10, -6), 2)
-    c = estimator.train()
-    # plt.plot(np.arange(1000), c, 'r')
-    # plt.show()
-    return estimator
-
-
 # Iteration of a single trajectory (basically run through a single game)
 # Each run has up to T steps
 # Termination conditions are pole angle +/- 12, cart position +/- 2.4 or steps >T (given by gym)
@@ -155,7 +130,8 @@ def run_trajectory():
         # Execute action to get next state
         observation, reward, done, info = env.step(action)
         transitions.append((old_observation, action, reward))
-
+        global Reward
+        Reward += reward
         # Stop trajectory if termination condition is met
         if done & (t < 200):
             # print("Reward = ", np.sum(R[n, :]))
@@ -168,28 +144,39 @@ def run_trajectory():
 # Train the algorithm using the simulation
 def train_algorithm():
     transitions = run_trajectory()
-    estimator = findValueEstimator(transitions)
     reward_per_episode = np.empty(0)
     mean_until_episode = np.empty(0)
-    global Reward
-    Reward = 0
+
+    optimal_counter = 0
+
     # do K iterations and update parameters in each iteration
     for i_episode in range(K):
+        global Reward
+        Reward = 0
         print("Episode {}:".format(i_episode+1))
 
         transitions = run_trajectory()
-        advantage = compute_advantage(estimator, transitions)
-        log_p_gradient = log_policy_gradient(transitions)
+        advantage = compute_advantage(transitions)  # , estimator)
+        log_p_gradient = log_policy_gradient_softmax(transitions)
+
+        if Reward == 200:
+            optimal_counter += 1
+        else:
+            optimal_counter = 0
+
+        if optimal_counter == 5:
+            print("Assuming optimal parameters!")
+            break;
 
         update_parameters(log_p_gradient, advantage)
-
-        print("Estimation: ", estimator.predict_value(transitions[0][0]))
-        estimator = findValueEstimator(transitions)
 
         reward_per_episode = np.append(reward_per_episode, Reward)
         mean_until_episode = np.append(mean_until_episode, np.mean(reward_per_episode))
         print("Mean reward so far: ", mean_until_episode[i_episode])
-        Reward = 0
+
+        if i_episode % 10 == 0:
+            print(W1)
+            print(W2)
 
     plt.plot(np.arange(K), reward_per_episode, 'r')
     plt.plot(np.arange(K), mean_until_episode, 'b')
@@ -199,9 +186,36 @@ def train_algorithm():
     return
 
 
+def run_benchmark():
+    total_rewards = np.zeros(100)
+    print("Starting Benchmark:")
+    print("-------------------")
+    for i_episode in range(100):
+        print("Episode {}:".format(i_episode+1))
+
+        observation = env.reset()
+        for t in range(T):
+            env.render()
+            action = choose_action(observation)
+            observation, reward, done, info = env.step(action)
+            total_rewards[i_episode] += reward
+            if done:
+                print("Reward reached: ", total_rewards[i_episode])
+                print("Episode finished after {} timesteps.".format(t + 1))
+                break
+    average = np.sum(total_rewards)/100
+    print("Average Reward: ", average)
+    if average >= 195:
+        return True
+    else:
+        return False
+
+
 print(W1)
 print(W2)
 train_algorithm()
 print(W1)
 print(W2)
+passed = run_benchmark()
+print(passed)
 env.close()
