@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 # Observations: 1. Cart Position   2. Cart Velocity    3. Pole Angle   4. Pole Velocity at Tip
 # Actions: 1. Left  2. Right
 env = gym.make('CartPole-v0')
-
+env.seed(1995)
 
 # Define Parameters [W, b, sigma]
 # --------------------------------
@@ -118,6 +118,7 @@ def update_parameters(log_p_gradient, advantage):
 # Termination conditions are pole angle +/- 12, cart position +/- 2.4 or steps >T (given by gym)
 def run_trajectory():
     observation = env.reset()
+    env.seed(1995)
     transitions = []
     for t in range(T):
         env.render()
@@ -129,15 +130,19 @@ def run_trajectory():
 
         # Execute action to get next state
         observation, reward, done, info = env.step(action)
-        transitions.append((old_observation, action, reward))
         global Reward
         Reward += reward
         # Stop trajectory if termination condition is met
-        if done & (t < 200):
+        if done:
             # print("Reward = ", np.sum(R[n, :]))
-            # transitions.append((np.append(observation, choose_action(observation)), 0))
+            if t < 199:
+                transitions.append((old_observation, action, -10))
+            else:
+                transitions.append((old_observation, action, reward))
             print("Trial finished after {} timesteps.".format(t + 1))
             break
+        else:
+            transitions.append((old_observation, action, reward))
     return transitions
 
 
@@ -156,8 +161,12 @@ def train_algorithm():
         print("Episode {}:".format(i_episode+1))
 
         transitions = run_trajectory()
-        advantage = compute_advantage(transitions)  # , estimator)
+        advantage = compute_advantage(transitions)
         log_p_gradient = log_policy_gradient_softmax(transitions)
+
+        reward_per_episode = np.append(reward_per_episode, Reward)
+        mean_until_episode = np.append(mean_until_episode, np.mean(reward_per_episode))
+        print("Mean reward so far: ", mean_until_episode[i_episode])
 
         if Reward == 200:
             optimal_counter += 1
@@ -169,10 +178,6 @@ def train_algorithm():
             break;
 
         update_parameters(log_p_gradient, advantage)
-
-        reward_per_episode = np.append(reward_per_episode, Reward)
-        mean_until_episode = np.append(mean_until_episode, np.mean(reward_per_episode))
-        print("Mean reward so far: ", mean_until_episode[i_episode])
 
         if i_episode % 10 == 0:
             print(W1)
