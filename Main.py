@@ -39,22 +39,22 @@ class Policy(nn.Module):
 
 
 def main():
-    # env = gym.make('CartPole-v0')
-    # TODO: vvvvvvvvvvvvvvvvvv
-    parser = argparse.ArgumentParser(description='PyTorch REINFORCE example')
-    parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
-                        help='discount factor (default: 0.99)')
-    parser.add_argument('--seed', type=int, default=543, metavar='N',
-                        help='random seed (default: 543)')
-    parser.add_argument('--render', action='store_true',
-                        help='render the environment')
-    parser.add_argument('--log-interval', type=int, default=10, metavar='N',
-                        help='interval between training status logs (default: 10)')
-    args = parser.parse_args()
-
     env = gym.make('CartPole-v0')
-    env.seed(args.seed)
-    tr.manual_seed(args.seed)
+    # TODO: vvvvvvvvvvvvvvvvvv
+    # parser = argparse.ArgumentParser(description='PyTorch REINFORCE example')
+    # parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
+    #                     help='discount factor (default: 0.99)')
+    # parser.add_argument('--seed', type=int, default=543, metavar='N',
+    #                     help='random seed (default: 543)')
+    # parser.add_argument('--render', action='store_true',
+    #                     help='render the environment')
+    # parser.add_argument('--log-interval', type=int, default=10, metavar='N',
+    #                     help='interval between training status logs (default: 10)')
+    # args = parser.parse_args()
+    #
+    # env = gym.make('CartPole-v0')
+    # env.seed(args.seed)
+    # tr.manual_seed(args.seed)
     # TODO: ^^^^^^^^^^^^^^^^^^
     episode = 0
     # get a machine epsilon for the given float type of float32
@@ -64,7 +64,7 @@ def main():
     gamma = 0.97
     policy = Policy(4, 2, 128)
     optimizer = optim.Adam(policy.parameters(), lr=1e-2)    # TODO
-    for i_episode in range(100):
+    for i_episode in range(1000):
         print(i_episode)
         observation = env.reset()        # TODO
         for trans in range(200):
