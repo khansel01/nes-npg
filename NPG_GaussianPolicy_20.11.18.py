@@ -1,6 +1,11 @@
 import numpy as np
 import gym
 import matplotlib.pyplot as plt
+import torch as tr
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.distributions import Categorical
+from Softmax_policy import Policy
 
 #######################################
 # NPG using Softmax Policy
@@ -33,30 +38,35 @@ K = 1000
 lambda_ = 0.95
 gamma_ = 0.98
 Reward = 0
+policy = Policy(4, 2)
 
-
-# Choose an action based on higher probability using policy function
-# TODO: Implement for arbitrary amount of actions
-def choose_action(observation):
-    a1 = softmax_policy(observation, 1.0, W1)
-    a2 = softmax_policy(observation, 0.0, W2)
-    # print("Exp: ", a1, a2)
-    p1 = a1 / (a1+a2)
-    p2 = a2 / (a1+a2)
-    # print("Prob: ", p1, p2)
-    if p1 >= p2:
-        return 1
-    else:
-        return 0
-
-
-def softmax_policy(observation, action, W):
-    obs = np.zeros(len(observation))
-    W = np.append(W, 1)
-    for i, ele in enumerate(observation):
-        obs[i] = ele
-    phi = np.append(obs, action)
-    return np.exp(np.dot(phi, np.transpose(W)))
+# # Choose an action based on higher probability using policy function
+# # TODO: Implement for arbitrary amount of actions
+# def choose_action(observation):
+#     a1 = softmax_policy(observation, 1.0, W1)
+#     a2 = softmax_policy(observation, 0.0, W2)
+#     # print("Exp: ", a1, a2)
+#     p1 = a1 / (a1+a2)
+#     p2 = a2 / (a1+a2)
+#     probs = np.matrix([p1, p2])
+#     probs = tr.from_numpy(probs)
+#     m = Categorical(probs)
+#     action = m.sample()
+#     return action.item()
+#     # print("Prob: ", p1, p2)
+#     if p1 >= p2:
+#         return 1
+#     else:
+#         return 0
+#
+#
+# def softmax_policy(observation, action, W):
+#     obs = np.zeros(len(observation))
+#     W = np.append(W, 1)
+#     for i, ele in enumerate(observation):
+#         obs[i] = ele
+#     phi = np.append(obs, action)
+#     return np.exp(np.dot(phi, np.transpose(W)))
 
 
 def compute_advantage(transitions):
@@ -86,7 +96,7 @@ def log_policy_gradient_softmax(transitions):
         if action == 1:
             log_p_gradient[0:4, i] = (phi - phi1*p1 - phi2*p2)[0:4]
         else:
-            log_p_gradient[4:8, i] = (phi - phi1 * p1 - phi2 * p2)[0:4]
+            log_p_gradient[4:8, i] = (phi - phi1*p1 - phi2 * p2)[0:4]
     return log_p_gradient
 
 
@@ -124,7 +134,7 @@ def run_trajectory():
         env.render()
 
         # Choose best suitable action based on current observation using gaussian distribution
-        action = choose_action(observation)
+        action = policy.get_action(observation)
 
         old_observation = observation
 
@@ -201,7 +211,7 @@ def run_benchmark():
         observation = env.reset()
         for t in range(T):
             env.render()
-            action = choose_action(observation)
+            action = policy.get_action(observation)
             observation, reward, done, info = env.step(action)
             total_rewards[i_episode] += reward
             if done:

@@ -1,12 +1,14 @@
 import argparse
 import gym
 import numpy as np
+import matplotlib.pyplot as plt
 
 import torch as tr
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.distributions import Categorical
+from torch.distributions import Normal
 
 
 class Policy(nn.Module):
@@ -40,6 +42,8 @@ class Policy(nn.Module):
 
 def main():
     env = gym.make('CartPole-v0')
+    ep_reward = np.empty(0)
+    ep_mean_reward = np.empty(0)
     # TODO: vvvvvvvvvvvvvvvvvv
     # parser = argparse.ArgumentParser(description='PyTorch REINFORCE example')
     # parser.add_argument('--gamma', type=float, default=0.99, metavar='G',
@@ -64,9 +68,10 @@ def main():
     gamma = 0.97
     policy = Policy(4, 2, 128)
     optimizer = optim.Adam(policy.parameters(), lr=1e-2)    # TODO
-    for i_episode in range(1000):
+    for i_episode in range(300):
         print(i_episode)
         observation = env.reset()        # TODO
+        env.seed(1)
         for trans in range(200):
             env.render()
             action = policy.get_action(observation)
@@ -84,41 +89,47 @@ def main():
             advantages.insert(0, advantage)
         advantages = tr.tensor(advantages)
         advantages = (advantages - advantages.mean())/(advantages.std()+eps)  # TODO: ???? What the hell ?
-
+        ep_reward = np.append(ep_reward, trans)
+        ep_mean_reward = np.append(ep_mean_reward, np.mean(ep_reward))
         # TODO: vvvvvvvvvvvvvvvvvv
-        # g = 0
-        # F = 0
-        # T = 0
-        # delta = 0.05
-        # policy_loss = []
-        # for log_prob, a in zip(policy.saved_log_probs, advantages):
-        #     T +=1
-        #     F += log_prob.item()*log_prob.item()
-        #     g += log_prob.item()*a.item()
-        #     policy_loss.append(-log_prob * a)
-        # F /= T
-        # F = F**(-1)
-        # alpha = float(np.sqrt(delta/(F*g*g))*F*g)
-        # for param_group in optimizer.param_groups:
-        #     param_group["lr"] = alpha
-        # optimizer.zero_grad()
-        # policy_loss = tr.cat(policy_loss).sum()
-        # policy_loss.backward()
-        # optimizer.step()
-        # del policy.saved_log_probs[:]
-        # del policy.rewards[:]
-        # TODO -------------------
+        g = 0
+        F = 0
+        T = 0
+        delta = 0.05
         policy_loss = []
         for log_prob, a in zip(policy.saved_log_probs, advantages):
+            T +=1
+            F += log_prob.item()*log_prob.item()
+            g += log_prob.item()*a.item()
             policy_loss.append(-log_prob * a)
+        F /= T
+        F = F**(-1)
+        alpha = float(np.sqrt(delta/(F*g*g))*F*g)
+        for param_group in optimizer.param_groups:
+            param_group["lr"] = alpha
         optimizer.zero_grad()
         policy_loss = tr.cat(policy_loss).sum()
         policy_loss.backward()
         optimizer.step()
         del policy.saved_log_probs[:]
         del policy.rewards[:]
+        # TODO -------------------
+        # policy_loss = []
+        # for log_prob, a in zip(policy.saved_log_probs, advantages):
+        #     policy_loss.append(-log_prob * a)
+        # optimizer.zero_grad()
+        # policy_loss = tr.cat(policy_loss).sum()
+        # policy_loss.backward()
+        # optimizer.step()
+        # del policy.saved_log_probs[:]
+        # del policy.rewards[:]
         # TODO: ^^^^^^^^^^^^^^^^^
         # transitions.clear()
+    print(np.arange(len(ep_reward)))
+    print(ep_reward)
+    plt.plot(np.arange(len(ep_reward)), ep_reward, 'r')
+    plt.plot(np.arange(len(ep_mean_reward)), ep_mean_reward, 'g')
+    plt.show()
     env.close()
 
 
