@@ -1,11 +1,11 @@
 import numpy as np
 import gym
 import matplotlib.pyplot as plt
-import torch as tr
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.distributions import Categorical
-from Softmax_policy import Policy
+# import torch as tr
+# import torch.nn as nn
+# import torch.nn.functional as F
+# from torch.distributions import Categorical
+# from Softmax_policy import Policy
 
 #######################################
 # NPG using Softmax Policy
@@ -18,6 +18,7 @@ from Softmax_policy import Policy
 # Actions: 1. Left  2. Right
 env = gym.make('CartPole-v0')
 env.seed(0)
+np.random.seed(0)
 
 # Define Parameters [W, b, sigma]
 # --------------------------------
@@ -89,23 +90,23 @@ def softmax_policy(observation, action, W):
     return np.sum(np.exp(np.dot(obs, np.transpose(W))))
 
 
-def compute_last_ep_values(transitions, n):
+def compute_last_ep_values(transitions):
     values = np.zeros((1, T))
     for i, transition in enumerate(transitions):
         for remainingsteps in range(len(transitions)-i-1):
             values[0, i] += (gamma_**remainingsteps) * transition[2]
-    values = (values - np.mean(values))/(np.std(values) + eps)
+    # values = (values - np.mean(values))/(np.std(values) + eps)
     return values
 
 def compute_advantage(transitions, old_transitions):
     advantage = np.zeros(len(transitions))
-    values = compute_last_ep_values(old_transitions, len(transitions))
+    values = compute_last_ep_values(old_transitions)
     global Value
     Value = np.concatenate((Value, values), axis=0)
     values = np.mean(Value, axis=0)
     for i, transition in enumerate(transitions):
         for remainingsteps in range(len(transitions)-i-1):
-            delta_func = transition[2] - values[i+remainingsteps] + values[i+remainingsteps+1]
+            delta_func = transitions[i+remainingsteps][2] - values[i+remainingsteps] + gamma_*values[i+remainingsteps+1]
             advantage[i] += ((gamma_*lambda_)**remainingsteps) * delta_func
             # advantage[i] += (gamma_ ** remainingsteps) * transition[2]
     advantage = (advantage - np.mean(advantage))/(np.std(advantage) + eps)
@@ -127,8 +128,8 @@ def log_policy_gradient_softmax(transitions):
         p2 = a2 / (a1 + a2)
         phi1 = np.transpose(np.append(obs, 1.0))[0:4]
         phi2 = np.transpose(np.append(obs, 0.0))[0:4]
-        log_p_gradient[0:4, i] = (phi - phi1*p1 - phi2*p2)
-        log_p_gradient[4:8, i] = (phi - phi1*p1 - phi2*p2)
+        log_p_gradient[0:4, i] = (phi*action - phi1*p1)
+        log_p_gradient[4:8, i] = (phi*(1-action) - phi2*p2)
     return log_p_gradient
 
 
@@ -167,11 +168,13 @@ def run_trajectory():
 
         # Choose best suitable action based on current observation using gaussian distribution
         p1, p2 = choose_action(observation)
-        # action = np.random.choice([1, 0], p=[p1, p2])
+        action = np.random.choice([1, 0], p=[p1, p2])
+        '''
         if p1 >= p2:
             action = 1
         else:
             action = 0
+        '''
         old_observation = observation
 
         # Execute action to get next state

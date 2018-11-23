@@ -95,13 +95,15 @@ def main():
     observation = env.reset()
     env.seed(1995)
     env.render()
-    observation, reward, done, _ = env.step(1)
+    observation1, reward, done, _ = env.step(1)
+    policy = Policy(4, 2)
     for i in range(2):
-        print("ob: ", np.transpose(observation))
-        policy = Policy(4, 2)
-        action = policy.get_action(observation)
+        print("ob: ", np.transpose(observation1))
+        action = policy.get_action(observation1)
         for p in policy.parameters():
             print(i, "parameter: ", p)
+            t = p[1]
+            print("t:", t.requires_grad)
             print(":")
         env.render()
         observation, reward, done, _ = env.step(action)
