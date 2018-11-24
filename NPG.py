@@ -27,9 +27,9 @@ class NPG:
         self.__gamma = 0.98
         self.__delta = 0.000025
         self.__eps = np.finfo(np.float32).eps.item()
-        self.W = np.random.sample((4, 2))
-        # self.W = np.ones((4, 2)) * 1.0
-        # self.W[:, 0] *= -1
+        # self.W = np.random.sample((4, 2))
+        self.W = np.ones((4, 2)) * 1.0
+        self.W[:, 0] *= -1
         self.feature = Features.RbfFeatures()
 
     def train(self):
@@ -85,7 +85,6 @@ class NPG:
                     c = np.dot(c, step)
                     if c > self.__delta:
                         print("condition: ", c, " > ", self.__delta)
-
 
                     self.W[:, n] += step
             except np.linalg.LinAlgError:
