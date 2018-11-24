@@ -22,21 +22,23 @@ class NPG:
         self.policy = policy
         self.__n_Actions = env.action_space.n
         self.__K = episodes
-        self.__lambda_ = 0.95
-        self.__gamma_ = 0.98
-        self.__delta = 0.0025
+        self.__lambda = 0.95
+        self.__gamma = 0.98
+        self.__delta = 0.000025
         self.__eps = np.finfo(np.float32).eps.item()
-        self.W = np.ones((4, 2)) * 1.0
-        self.W[:, 0] *= -1
+        self.W = np.random.sample((4, 2))
+        # self.W = np.ones((4, 2)) * 1.0
+        # self.W[:, 0] *= -1
 
     def train(self):
         rewards_per_episode = []
         for i_episode in range(self.__K):
-            log_gradients = []
+            print("Episode ", i_episode, ":")
+            log_gradients = [[], []]
             rewards = []
 
             state = self.env.reset()[None, :]
-            self.env.seed(0)
+            self.env.seed(1)
             while(True):
                 self.env.render()
 
@@ -48,60 +50,65 @@ class NPG:
 
                 p_grad = self.policy.get_p_grad(old_state, self.W)[action, :]
                 log_grad = p_grad / prob[0, action]
-                log_grad = old_state.T@log_grad[None, :]
-                # Using Fortran-like index to append each column below the
-                # first column, instead of mixing them in between.
-                log_gradients.append(log_grad.reshape((8, 1), order='F'))
+                log_grad = np.dot(old_state.T, log_grad[None, :])
+
+                for i in range(self.__n_Actions):
+                    log_gradients[i].append(log_grad[:, i])
                 rewards.append(reward)
 
                 if done:
                     print("Trial finished after {} timesteps."
                           .format(np.sum(rewards)))
                     break
-
             self.__update_parameters(log_gradients, rewards)
+            print(self.W)
             rewards_per_episode.append(np.sum(rewards))
         return self.W, rewards_per_episode
 
     def __update_parameters(self, log_gradients, rewards):
-        print(self.W)
-        g = self.__compute_gradient(log_gradients, rewards)
-        fisher = self.__compute_fisher(log_gradients)
-        # print("fisher = ", fisher)
-        # inv_fisher = np.linalg.inv(fisher)
-        inv_fisher = self.__compute_inverse(fisher)
-        # print("inv fisher = ", inv_fisher)
-        # print("inv = ", self.__compute_inverse(fisher))
-        nominator = (g.T@inv_fisher)@g
-        print("nominator = ", nominator)
-        learning_rate = np.sqrt(self.__delta/nominator)
+        for n in range(self.__n_Actions):
+            g = self.__compute_gradient(log_gradients[n], rewards)
+            fisher = self.__compute_fisher(log_gradients[n])
+            try:
+                inv_fisher = np.linalg.inv(fisher)
+                nominator = (g.T @ inv_fisher) @ g
+                if nominator <= 0:
+                    print("Nominator <= 0: ", nominator)
+                else:
+                    learning_rate = np.sqrt(self.__delta/nominator)
+                    step = np.multiply(learning_rate, (inv_fisher @ g))
 
-        step = np.multiply(learning_rate, inv_fisher@g)
+                    c = np.dot(step.T, fisher)
+                    c = np.dot(c, step)
+                    if c > self.__delta:
+                        print("condition: ", c, " > ", self.__delta)
 
-        c = np.dot(step.T, fisher)
-        c = np.dot(c, step)
-        print("condition: ", c, " <= ", self.__delta)
-        self.W += step.reshape((4, 2), order='F')
+
+                    self.W[:, n] += step
+            except np.linalg.LinAlgError:
+                print("Skipping parameter update due to singular matrix.")
+                pass
         return
 
-    def __compute_gradient(self, log_gradients, rewards):
+    def __compute_gradient(self, log_g, rewards):
         g = 0
-        for i in range(len(log_gradients)):
-            g += log_gradients[i] * sum([r * (self.__gamma_ ** t)
-                                         for t, r in enumerate(rewards[i:])])
-        return g / len(log_gradients)
+        advantage = np.zeros(len(log_g))
+        for i in range(len(log_g)):
+            advantage[i] = sum([r * (self.__gamma ** t) for t, r in
+                                enumerate(rewards[i:])])
+        advantage = (advantage - np.mean(advantage)) / (np.std(advantage) +
+                                                        self.__eps)
+        for i in range(len(log_g)):
+            g += log_g[i] * advantage[i]
 
-    def __compute_fisher(self, log_gradients):
-        f = sum([lg@lg.T for lg in log_gradients])
-        return f / len(log_gradients)
+        return g / len(log_g)
 
-    def __compute_inverse(self, matrix):
-        u, s, v = np.linalg.svd(matrix)
-        e_val, _ = np.linalg.eig(matrix)
-        s = np.diag(s ** -1)
-        inv = v.T@(s@u.T)
-        return inv
+    def __compute_fisher(self, log_g):
+        f = sum([(lg.reshape(-1, 1) @ lg.reshape(-1, 1).T) for lg in log_g])
+        return f / len(log_g)
 
+
+class SoftmaxPolicy:
 
 def run_benchmark(policy, w):
     total_rewards = np.zeros(100)
@@ -130,10 +137,10 @@ def run_benchmark(policy, w):
 
 
 env = gym.make('CartPole-v0')
-env.seed(0)
-np.random.seed(0)
+env.seed(1)
+np.random.seed(1)
 policy = SoftmaxPolicy()
-algorithm = NPG(env, policy, 100)
+algorithm = NPG(env, policy, 1000)
 w, r = algorithm.train()
 plt.plot(np.arange(len(r)), r)
 plt.show()
