@@ -26,7 +26,7 @@ np.random.seed(0)
 # delta is the normalized step size of the parameter update
 W1 = np.ones((1, 4))*1.0
 W2 = np.ones((1, 4))*-1.0
-delta = 0.05
+delta = 0.000025
 
 # Define training setup
 # --------------------------------
@@ -34,11 +34,10 @@ delta = 0.05
 # T is the max number of steps in a single run of the simulation
 # K is the number of iterations for training the algorithm
 T = 200
-K = 600
+K = 5000
 lambda_ = 0.95
 gamma_ = 0.98
 Reward = 0
-max_reward = 0
 eps = np.finfo(np.float32).eps.item()
 Value = np.empty((1, T))
 
@@ -73,20 +72,17 @@ Value = np.empty((1, T))
 # Choose an action based on higher probability using policy function
 # TODO: Implement for arbitrary amount of actions
 def choose_action(observation):
-    a1 = softmax_policy(observation, 1.0, W1)
-    a2 = softmax_policy(observation, 0.0, W2)
+    a1 = softmax_policy(observation, W1)
+    a2 = softmax_policy(observation, W2)
     p1 = a1 / (a1+a2)
     p2 = a2 / (a1+a2)
     return p1, p2
 
 
-def softmax_policy(observation, action, W):
+def softmax_policy(observation, W):
     obs = np.zeros(len(observation))
-    # W = np.append(W, 1)
     for i, ele in enumerate(observation):
         obs[i] = ele
-    # phi = np.append(obs, action)
-
     return np.sum(np.exp(np.dot(obs, np.transpose(W))))
 
 
@@ -106,9 +102,9 @@ def compute_advantage(transitions, old_transitions):
     values = np.mean(Value, axis=0)
     for i, transition in enumerate(transitions):
         for remainingsteps in range(len(transitions)-i-1):
-            delta_func = transitions[i+remainingsteps][2] - values[i+remainingsteps] + gamma_*values[i+remainingsteps+1]
-            advantage[i] += ((gamma_*lambda_)**remainingsteps) * delta_func
-            # advantage[i] += (gamma_ ** remainingsteps) * transition[2]
+            # delta_func = transitions[i+remainingsteps][2] - values[i+remainingsteps] + gamma_*values[i+remainingsteps+1]
+            # advantage[i] += ((gamma_*lambda_)**remainingsteps) * delta_func
+            advantage[i] += (gamma_**remainingsteps)*transitions[i+remainingsteps][2]
     advantage = (advantage - np.mean(advantage))/(np.std(advantage) + eps)
     return advantage
 
@@ -122,14 +118,12 @@ def log_policy_gradient_softmax(transitions):
         for i, ele in enumerate(observation):
             obs[i] = ele
         phi = np.transpose(obs)
-        a1 = softmax_policy(observation, 1.0, W1)
-        a2 = softmax_policy(observation, 0.0, W2)
-        p1 = a1 / (a1 + a2)
-        p2 = a2 / (a1 + a2)
-        phi1 = np.transpose(np.append(obs, 1.0))[0:4]
-        phi2 = np.transpose(np.append(obs, 0.0))[0:4]
-        log_p_gradient[0:4, i] = (phi*action - phi1*p1)
-        log_p_gradient[4:8, i] = (phi*(1-action) - phi2*p2)
+        a1 = softmax_policy(observation, W1)
+        a2 = softmax_policy(observation, W2)
+        p1 = a1 / (a1 + a2)     # Action == 1
+        p2 = a2 / (a1 + a2)     # Action == 0
+        log_p_gradient[0:4, i] = (phi*action - phi*p1)
+        log_p_gradient[4:8, i] = (phi*(1-action) - phi*p2)
     return log_p_gradient
 
 
@@ -169,12 +163,7 @@ def run_trajectory():
         # Choose best suitable action based on current observation using gaussian distribution
         p1, p2 = choose_action(observation)
         action = np.random.choice([1, 0], p=[p1, p2])
-        '''
-        if p1 >= p2:
-            action = 1
-        else:
-            action = 0
-        '''
+
         old_observation = observation
 
         # Execute action to get next state
