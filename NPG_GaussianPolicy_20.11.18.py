@@ -1,6 +1,7 @@
 import numpy as np
 import gym
 import matplotlib.pyplot as plt
+import sys
 # import torch as tr
 # import torch.nn as nn
 # import torch.nn.functional as F
@@ -24,9 +25,9 @@ np.random.seed(0)
 # --------------------------------
 # W consists of 4 weights - one for each observation
 # delta is the normalized step size of the parameter update
-W1 = np.ones((1, 4))*1.0
-W2 = np.ones((1, 4))*-1.0
-delta = 0.000025
+W1 = np.ones((1, 4))*-1.0
+W2 = np.ones((1, 4))*1.0
+delta = 0.0025
 
 # Define training setup
 # --------------------------------
@@ -101,17 +102,17 @@ def compute_advantage(transitions, old_transitions):
     Value = np.concatenate((Value, values), axis=0)
     values = np.mean(Value, axis=0)
     for i, transition in enumerate(transitions):
-        for remainingsteps in range(len(transitions)-i-1):
+        for remainingsteps in range(len(transitions)-i):
             # delta_func = transitions[i+remainingsteps][2] - values[i+remainingsteps] + gamma_*values[i+remainingsteps+1]
             # advantage[i] += ((gamma_*lambda_)**remainingsteps) * delta_func
             advantage[i] += (gamma_**remainingsteps)*transitions[i+remainingsteps][2]
-    advantage = (advantage - np.mean(advantage))/(np.std(advantage) + eps)
+    # advantage = (advantage - np.mean(advantage))/(np.std(advantage) + eps)
     return advantage
 
 
 def log_policy_gradient_softmax(transitions):
     log_p_gradient = np.random.sample((8, len(transitions)))
-    for i, transition in enumerate(transitions):
+    for t, transition in enumerate(transitions):
         observation = transition[0]
         action = transition[1]
         obs = np.zeros(len(observation))
@@ -122,26 +123,41 @@ def log_policy_gradient_softmax(transitions):
         a2 = softmax_policy(observation, W2)
         p1 = a1 / (a1 + a2)     # Action == 1
         p2 = a2 / (a1 + a2)     # Action == 0
-        log_p_gradient[0:4, i] = (phi*action - phi*p1)
-        log_p_gradient[4:8, i] = (phi*(1-action) - phi*p2)
+        log_p_gradient[0:4, t] = (phi*(1-action) - phi*p1)
+        log_p_gradient[4:8, t] = (phi*action - phi*p2)
     return log_p_gradient
 
 
 def compute_gradient(log_p_gradient, advantage):
-    return np.dot(log_p_gradient, advantage)/np.size(log_p_gradient, 1)
+    g = np.dot(log_p_gradient, advantage)/np.size(log_p_gradient, 1)
+    return g.reshape(-1, 1)
 
 
 def compute_fisher(log_p_gradient):
-    return np.dot(log_p_gradient, np.transpose(log_p_gradient))/np.size(log_p_gradient, 1)
+    return np.dot(log_p_gradient, np.transpose(log_p_gradient))\
+           / np.size(log_p_gradient, 1)
 
 
 # Gradient ascent step -> Algorithm step 7
 def update_parameters(log_p_gradient, advantage):
-    g = np.asmatrix(compute_gradient(log_p_gradient, advantage))
+    g = compute_gradient(log_p_gradient, advantage)
     fisher = compute_fisher(log_p_gradient)
-    nominator = np.dot(g, np.linalg.inv(fisher)) * np.transpose(g)
+    print("fisher = ", fisher)
+    inv_fisher = np.linalg.inv(fisher)
+    print("inv fisher = ", inv_fisher)
+    nominator = np.dot(g.T, inv_fisher)
+    nominator = np.dot(nominator, g)
+    print("nominator = ", nominator)
     if nominator > 0:
-        d = np.multiply(np.sqrt(delta/nominator), np.dot(np.linalg.inv(fisher), np.transpose(g)))
+        d = np.multiply(np.sqrt(delta/nominator),
+                        np.dot(inv_fisher, g))
+
+        c = np.dot(d.T, fisher)
+        c = np.dot(c, d)
+        if c > delta:
+            print("condition: ", c, " > ", delta)
+            sys.exit("Condition violated!")
+
         global W1, W2, sigma
         W1 += np.transpose(d[0:4])
         W2 += np.transpose(d[4:8])
@@ -152,7 +168,8 @@ def update_parameters(log_p_gradient, advantage):
 
 # Iteration of a single trajectory (basically run through a single game)
 # Each run has up to T steps
-# Termination conditions are pole angle +/- 12, cart position +/- 2.4 or steps >T (given by gym)
+# Termination conditions are pole angle +/- 12, cart position +/- 2.4
+#  or steps > T (given by gym)
 def run_trajectory():
     observation = env.reset()
     env.seed(0)
@@ -160,13 +177,10 @@ def run_trajectory():
     for t in range(T):
         env.render()
 
-        # Choose best suitable action based on current observation using gaussian distribution
         p1, p2 = choose_action(observation)
-        action = np.random.choice([1, 0], p=[p1, p2])
-
+        action = np.random.choice([0, 1], p=[p1, p2])
         old_observation = observation
 
-        # Execute action to get next state
         observation, reward, done, info = env.step(action)
         transitions.append((old_observation, action, reward))
 
@@ -180,21 +194,19 @@ def run_trajectory():
     return transitions
 
 
-# Train the algorithm using the simulation
 def train_algorithm():
-    transitions = run_trajectory()
+    # transitions = run_trajectory()
     reward_per_episode = np.empty(0)
     mean_until_episode = np.empty(0)
 
     optimal_counter = 0
 
-    # do K iterations and update parameters in each iteration
     for i_episode in range(K):
         global Reward
         Reward = 0
         print("Episode {}:".format(i_episode+1))
 
-        old_transitions = transitions
+        old_transitions = []
 
         transitions = run_trajectory()
         advantage = compute_advantage(transitions, old_transitions)

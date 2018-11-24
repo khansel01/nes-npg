@@ -6,11 +6,6 @@ import matplotlib.pyplot as plt
 # NPG using Softmax Policy
 #######################################
 
-env = gym.make('CartPole-v0')
-env.seed(0)
-np.random.seed(0)
-
-
 class NPG:
     # Define training setup
     # --------------------------------
@@ -24,12 +19,13 @@ class NPG:
         self.env = env
         self.policy = policy
         self.__n_Actions = env.action_space.n
-        self.W = np.random.sample((4, self.__n_Actions))
         self.__K = episodes
         self.__lambda_ = 0.95
         self.__gamma_ = 0.98
         self.__delta = 0.0025
         self.__eps = np.finfo(np.float32).eps.item()
+        self.W = np.ones((4, 2)) * 1.0
+        self.W[:, 0] *= -1
 
     def train(self):
         rewards_per_episode = []
@@ -46,7 +42,6 @@ class NPG:
                 old_state = state
                 prob = self.policy.get_action_prob(state, self.W)
                 action = np.random.choice(self.__n_Actions, p=prob[0])
-
                 state, reward, done, _ = self.env.step(action)
                 state = state[None, :]
 
@@ -54,7 +49,9 @@ class NPG:
                 log_grad = p_grad / prob[0, action]
                 log_grad = np.dot(old_state.T, log_grad[None, :])
 
-                log_gradients.append(log_grad)
+                # Using Fortran-like index to append each column below the
+                # first column, instead of mixing them in between.
+                log_gradients.append(log_grad.reshape((8, 1), order='F'))
                 rewards.append(reward)
 
                 if done:
@@ -68,10 +65,34 @@ class NPG:
         return self.W, rewards_per_episode
 
     def __update_parameters(self, log_gradients, rewards):
-        for i in range(len(log_gradients)):
-            self.W += self.__delta * log_gradients[i] * sum(
-                [r * (self.__gamma_ ** r) for t, r in enumerate(rewards[i:])])
+        print(self.W)
+        g = self.__compute_gradient(log_gradients, rewards)
+        fisher = self.__compute_fisher(log_gradients)
+        print("fisher = ", fisher)
+        inv_fisher = np.linalg.inv(fisher)
+        print("inv fisher = ", inv_fisher)
+        nominator = np.dot(g.T, inv_fisher)
+        nominator = np.dot(nominator, g)
+        print("nominator = ", nominator)
+        learning_rate = np.sqrt(self.__delta/nominator)
+
+        step = np.multiply(learning_rate, np.dot(inv_fisher, g))
+
+        c = np.dot(step.T, fisher)
+        c = np.dot(c, step)
+        print("condition: ", c, " <= ", self.__delta)
         return
+
+    def __compute_gradient(self, log_gradients, rewards):
+        g = 0
+        for i in range(len(log_gradients)):
+            g += log_gradients[i] * sum([r * (self.__gamma_ ** t)
+                                         for t, r in enumerate(rewards[i:])])
+        return g / len(log_gradients)
+
+    def __compute_fisher(self, log_gradients):
+        f = sum([np.dot(lg, lg.T) for i, lg in enumerate(log_gradients)])
+        return f / len(log_gradients)
 
 
 class SoftmaxPolicy:
@@ -118,8 +139,11 @@ def run_benchmark(policy, w):
         return False
 
 
+env = gym.make('CartPole-v0')
+env.seed(0)
+np.random.seed(0)
 policy = SoftmaxPolicy()
-algorithm = NPG(env, policy, 200)
+algorithm = NPG(env, policy, 1)
 w, r = algorithm.train()
 plt.plot(np.arange(len(r)), r)
 plt.show()
