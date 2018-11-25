@@ -6,19 +6,23 @@ from Policies import SoftmaxPolicy
 import Features
 
 
-def run_benchmark(policy, w):
+def run_benchmark(policy, w, feature):
     total_rewards = np.zeros(100)
     print("Starting Benchmark:")
     print("-------------------")
     for i_episode in range(100):
         print("Episode {}:".format(i_episode+1))
 
-        observation = env.reset()
+        state = env.reset()
+        state = state[None, :]
+        # state = feature.featurize_state(state)
         for t in range(200):
-            env.render()
-            probs = policy.get_action_prob(observation[None, :], w)
+            # env.render()
+            probs = policy.get_action_prob(state, w)
             action = np.argmax(probs)
-            observation, reward, done, info = env.step(action)
+            state, reward, done, info = env.step(action)
+            state = state[None, :]
+            # state = feature.featurize_state(state)
             total_rewards[i_episode] += reward
             if done:
                 print("Reward reached: ", total_rewards[i_episode])
@@ -33,13 +37,13 @@ def run_benchmark(policy, w):
 
 
 env = gym.make('CartPole-v0')
-env.seed(1)
-np.random.seed(1)
+env.seed(0)
 policy = SoftmaxPolicy()
-algorithm = NPG(env, policy, 1000)
+features = Features.RbfFeatures(env)
+algorithm = NPG(env, policy, 1000, features)
 w, r = algorithm.train()
 plt.plot(np.arange(len(r)), r)
 plt.show()
-passed = run_benchmark(policy, w)
+passed = run_benchmark(policy, w, features)
 print(passed)
 env.close()
