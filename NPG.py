@@ -24,7 +24,7 @@ class NPG:
         self.__K = episodes
         self.__lambda = 0.95
         self.__gamma = 0.98
-        self.__delta = 0.000025
+        self.__delta = 0.01
         self.__eps = np.finfo(np.float32).eps.item()
         self.__values = []
         self.W = np.random.sample((4, 2))
@@ -76,7 +76,8 @@ class NPG:
         g = self.__compute_gradient(log_gradients, rewards)
         fisher = self.__compute_fisher(log_gradients)
         try:
-                inv_fisher = np.linalg.inv(fisher)
+            # inv_fisher = np.linalg.inv(fisher)
+            inv_fisher = self.__compute_inverse(fisher)
             nominator = (g.T @ inv_fisher) @ g
             if nominator <= 0:
                 print("Nominator <= 0: ", nominator)
@@ -86,14 +87,19 @@ class NPG:
 
                 c = step.T@fisher
                 c = c@step
-                    if c > (self.__delta*(1 + 0.0001)):
-                        print("condition: ", c, " > ", self.__delta)
-                    else:
-                        self.W += step.reshape((4, 2), order='F')
-            except np.linalg.LinAlgError:
-                print("Skipping parameter update due to singular matrix.")
-                pass
+                if c > (self.__delta*(1 + 0.0001)):
+                    print("condition: ", c, " > ", self.__delta)
+                else:
+                    self.W += step.reshape((4, 2), order='F')
+        except np.linalg.LinAlgError:
+            print("Skipping parameter update due to singular matrix.")
+            pass
         return
+
+    def __compute_inverse(self, matrix):
+        u, s, v = np.linalg.svd(matrix)
+        s = np.diag(s ** -1)
+        return v.T @ (s @ u.T)
 
     def __compute_gradient(self, log_g, rewards):
         g = 0
@@ -101,8 +107,6 @@ class NPG:
         for i in range(len(log_g)):
             g += log_g[i] * advantage[i]
         return g/len(log_g)
-
-        return g / len(log_g)
 
     def __compute_fisher(self, log_g):
         f = sum([(lg.reshape(-1, 1) @ lg.reshape(-1, 1).T) for lg in log_g])
@@ -125,7 +129,11 @@ class NPG:
         advantage = np.zeros(index)
         for i in range(index):
             for remainingsteps in range(index - i - 1):
-                delta_func = rewards[i+remainingsteps] - values[i+remainingsteps] + self.__gamma*values[i+remainingsteps]
-                advantage[i] += ((self.__gamma * self.__lambda) ** remainingsteps) * delta_func
-        # advantage = (advantage - np.mean(advantage)) / (np.std(advantage) + self.__eps)
+                delta_func = rewards[i+remainingsteps] - \
+                             values[i+remainingsteps] + \
+                             self.__gamma*values[i+remainingsteps]
+                advantage[i] += ((self.__gamma * self.__lambda) **
+                                 remainingsteps) * delta_func
+        # advantage = (advantage - np.mean(advantage)) / \
+        #             (np.std(advantage) + self.__eps)
         return advantage
