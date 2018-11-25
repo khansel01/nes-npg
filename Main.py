@@ -1,13 +1,12 @@
 import numpy as np
 import gym
-# import quanser_robots
 import matplotlib.pyplot as plt
 from NPG import NPG
 from Policies import SoftmaxPolicy
 import Features
 
 
-def run_benchmark(policy, w, feature):
+def run_benchmark(policy, w):
     total_rewards = np.zeros(100)
     print("Starting Benchmark:")
     print("-------------------")
@@ -40,12 +39,11 @@ def run_benchmark(policy, w, feature):
 env = gym.make('CartPole-v0')
 env.seed(0)
 policy = SoftmaxPolicy()
-features = Features.RbfFeatures(env)
-algorithm = NPG(env, policy, 200, features)
+algorithm = NPG(env, policy, 200)
 w, r = algorithm.train()
 print(w)
 plt.plot(np.arange(len(r)), r)
 plt.show()
-passed = run_benchmark(policy, w, features)
+passed = run_benchmark(policy, w)
 print(passed)
 env.close()

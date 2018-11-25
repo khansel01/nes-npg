@@ -16,7 +16,7 @@ class NPG:
     # K is the number of episodes for training the algorithm.
     # delta is the normalized step size of the parameter update.
 
-    def __init__(self, env, policy, episodes, features):
+    def __init__(self, env, policy, episodes):
         np.random.seed(1)
         self.env = env
         self.policy = policy
@@ -24,12 +24,11 @@ class NPG:
         self.__K = episodes
         self.__lambda = 0.95
         self.__gamma = 0.98
-        self.__delta = 0.01
+        self.__delta = 0.001
         self.__eps = np.finfo(np.float32).eps.item()
         self.__values = []
         self.W = np.random.sample((4, 2))
-        self.feature = features
-
+        
     def train(self):
         rewards_per_episode = []
         for i_episode in range(self.__K):
@@ -98,7 +97,7 @@ class NPG:
 
     def __compute_inverse(self, matrix):
         u, s, v = np.linalg.svd(matrix)
-        s = np.diag(s ** -1)
+        s = np.diag(s**-1)
         return v.T @ (s @ u.T)
 
     def __compute_gradient(self, log_g, rewards):
