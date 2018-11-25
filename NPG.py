@@ -24,25 +24,22 @@ class NPG:
         self.__K = episodes
         self.__lambda = 0.95
         self.__gamma = 0.98
-        self.__delta = 0.0000001
+        self.__delta = 0.001
         self.__eps = np.finfo(np.float32).eps.item()
         self.__values = []
         self.W = np.random.sample((4, 2))
-        # self.W = np.ones((4, 2)) * 1.0
-        # self.W[:, 0] *= -1
 
     def train(self):
         rewards_per_episode = []
         for i_episode in range(self.__K):
             print("Episode ", i_episode, ":")
-            # log_gradients = [[], []]
             log_gradients = []
             rewards = []
 
             state = self.env.reset()[None, :]
-            self.env.seed(10)
+            self.env.seed(0)
             while(True):
-                self.env.render()
+                # self.env.render()
 
                 old_state = state
                 prob = self.policy.get_action_prob(state, self.W)
@@ -54,8 +51,6 @@ class NPG:
                 log_grad = p_grad / prob[0, action]
                 log_grad = np.dot(old_state.T, log_grad[None, :])
 
-                # for i in range(self.__n_Actions):
-                #     log_gradients[i].append
                 log_gradients.append(log_grad.reshape((-1, 1), order='F'))
                 rewards.append(reward)
 
@@ -73,13 +68,9 @@ class NPG:
         return self.W, rewards_per_episode
 
     def __update_parameters(self, log_gradients, rewards):
-        # for n in range(self.__n_Actions):
-        # g = self.__compute_gradient(log_gradients[n], rewards)
-        # fisher = self.__compute_fisher(log_gradients[n])
         g = self.__compute_gradient(log_gradients, rewards)
         fisher = self.__compute_fisher(log_gradients)
         try:
-            # inv_fisher = np.linalg.inv(fisher)
             inv_fisher = self.__compute_inverse(fisher)
             nominator = (g.T @ inv_fisher) @ g
             if nominator <= 0:
@@ -94,7 +85,6 @@ class NPG:
                     print("condition: ", c, " > ", self.__delta)
 
                 self.W += step.reshape((4, 2), order='F')
-                # self.W[:, n] += step
         except np.linalg.LinAlgError:
             print("Skipping parameter update due to singular matrix.")
             pass
@@ -105,16 +95,13 @@ class NPG:
         advantage = self.__estimate_advantage(rewards)
         for i in range(len(log_g)):
             g += log_g[i] * advantage[i]
-        g /= len(log_g)
-        return g
+        return g/len(log_g)
 
     def __compute_fisher(self, log_g):
-        print("log", log_g[0])
-        print(log_g[0].reshape(-1, 1))
-        print(log_g[0].reshape(-1, 1).T)
         f = sum([(lg.reshape(-1, 1) @ lg.reshape(-1, 1).T) for lg in log_g])
-        f /= len(log_g)
-        return f
+        f = np.diagonal(f)[None, :]
+        f = np.diagflat(f)
+        return f/len(log_g)
 
     def __compute_inverse(self, matrix):
         u, s, v = np.linalg.svd(matrix)
@@ -126,7 +113,7 @@ class NPG:
         for i in range(len(rewards)):
             value[i] = sum([r * (self.__gamma ** t) for t, r in
                                 enumerate(rewards[i:])])
-        value = (value - np.mean(value)) / (np.std(value) + self.__eps)
+        # value = (value - np.mean(value)) / (np.std(value) + self.__eps)
         return value
 
     def __estimate_advantage(self, rewards):
@@ -138,7 +125,7 @@ class NPG:
             for remainingsteps in range(index - i - 1):
                 delta_func = rewards[i+remainingsteps] - values[i+remainingsteps] + self.__gamma*values[i+remainingsteps]
                 advantage[i] += ((self.__gamma * self.__lambda) ** remainingsteps) * delta_func
-        advantage = (advantage - np.mean(advantage)) / (np.std(advantage) + self.__eps)
+        # advantage = (advantage - np.mean(advantage)) / (np.std(advantage) + self.__eps)
         return advantage
 
 
@@ -151,7 +138,7 @@ def run_benchmark(policy, w):
 
         observation = env.reset()
         for t in range(200):
-            env.render()
+            # env.render()
             probs = policy.get_action_prob(observation[None, :], w)
             action = np.argmax(probs)
             observation, reward, done, info = env.step(action)
@@ -169,12 +156,14 @@ def run_benchmark(policy, w):
 
 
 env = gym.make('CartPole-v0')
-env.seed(10)
+env.seed(0)
 np.random.seed(1)
 policy = SoftmaxPolicy()
 algorithm = NPG(env, policy, 1000)
 w, r = algorithm.train()
+print("w:", w)
 plt.plot(np.arange(len(r)), r)
+plt.title("Normed, 0.1e-15")
 plt.show()
 passed = run_benchmark(policy, w)
 print(passed)
