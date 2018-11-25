@@ -145,8 +145,7 @@ def update_parameters(log_p_gradient, advantage):
     print("fisher = ", fisher)
     inv_fisher = np.linalg.inv(fisher)
     print("inv fisher = ", inv_fisher)
-    nominator = np.dot(g.T, inv_fisher)
-    nominator = np.dot(nominator, g)
+    nominator = (g.T@inv_fisher)@g
     print("nominator = ", nominator)
     if nominator > 0:
         d = np.multiply(np.sqrt(delta/nominator),
