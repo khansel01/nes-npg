@@ -3,7 +3,13 @@ import gym
 import sklearn.pipeline
 from sklearn.kernel_approximation import RBFSampler
 
+######################################
+# This feature calculation is taken from:
+# https://medium.com/samkirkiles/
+# reinforce-policy-gradients-from-scratch-in-numpy-6a09ae0dfe12
 
+# Just for test purposes for now
+######################################
 
 class RbfFeatures:
 

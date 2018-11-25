@@ -26,7 +26,7 @@ class NPG:
         self.__K = episodes
         self.__lambda = 0.95
         self.__gamma = 0.98
-        self.__delta = 0.000025
+        self.__delta = 0.00025
         self.__eps = np.finfo(np.float32).eps.item()
         self.W = np.random.rand(4, 2)
         self.feature = features
