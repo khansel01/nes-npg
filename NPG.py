@@ -29,6 +29,15 @@ class NPG:
         self.__values = []
         self.W = np.random.sample((4, 2))
 
+    def get_param_values(self):
+        return self.__lambda, self.__gamma, self.__delta
+
+    def set_param_values(self, parameter):
+        self.__lambda = parameter[0]
+        self.__gamma = parameter[1]
+        self.__delta = parameter[2]
+        return
+
     def train(self):
         rewards_per_episode = []
         for i_episode in range(self.__K):
@@ -159,12 +168,29 @@ env = gym.make('CartPole-v0')
 env.seed(0)
 np.random.seed(1)
 policy = SoftmaxPolicy()
-algorithm = NPG(env, policy, 1000)
+algorithm = NPG(env, policy, 200)
 w, r = algorithm.train()
-print("w:", w)
-plt.plot(np.arange(len(r)), r)
-plt.title("Normed, 0.1e-15")
+_lambda, _gamma, _ = algorithm.get_param_values()
+# algorithm = NPG(env, policy, 1000)
+# algorithm.set_param_values([_lambda, _gamma, 0.004])
+# _, r1 = algorithm.train()
+# algorithm = NPG(env, policy, 1000)
+# algorithm.set_param_values([_lambda, _gamma, 0.003])
+# _, r2 = algorithm.train()
+# algorithm = NPG(env, policy, 1000)
+# algorithm.set_param_values([_lambda, _gamma, 0.002])
+# _, r3 = algorithm.train()
+# algorithm = NPG(env, policy, 1000)
+# algorithm.set_param_values([_lambda, _gamma, 0.001])
+# _, r4 = algorithm.train()
+
+plt.plot(np.arange(len(r)), r, 'g')
+# plt.plot(np.arange(len(r1)), r1, 'r')
+# plt.plot(np.arange(len(r2)), r2, 'b')
+# plt.plot(np.arange(len(r3)), r3, 'y')
+# plt.plot(np.arange(len(r4)), r4)
+plt.title(["lambda: ", _lambda, "gamma: ", _gamma, "delta: ", 0.005, "to", 0.001])
 plt.show()
-passed = run_benchmark(policy, w)
-print(passed)
+#passed = run_benchmark(policy, w)
+#print(passed)
 env.close()
