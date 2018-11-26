@@ -17,7 +17,7 @@ class RbfFeatures:
         env.reset()
         self.observation_examples = []
         for i in range(300):
-            s, r, d, _ = env.step(1)
+            s, r, d, _ = env.step(np.asarray(10))
             self.observation_examples.append(s)
 
         # Create radial basis function sampler to convert states to features for nonlinear function approx

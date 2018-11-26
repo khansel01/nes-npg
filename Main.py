@@ -1,5 +1,6 @@
 import numpy as np
 import gym
+import quanser_robots
 import matplotlib.pyplot as plt
 from NPG import NPG
 from Policies import SoftmaxPolicy
@@ -36,7 +37,8 @@ def run_benchmark(policy, w):
         return False
 
 
-env = gym.make('CartPole-v0')
+# env = gym.make('CartPole-v0')
+env = gym.make('CartpoleSwingLong-v0')
 env.seed(0)
 policy = SoftmaxPolicy()
 algorithm = NPG(env, policy, 200)

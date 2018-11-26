@@ -1,6 +1,7 @@
 import numpy as np
 import gym
 import matplotlib.pyplot as plt
+import Features
 
 #######################################
 # NPG using Softmax Policy
@@ -20,14 +21,15 @@ class NPG:
         np.random.seed(1)
         self.env = env
         self.policy = policy
-        self.__n_Actions = env.action_space.n
+        self.__n_Actions = 2  # env.action_space.n
         self.__K = episodes
         self.__lambda = 0.95
         self.__gamma = 0.98
         self.__delta = 0.001
         self.__eps = np.finfo(np.float32).eps.item()
         self.__values = []
-        self.W = np.random.sample((4, 2))
+        self.W = np.random.sample((200, 2))
+        self.feature = Features.RbfFeatures(env)
         
     def train(self):
         rewards_per_episode = []
@@ -37,8 +39,8 @@ class NPG:
             rewards = []
 
             state = self.env.reset()
-            state = state[None, :]
-            # state = self.feature.featurize_state(state)
+            # state = state[None, :]
+            state = self.feature.featurize_state(state)
             self.env.seed(0)
             while(True):
                 # self.env.render()
@@ -46,10 +48,13 @@ class NPG:
                 old_state = state
 
                 prob = self.policy.get_action_prob(state, self.W)
-                action = np.random.choice(self.__n_Actions, p=prob[0])
-                state, reward, done, _ = self.env.step(action)
-                state = state[None, :]
-                # state = self.feature.featurize_state(state)
+                action = np.random.choice([0, 1], p=prob[0])
+                if action == 0:
+                    state, reward, done, _ = self.env.step(np.asarray(-10))
+                else:
+                    state, reward, done, _ = self.env.step(np.asarray(10))
+                # state = state[None, :]
+                state = self.feature.featurize_state(state)
 
                 p_grad = self.policy.get_p_grad(old_state, self.W)[action, :]
                 log_grad = p_grad / prob[0, action]
@@ -89,7 +94,7 @@ class NPG:
                 if c > (self.__delta*(1 + 0.0001)):
                     print("condition: ", c, " > ", self.__delta)
                 else:
-                    self.W += step.reshape((4, 2), order='F')
+                    self.W += step.reshape((200, 2), order='F')
         except np.linalg.LinAlgError:
             print("Skipping parameter update due to singular matrix.")
             pass
