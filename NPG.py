@@ -2,10 +2,49 @@ import numpy as np
 import gym
 import matplotlib.pyplot as plt
 import Features
+import torch as tr
+import torch.nn.functional as F
+import torch.nn as nn
+from sklearn.gaussian_process import GaussianProcessRegressor
 
 #######################################
 # NPG using Softmax Policy
 #######################################
+
+
+class ValueFunction(nn.Module):
+
+    def __init__(self, input_dim, output_dim):
+        super(ValueFunction, self).__init__()
+        # Calling Super Class's constructor
+        self.linear1 = nn.Linear(input_dim, 100)
+        self.linear2 = nn.Linear(100, 100)
+        self.linear3 = nn.Linear(100, 100)
+        self.linear4 = nn.Linear(100, output_dim)
+        # nn.linear is defined in nn.Module
+        self.criterion = nn.MSELoss()
+        self.optimiser = tr.optim.SGD(self.parameters(), lr=0.1)
+        self.loss = 1
+
+    def forward(self, x):
+        # Here the forward pass is simply a linear function
+        out = F.relu(self.linear1(x))
+        out = F.relu(self.linear2(out))
+        out = F.relu(self.linear3(out))
+        return self.linear4(out)
+
+    def train(self, x, y):
+        while(self.loss>0.00001):
+            # increase the number of epochs by 1 every time
+            inputs = tr.from_numpy(x).float()
+            labels = tr.from_numpy(y).float()
+            self.optimiser.zero_grad()
+            outputs = self.forward(inputs)
+            self.loss = self.criterion(outputs, labels)
+            self.loss.backward()  # back props
+            self.optimiser.step()  # update the parameter
+        print("loss: ", self.loss)
+        return
 
 
 class NPG:
@@ -28,52 +67,97 @@ class NPG:
         self.__delta = 0.001
         self.__eps = np.finfo(np.float32).eps.item()
         self.__values = []
-        self.W = np.random.sample((200, 2))
+        self.W = 2*np.random.sample((200, 2))
         self.feature = Features.RbfFeatures(env)
-        
+        # self.feature = Features.RBFs(5, 300)
+        self.regressor = GaussianProcessRegressor()
+        self.valuefunction = ValueFunction(202, 1)
+
     def train(self):
         rewards_per_episode = []
         for i_episode in range(self.__K):
             print("Episode ", i_episode, ":")
             log_gradients = []
+            transitions = []
             rewards = []
+            states = []
 
-            state = self.env.reset()
+            state = np.asarray(self.env.reset())
             # state = state[None, :]
+
+            #TODO feature
+            states.append(state)
             state = self.feature.featurize_state(state)
+            # state = self.feature.get_rbfs(state)
+
             self.env.seed(0)
+            t = 0
             while(True):
-                # self.env.render()
-
+                if i_episode >= self.__K:
+                    self.env.render()
+                #self.env.render()
                 old_state = state
+                # _old_state = _state
 
-                prob = self.policy.get_action_prob(state, self.W)
-                action = np.random.choice([0, 1], p=prob[0])
-                if action == 0:
-                    state, reward, done, _ = self.env.step(np.asarray(-10))
-                else:
-                    state, reward, done, _ = self.env.step(np.asarray(10))
+                action = self.policy.get_action(state, self.W)
+                action = np.clip(action, -18, 18)
+
+                state, reward, done, _ = self.env.step(np.asarray(action))
+                # state = np.asarray(state)
                 # state = state[None, :]
-                state = self.feature.featurize_state(state)
 
-                p_grad = self.policy.get_p_grad(old_state, self.W)[action, :]
-                log_grad = p_grad / prob[0, action]
-                log_grad = np.dot(old_state.T, log_grad[None, :])
+                #TODO feature
+                states.append(state)
+                state = self.feature.featurize_state(state)
+                # state = self.feature.get_rbfs(state)
+
+                log_grad = self.policy.get_log_grad(old_state, self.W, action)
 
                 log_gradients.append(log_grad.reshape((-1, 1), order='F'))
                 rewards.append(reward)
+                transition = np.append(old_state, np.append(action, reward))
+                # transition = np.append(_old_state, np.append(action, reward))
+                # transition = np.append(old_state, action)
+                # transition = np.append(_old_state, action)
+                transitions.append(transition)
 
                 if done:
                     print("Trial finished after {} timesteps."
                           .format(np.sum(rewards)))
+                    print(sum(rewards))
                     break
+                t += 1
+            print("Trial finished after {} timesteps."
+                  .format(np.sum(rewards)))
 
-            if self.__values==[]:
-                self.__values = np.zeros(len(rewards))
+            # TODO: Value Fct in continious action space
+            # With NN
+            self.__values = np.zeros(len(rewards)) if self.__values == [] \
+                else self.__values
+
+            self.valuefunction.train(np.asarray(transitions),
+                                     self.__values.reshape(-1, 1))
+
+            temp_values = self.valuefunction.forward(
+                tr.from_numpy(np.asarray(transitions)).float())
+            self.__values = temp_values.detach().numpy().squeeze()
+
             self.__update_parameters(log_gradients, rewards)
+
             self.__values = self.__estimate_value(rewards)
-            # print(self.W)
             rewards_per_episode.append(np.sum(rewards))
+
+            self.feature.featurize_fit(states)
+
+            # With GP
+            # self.__values = self.regressor.predict(
+            #     np.asarray(transitions)).squeeze()
+            # self.__update_parameters(log_gradients, rewards)
+            #
+            # self.__values = self.__estimate_value(rewards)
+            # self.regressor.fit(np.asarray(transitions),
+            #                    self.__values.reshape(-1, 1))
+            # rewards_per_episode.append(np.sum(rewards))
         return self.W, rewards_per_episode
 
     def __update_parameters(self, log_gradients, rewards):
@@ -127,7 +211,8 @@ class NPG:
         return value
 
     def __estimate_advantage(self, rewards):
-        index = len(rewards) if len(rewards) >= len(self.__values) else len(self.__values)
+        index = len(rewards) if len(rewards) >= len(self.__values)\
+            else len(self.__values)
         values = self.__values@np.eye(len(self.__values), index)
         rewards = rewards@np.eye(len(rewards), index)
         advantage = np.zeros(index)
@@ -139,5 +224,9 @@ class NPG:
                 advantage[i] += ((self.__gamma * self.__lambda) **
                                  remainingsteps) * delta_func
         # advantage = (advantage - np.mean(advantage)) / \
-        #             (np.std(advantage) + self.__eps)
+        #          (np.std(advantage) + self.__eps)
         return advantage
+
+
+
+

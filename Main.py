@@ -3,7 +3,7 @@ import gym
 import quanser_robots
 import matplotlib.pyplot as plt
 from NPG import NPG
-from Policies import SoftmaxPolicy
+from Policies import SoftmaxPolicy, GaussianPolicy
 import Features
 
 
@@ -19,8 +19,7 @@ def run_benchmark(policy, w):
         # state = feature.featurize_state(state)
         for t in range(200):
             # env.render()
-            probs = policy.get_action_prob(state, w)
-            action = np.argmax(probs)
+            action = policy.get_action(state, w, True)
             state, reward, done, info = env.step(action)
             state = state[None, :]
             # state = feature.featurize_state(state)
@@ -40,8 +39,9 @@ def run_benchmark(policy, w):
 # env = gym.make('CartPole-v0')
 env = gym.make('CartpoleSwingLong-v0')
 env.seed(0)
-policy = SoftmaxPolicy()
-algorithm = NPG(env, policy, 200)
+# policy = SoftmaxPolicy()
+policy = GaussianPolicy()
+algorithm = NPG(env, policy, 1000)
 w, r = algorithm.train()
 print(w)
 plt.plot(np.arange(len(r)), r)
