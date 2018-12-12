@@ -11,30 +11,24 @@ from sklearn.kernel_approximation import RBFSampler
 # Just for test purposes for now
 ######################################
 
+
 class RbfFeatures:
 
     def __init__(self, env):
         env.reset()
+        #env.seed(0)
+        # np.random.seed(1)
         self.observation_examples = []
         for i in range(300):
-            s, r, d, _ = env.step(np.asarray(10))
+            s, r, d, _ = env.step(np.asarray(18*np.random.randn()))
             self.observation_examples.append(s)
 
         # Create radial basis function sampler to convert states to features for nonlinear function approx
         self.featurizer = sklearn.pipeline.FeatureUnion([
-            ("rbf1", RBFSampler(gamma=0.1, n_components=40)),
-            ("rbf2", RBFSampler(gamma=0.5, n_components=40)),
-            ("rbf3", RBFSampler(gamma=1.0, n_components=40)),
-            ("rbf4", RBFSampler(gamma=1.5, n_components=40)),
-            ("rbf5", RBFSampler(gamma=2.0, n_components=40)),
-            # ("rbf6", RBFSampler(gamma=2.5, n_components=10)),
-            # ("rbf7", RBFSampler(gamma=3.0, n_components=10)),
-            # ("rbf8", RBFSampler(gamma=3.5, n_components=10)),
-            # ("rbf9", RBFSampler(gamma=4.0, n_components=10)),
-            # ("rbf10", RBFSampler(gamma=4.5, n_components=10)),
-            # ("rbf11", RBFSampler(gamma=5.0, n_components=10)),
-            # ("rbf12", RBFSampler(gamma=7.5, n_components=10)),
-            # ("rbf13", RBFSampler(gamma=10.0, n_components=10)),
+            ("rbf1", RBFSampler(gamma=5.0, n_components=50)),
+            ("rbf2", RBFSampler(gamma=2.0, n_components=50)),
+            ("rbf3", RBFSampler(gamma=1.0, n_components=50)),
+            ("rbf4", RBFSampler(gamma=0.5, n_components=50))
             # ("rbf14", RBFSampler(gamma=15.0, n_components=10)),
             # ("rbf15", RBFSampler(gamma=20.0, n_components=10)),
             # ("rbf16", RBFSampler(gamma=25.0, n_components=10)),
@@ -65,7 +59,7 @@ class RBFs:
         self.eps = np.finfo(np.float32).eps.item()
 
     def get_rbfs(self, x):
-        v = self.eps #  if self.v == [] else sum(self.v)/(len(self.v)+self.eps)
+        v = 1 if self.v == [] else sum(self.v[0])/(len(self.v[0])+self.eps)
         y = np.sin((self.P @ x)/v + self.phi.T)
         return y[None, :]
 
