@@ -17,7 +17,7 @@ class RbfFeatures:
     def __init__(self, env):
         env.reset()
         #env.seed(0)
-        # np.random.seed(1)
+        #np.random.seed(1)
         self.observation_examples = []
         for i in range(300):
             s, r, d, _ = env.step(np.asarray(18*np.random.randn()))

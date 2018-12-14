@@ -14,6 +14,7 @@ class SoftmaxPolicy:
         self.weights = [] # np.random.sample(self.__obs_dim*(self.__act_dim+1))
         self.greedy = False
         self.eps = 0
+        np.random.seed(1)
 
     # TODO: Comment is missing
     # --
@@ -26,11 +27,9 @@ class SoftmaxPolicy:
     def get_action(self, state, greedy=None):
         greedy = self.greedy if greedy is None else greedy
 
-        self.weights = np.random.sample(len(state)*(self.__act_dim)) \
+        self.weights = np.random.sample((len(state), self.__act_dim)) \
             if self.weights == [] else self.weights
-
         x = self.__get_prob(state)
-        print(state)
         if greedy:
             return np.argmax(x)
         else:
@@ -41,10 +40,9 @@ class SoftmaxPolicy:
     def get_log_grad(self, state, action):
         self.weights = np.random.sample(len(state)*(self.__act_dim)) \
             if self.weights == [] else self.weights
-
         log_grad = self.__get_p_grad(state)[action, :]\
-                   / self.__get_prob(state)[0, action]
-        return state.T @ log_grad[None, :]
+                   / self.__get_prob(state)[action]
+        return state.reshape(-1, 1) @ log_grad[None, :]
 
     # Returns the Jacobian matrix of the policy with respect to
     # the parameters w.
@@ -56,8 +54,7 @@ class SoftmaxPolicy:
     # Returns array of shape (1, n_actions) containing the probabilities
     # of each action.
     def __get_prob(self, state):
-        x = np.dot(state, self.weights.reshape(
-            self.__obs_dim, self.__act_dim, order='F'))
+        x = np.dot(state, self.weights)
         x = np.exp(x)
         return x / np.sum(x)
 
@@ -77,7 +74,7 @@ class GaussianPolicy:
     def get_action(self, state, greedy=False):
         greedy = self.greedy if greedy is None else greedy
 
-        self.weights = np.random.sample(len(state)*(self.__act_dim+1)) \
+        self.weights = np.random.sample((len(state), (self.__act_dim+1))) \
             if self.weights == [] else self.weights
 
         mean = self.__get_mean(state)
@@ -110,9 +107,9 @@ class GaussianPolicy:
     # TODO: Comment is missing
     # --
     def __get_mean(self, state):
-        return state @ self.weights[:len(self.weights)//2]
+        return state @ self.weights[:, 0]
 
     # TODO: Comment is missing
     # --
     def __get_variance(self, state):
-        return np.exp(state @ self.weights[len(self.weights)//2:])
+        return np.exp(state @ self.weights[:, 1])
