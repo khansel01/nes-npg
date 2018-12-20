@@ -21,6 +21,7 @@ class Environment:
         self.__seed = seed
         self.seed(self.__seed)
         self.__features = features
+        np.random.seed(1)
 
     def close(self):
         self.__env.close()
@@ -90,7 +91,8 @@ class Environment:
 
                 next_observation, reward, done, _ =\
                     self.step(np.asarray(action))
-                next_observation = features.featurize_state(observation)[0] \
+                next_observation = \
+                    features.featurize_state(next_observation)[0] \
                     if features is not None else next_observation
                 observations.append(observation)
                 actions.append(action)

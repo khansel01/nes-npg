@@ -25,6 +25,7 @@ class NPG:
         for i in range(len(actions)):
             log_grad[:, i:i + 1] = policy.get_log_grad(
                 observations[i, :], actions[i]).reshape((-1, 1), order='F')
+        #log_grad = policy.get_log_grad(observations, actions)
 
         #   vanilla gradient for each step
         vpg = log_grad @ advantage
@@ -41,7 +42,7 @@ class NPG:
         nominator = vpg.T @ (inv_fisher @ vpg)
         learning_rate = np.sqrt(self.__delta / nominator)
         step = np.multiply(learning_rate, (inv_fisher @ vpg))
-        policy.weights += step.reshape((4, 2), order='F')
+        policy.weights += step.reshape(policy.weights.shape, order='F')
         return
 
     @staticmethod

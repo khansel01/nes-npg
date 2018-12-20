@@ -18,25 +18,31 @@ class Agent:
         self.__lambda = _lambda
         self.__gamma = _gamma
         self.__eps = 1e-6
-        self.baseline = Baseline(6, 1)
+        self.baseline = Baseline(4 + 2, 1)
         self.render = render
         self.plot = plot
         #np.random.seed(1)
 
     def train_policy(self, episodes):
-        rewards_per_episode = []
-        time_per_episode = []
+        mean_per_episode = []
+        std_per_episode = []
         for i_episode in range(episodes):
             print("\nbegin episode: ", i_episode)
 
         #   roll out trajectories
             trajectories = self.env.roll_out(self.policy,
                                              features=self.feature,
-                                             amount=1, render=self.render)
+                                             amount=5, render=self.render)
 
-        #   get observations, action and rewards out of trials
-            rewards = np.concatenate([t["rewards"]
-                                      for t in trajectories]).reshape(-1, 1)
+        #   log data
+            timesteps = np.mean([len(t["rewards"]) for t in trajectories])
+            rewards = [np.sum(t["rewards"]) for t in trajectories]
+            mean = np.mean(rewards)
+            std = np.std(rewards)
+            mean_per_episode.append(mean)
+            std_per_episode.append(std)
+            print("Trial finished after {} timesteps and obtained {} Reward."
+                  .format(timesteps, mean))
 
         #   estimate advantage for each step of a trial
             estimate_advantage(trajectories,
@@ -49,20 +55,17 @@ class Agent:
             estimate_value(trajectories, self.__gamma)
             self.baseline.train(trajectories)
 
-
-            print("Trial finished after {} timesteps and obtained {} Reward."
-                  .format(len(rewards), np.sum(rewards)))
-            rewards_per_episode.append(sum(rewards))
-            time_per_episode.append(len(rewards))
-
-        self.__plot(rewards_per_episode, time_per_episode) \
+        self.__plot(mean_per_episode, std_per_episode, int(200/10)) \
             if self.plot is True else None
         self.env.close()
         return False
 
-    def __plot(self, rewards_per_episode, time_per_episode):
-        plt.plot(np.arange(len(rewards_per_episode)), rewards_per_episode)
-        plt.plot(np.arange(len(time_per_episode)), time_per_episode, 'g')
+    def __plot(self, mean, std, steps):
+        x = np.arange(0, int(len(mean)-1), steps)
+        y = np.asarray(mean)[x]
+        e = np.asarray(std)[x]
+        plt.errorbar(x, y, e, linestyle='None', marker='o')
+        plt.plot(np.arange(len(mean)), mean, 'g')
         plt.show()
         return
 

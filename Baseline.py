@@ -13,7 +13,7 @@ class Baseline:
         # Calling Super Class's constructor
         self.input_dim = input_dim
         self.output_dim = output_dim
-        self.hidden_dim = int(100) if input_dim*2 <= 100 else int(input_dim*2)
+        self.hidden_dim = int(100) if input_dim*2 <= 100 else int(input_dim*5)
         self.lr = lr
 
         # create nn
@@ -31,6 +31,7 @@ class Baseline:
         self.loss_fct = nn.MSELoss()
         self.optimizer = tr.optim.SGD(self.model.parameters(), lr=self.lr)
         self.loss = 1
+        tr.manual_seed(1)
         np.random.seed(1)
 
     def train(self, trajectories, eps=1e-6):

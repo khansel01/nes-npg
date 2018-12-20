@@ -1,4 +1,6 @@
 import numpy as np
+import torch as tr
+import torch.nn as nn
 
 #######################################
 # Softmax- and GaussPolicy
@@ -26,9 +28,9 @@ class SoftmaxPolicy:
     # --
     def get_action(self, state, greedy=None):
         greedy = self.greedy if greedy is None else greedy
-
         self.weights = np.random.sample((len(state), self.__act_dim)) \
             if self.weights == [] else self.weights
+
         x = self.__get_prob(state)
         if greedy:
             return np.argmax(x)
@@ -88,28 +90,57 @@ class GaussianPolicy:
     # --
     def get_log_grad(self, state, action):
 
-        self.weights = np.random.sample(len(state)*(self.__act_dim+1)) \
+        self.weights = np.random.sample((len(state), self.__act_dim+1)) \
             if self.weights == [] else self.weights
 
         eps = np.finfo(np.float32).eps.item()
         self.eps = eps
-        log_grad = np.zeros((len(self.weights), action.size))
+        log_grad = np.zeros((self.weights.size, action.size))
 
         mean = self.__get_mean(state)
         sigma = self.__get_variance(state)
 
-        log_grad[:len(self.weights)//2, :] = \
-            (action.T - mean) / (sigma**2 + eps) * state.T
-        log_grad[len(self.weights)//2:, :] = \
-            ((action.T - mean)**2 / (sigma**2 + eps) - 1) * state.T
+        log_grad[:self.weights.size//2, :] = \
+            ((action - mean) / (sigma**2 + eps) * state).T
+        log_grad[self.weights.size//2:, :] = \
+            (((action - mean)**2 / (sigma**2 + eps) - 1) * state).T
         return log_grad
 
     # TODO: Comment is missing
     # --
     def __get_mean(self, state):
-        return state @ self.weights[:, 0]
+        return state @ self.weights[:, 0].reshape(-1, 1)
 
     # TODO: Comment is missing
     # --
     def __get_variance(self, state):
-        return np.exp(state @ self.weights[:, 1])
+        return np.exp(state @ self.weights[:, 1]).reshape(-1, 1)
+
+
+# TODO Policy with pytorch
+class NNPolicy:
+    def __init__(self, input_dim, output_dim, lr=0.1):
+
+        # Calling Super Class's constructor
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.hidden_dim = int(100) if input_dim*2 <= 100 else int(input_dim*5)
+        self.lr = lr
+
+        # create nn
+        self.model = nn.Sequential()
+        self.model.add_module('linear1',
+                              nn.Linear(self.input_dim, self.hidden_dim))
+        # self.model.add_module('relu0', nn.ReLU())
+        # self.model.add_module('linear2',
+        #                       nn.Linear(self.hidden_dim, self.hidden_dim))
+        # self.model.add_module('relu1', nn.ReLU())
+        # self.model.add_module('linear3',
+        #                       nn.Linear(self.hidden_dim, self.output_dim))
+
+        # Create Loss function and SGD Optimizer
+        self.loss_fct = nn.MSELoss()
+        self.optimizer = tr.optim.SGD(self.model.parameters(), lr=self.lr)
+        self.loss = 1
+        tr.manual_seed(1)
+        np.random.seed(1)
