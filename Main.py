@@ -1,10 +1,7 @@
+import torch as tr
 import numpy as np
-import gym
-import quanser_robots
-import matplotlib.pyplot as plt
 from NPG import NPG
-from Policies import SoftmaxPolicy, GaussianPolicy
-from Features import RbfFeatures, RBFs
+from NN_GaussianPolicy import Policy
 from Environment import Environment
 from Agent import Agent
 
@@ -13,18 +10,26 @@ from Agent import Agent
 #######################################
 
 
-np.random.seed(1)
-gym_env = 'CartPole-v0'
-env = Environment(gym_env)
-policy = SoftmaxPolicy(env)
-feature = None
-# gym_env = 'CartpoleSwingShort-v0'
+## Softmaxpolicy on cartpole
+# np.random.seed(0)
+# tr.manual_seed(0)
+# gym_env = 'CartPole-v0'
 # env = Environment(gym_env)
-# feature = RbfFeatures(env, SoftmaxPolicy(env))
-# policy = GaussianPolicy(env)
-algorithm = NPG(0.001)
-agent = Agent(env, policy, algorithm, feature=feature)
-agent.train_policy(200)
-# agent.benchmark_test()
+# policy = Policy(env, hidden_dim=(168, 168), activation=tr.nn.Tanh())
+# algorithm = NPG(0.01)
+# agent = Agent(env, policy, algorithm)
+# agent.train_policy(200, 10)
+
+## Gausspolicy on cartpoleswingup
+np.random.seed(0)
+tr.manual_seed(0)
+gym_env = 'CartpoleSwingShort-v0'
+env = Environment(gym_env)
+policy = Policy(env, hidden_dim=(168, 168), activation=tr.nn.Tanh())
+algorithm = NPG(0.05)
+agent = Agent(env, policy, algorithm)
+agent.train_policy(200, 10)
+
+#agent.benchmark_test()
 
 

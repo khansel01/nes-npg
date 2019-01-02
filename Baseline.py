@@ -31,8 +31,6 @@ class Baseline:
         self.loss_fct = nn.MSELoss()
         self.optimizer = tr.optim.SGD(self.model.parameters(), lr=self.lr)
         self.loss = 1
-        tr.manual_seed(1)
-        np.random.seed(1)
 
     def train(self, trajectories, eps=1e-6):
         data, values = self.__get_data(trajectories)

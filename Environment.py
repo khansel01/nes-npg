@@ -3,7 +3,6 @@ import gym
 from gym.spaces.discrete import Discrete
 from gym.spaces.box import Box
 from quanser_robots.common import LabeledBox
-from Features import RbfFeatures
 
 #######################################
 # Environment
@@ -12,16 +11,13 @@ from Features import RbfFeatures
 
 class Environment:
 
-    def __init__(self, gym_env,
-                 seed: int=0, horizon: bool=None, features=None):
+    def __init__(self, gym_env, seed: int=0, horizon: bool=None):
         env = gym.make(gym_env)
         self.__env = env
         self.__horizon = self.__env.spec.timestep_limit if horizon is None\
             else horizon
         self.__seed = seed
         self.seed(self.__seed)
-        self.__features = features
-        np.random.seed(1)
 
     def close(self):
         self.__env.close()
@@ -66,8 +62,7 @@ class Environment:
         else:
             return action
 
-    def roll_out(self, policy,
-                 features=None, amount: int=1, render: bool=False):
+    def roll_out(self, policy, amount: int=1, render: bool=False):
         trajectories = []
 
         for s in range(amount):
@@ -77,9 +72,8 @@ class Environment:
             rewards = []
 
             observation = self.__env.reset()
-            observation = features.featurize_state(observation)[0] \
-                if features is not None else observation
-            self.seed(self.__seed)
+            if isinstance(observation, tuple):
+                observation = np.asarray(observation)
 
             step = 0
             done = False
@@ -91,14 +85,13 @@ class Environment:
 
                 next_observation, reward, done, _ =\
                     self.step(np.asarray(action))
-                next_observation = \
-                    features.featurize_state(next_observation)[0] \
-                    if features is not None else next_observation
                 observations.append(observation)
                 actions.append(action)
                 rewards.append(reward)
 
                 observation = next_observation
+                if isinstance(observation, tuple):
+                    observation = np.asarray(observation)
                 step += 1
                 if done:
                     break
