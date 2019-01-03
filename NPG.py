@@ -1,6 +1,8 @@
 import numpy as np
 import gym
+import quanser_robots
 import matplotlib.pyplot as plt
+from Features import RbfFeatures
 
 #######################################
 # NPG using Softmax Policy
@@ -20,47 +22,62 @@ class NPG:
         np.random.seed(1)
         self.env = env
         self.policy = policy
-        self.__n_Actions = env.action_space.n
+        self.__n_Actions = 2  # env.action_space.n
         self.__K = episodes
         self.__lambda = 0.95
         self.__gamma = 0.98
-        self.__delta = 0.001
+        self.__delta = 0.05
         self.__eps = np.finfo(np.float32).eps.item()
         self.__values = []
-        self.W = np.random.sample((4, 2))
+        self.W = np.random.sample((200, 2))
+        self.feature = RbfFeatures(env)
         
     def train(self):
         rewards_per_episode = []
         for i_episode in range(self.__K):
             print("Episode ", i_episode, ":")
-            log_gradients = []
+            log_gradients = np.empty((400, 0))
             rewards = []
 
             state = self.env.reset()
-            state = state[None, :]
-            # state = self.feature.featurize_state(state)
+            state = np.asarray(state)
+            # state = state[None, :]
+            state = self.feature.featurize_state(state)
             self.env.seed(0)
+            t = 0
             while(True):
-                # self.env.render()
+                if i_episode%3 == 0:
+                    if i_episode != 0:
+                        self.env.render()
 
                 old_state = state
 
                 prob = self.policy.get_action_prob(state, self.W)
-                action = np.random.choice(self.__n_Actions, p=prob[0])
-                state, reward, done, _ = self.env.step(action)
-                state = state[None, :]
-                # state = self.feature.featurize_state(state)
+                c = np.array([-18, 18])
+                action = np.random.choice(c, p=prob[0])
+                state, reward, done, _ = self.env.step(np.asarray(action))
+                if action == -18:
+                    action = 0
+                else:
+                    action = 1
+                state = np.asarray(state)
+                # state = state[None, :]
+                state = self.feature.featurize_state(state)
 
                 p_grad = self.policy.get_p_grad(old_state, self.W)[action, :]
                 log_grad = p_grad / prob[0, action]
                 log_grad = np.dot(old_state.T, log_grad[None, :])
 
-                log_gradients.append(log_grad.reshape((-1, 1), order='F'))
+                log_grad = log_grad.reshape((-1, 1), order='F')
+                log_gradients = np.concatenate((log_gradients, log_grad), axis=1)
+                # log_gradients.append(log_grad.reshape((-1, 1), order='F'))
                 rewards.append(reward)
-
+                t += 1
                 if done:
-                    print("Trial finished after {} timesteps."
-                          .format(np.sum(rewards)))
+                    # print("Trial finished after {} timesteps."
+                    #       .format(np.sum(rewards)))
+                    print("Trial finished after {} timesteps.".format(t))
+                    print("Reward gained: ", np.sum(rewards))
                     break
 
             if self.__values==[]:
@@ -89,7 +106,7 @@ class NPG:
                 if c > (self.__delta*(1 + 0.0001)):
                     print("condition: ", c, " > ", self.__delta)
                 else:
-                    self.W += step.reshape((4, 2), order='F')
+                    self.W += step.reshape((200, 2), order='F')
         except np.linalg.LinAlgError:
             print("Skipping parameter update due to singular matrix.")
             pass
@@ -103,15 +120,18 @@ class NPG:
     def __compute_gradient(self, log_g, rewards):
         g = 0
         advantage = self.__estimate_advantage(rewards)
-        for i in range(len(log_g)):
-            g += log_g[i] * advantage[i]
-        return g/len(log_g)
+        # for i in range(len(log_g)):
+            # g += log_g[i] * advantage[i]
+        g = log_g @ advantage[0:log_g.shape[1]]
+        print(g.shape)
+        return g/(log_g.shape[1])
 
     def __compute_fisher(self, log_g):
-        f = sum([(lg.reshape(-1, 1) @ lg.reshape(-1, 1).T) for lg in log_g])
+        # f = sum([(lg.reshape(-1, 1) @ lg.reshape(-1, 1).T) for lg in log_g])
+        f = log_g @ log_g.T
         f = np.diagonal(f)[None, :]
         f = np.diagflat(f)
-        return f/len(log_g)
+        return f/(log_g.shape[1])
 
     def __estimate_value(self, rewards):
         value = np.zeros(len(rewards))
