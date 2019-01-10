@@ -19,15 +19,18 @@ class Agent:
         self.__lambda = _lambda
         self.__gamma = _gamma
         self.__eps = 1e-6
-        self.baseline = Baseline(5 + 2, 1)
+        #self.baseline = Baseline(5 + 2, 1)
+        self.baseline = Baseline(5, 1)
         self.render = render
         self.plot = plot
 
     def train_policy(self, episodes, amount: int=1):
         mean_per_episode = []
         std_per_episode = []
+        time_per_episode = []
         for i_episode in range(episodes):
             print("\nbegin episode: ", i_episode)
+            T0 = time.time()
 
         #   roll out trajectories
             trajectories = self.env.roll_out(self.policy, amount=amount,
@@ -40,6 +43,7 @@ class Agent:
             std = np.std(rewards)
             mean_per_episode.append(mean)
             std_per_episode.append(std)
+            time_per_episode.append(timesteps)
             print("Trial finished after {} timesteps and obtained {} Reward."
                   .format(timesteps, mean))
 
@@ -60,17 +64,24 @@ class Agent:
             t1 = time.time()
             print("Update baseline : {}".format(t1 - t0))
 
-        self.__plot(mean_per_episode, std_per_episode, int(1000/10)) \
+            T1 = time.time()
+            print("Do Episode : {}".format(T1 - T0))
+
+        self.__plot(mean_per_episode, std_per_episode,
+                    time_per_episode, int(200/10)) \
             if self.plot is True else None
         self.env.close()
         return False
 
-    def __plot(self, mean, std, steps):
+    def __plot(self, mean, std, time, steps):
+        plt.subplot(2, 1, 1)
         x = np.arange(0, int(len(mean)-1), steps)
         y = np.asarray(mean)[x]
         e = np.asarray(std)[x]
         plt.errorbar(x, y, e, linestyle='None', marker='o')
         plt.plot(np.arange(len(mean)), mean, 'g')
+        plt.subplot(2, 1, 2)
+        plt.plot(np.arange(len(time)), time, 'g')
         plt.show()
         return
 

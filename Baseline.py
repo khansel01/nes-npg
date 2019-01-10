@@ -73,4 +73,5 @@ class Baseline:
             else:
                 val = np.zeros_like(rew).reshape(-1, 1)
 
-        return np.concatenate((obs, act, rew), axis=1), val
+        #return np.concatenate((obs, act, rew), axis=1), val
+        return obs, val

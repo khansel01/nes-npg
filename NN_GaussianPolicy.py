@@ -68,7 +68,7 @@ class Policy:
 
         actions = tr.from_numpy(actions).float()
         log_prob = - (actions - mean) ** 2 / (2.0 * tr.exp(self.log_std) ** 2)
-        log_prob -= self.log_std + np.sqrt(2*np.pi)
+        log_prob -= self.log_std + 0.5 * np.log(2*np.pi)
         return log_prob.sum(1, keepdim=True)
 
     def get_kl(self, states):
