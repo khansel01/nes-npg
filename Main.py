@@ -20,16 +20,15 @@ from Agent import Agent
 # agent = Agent(env, policy, algorithm)
 # agent.train_policy(200, 10)
 
-## Gausspolicy on cartpoleswingup
+# Gausspolicy on cartpoleswingup
 np.random.seed(0)
 tr.manual_seed(0)
 gym_env = 'CartpoleSwingShort-v0'
 env = Environment(gym_env)
-policy = Policy(env, hidden_dim=(168, 168), activation=tr.nn.Tanh())
+policy = Policy(env, hidden_dim=(150, 150, 50), activation=tr.nn.Tanh())
 algorithm = NPG(0.05)
 agent = Agent(env, policy, algorithm)
-agent.train_policy(200, 10)
-
+agent.train_policy(2000, 1)
 #agent.benchmark_test()
 
 

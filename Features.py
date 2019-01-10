@@ -22,10 +22,10 @@ class RbfFeatures:
         # to features for nonlinear function approx
         self.featurizer = sklearn.pipeline.FeatureUnion([
             ("rbf1", RBFSampler(gamma=1.0, n_components=300)),
-            #("rbf2", RBFSampler(gamma=2.0, n_components=10)),
-            #("rbf3", RBFSampler(gamma=1.0, n_components=10)),
-            #("rbf4", RBFSampler(gamma=0.5, n_components=10)),
-            #("rbf5", RBFSampler(gamma=0.1, n_components=10))
+            # ("rbf2", RBFSampler(gamma=2.0, n_components=10)),
+            # ("rbf3", RBFSampler(gamma=1.0, n_components=10)),
+            # ("rbf4", RBFSampler(gamma=0.5, n_components=10)),
+            # ("rbf5", RBFSampler(gamma=0.1, n_components=10))
             # ("rbf18", RBFSampler(gamma=75.0, n_components=10)),
             # ("rbf19", RBFSampler(gamma=100.0, n_components=10)),
             # ("rbf20", RBFSampler(gamma=200.0, n_components=10))

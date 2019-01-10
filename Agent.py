@@ -12,7 +12,7 @@ import time
 
 class Agent:
     def __init__(self, env, policy, algorithm,
-                 _lambda=0.95, _gamma=0.98, render=False, plot=True):
+                 _lambda=0.95, _gamma=0.99999, render=False, plot=True):
         self.policy = policy
         self.env = env
         self.algorithm = algorithm
@@ -60,7 +60,7 @@ class Agent:
             t1 = time.time()
             print("Update baseline : {}".format(t1 - t0))
 
-        self.__plot(mean_per_episode, std_per_episode, int(200/10)) \
+        self.__plot(mean_per_episode, std_per_episode, int(1000/10)) \
             if self.plot is True else None
         self.env.close()
         return False
@@ -75,29 +75,32 @@ class Agent:
         return
 
     def benchmark_test(self):
-        total_rewards = np.zeros(100)
-        print("Starting Benchmark:")
-        print("-------------------")
-        for i_episode in range(100):
-            print("Episode {}:".format(i_episode + 1))
-
-            state = self.env.reset()
-            state = state[None, :]
-            for t in range(200):
-                # env.render()
-                action = self.policy.get_action(state[0], True)
-                state, reward, done, info = self.env.step(int(action))
-                state = state[None, :]
-                total_rewards[i_episode] += reward
-                if done:
-                    print("Reward reached: ", total_rewards[i_episode])
-                    print("Episode finished after {} timesteps.".format(
-                        t + 1))
-                    break
-        average = np.sum(total_rewards) / 100
-        print("Average Reward: ", average)
-        if average >= 195:
-            return True
-        else:
-            return False
+        trajectories = self.env.roll_out(self.policy, amount=100, render=True)
+        timesteps = np.mean([len(t["rewards"]) for t in trajectories])
+        rewards = [np.sum(t["rewards"]) for t in trajectories]
+        mean = np.mean(rewards)
+        print("Benchmark finished with average of {} timesteps and obtained {}"
+              "average Reward.".format(timesteps, mean))
+        # total_rewards = np.zeros(100)
+        # print("Starting Benchmark:")
+        # print("-------------------")
+        # for i_episode in range(100):
+        #     print("Episode {}:".format(i_episode + 1))
+        #
+        #     state = self.env.reset()
+        #     t = 0
+        #     while(True):
+        #         if rend:
+        #             self.env.render()
+        #         action = self.policy.get_action(state)
+        #         state, reward, done, info = self.env.step(np.asarray(action))
+        #         total_rewards[i_episode] += reward
+        #         t += 1
+        #         if done:
+        #             print("Reward reached: ", total_rewards[i_episode])
+        #             print("Episode finished after {} timesteps.".format(
+        #                 t + 1))
+        #             break
+        # average = np.sum(total_rewards) / 100
+        # print("Average Reward: ", average)
 

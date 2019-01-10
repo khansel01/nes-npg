@@ -47,18 +47,17 @@ class NPG:
                 [g.contiguous().view(-1).data.numpy() for g in grads_kl_v])
             return flat_grad_grad_v + v * damping
 
-        npg_grad = cg(get_npg, vpg_grad,
-                            x_0=vpg_grad.copy())
+        npg_grad = cg(get_npg, vpg_grad, x_0=vpg_grad.copy())
 
         #   update policy
         nominator = vpg_grad.T @ npg_grad + 1e-20
         learning_rate = np.sqrt(self.__delta / nominator)
         current = policy.get_parameters()
         for i in range(10):
-            new = current + (0.9 ** i )*learning_rate * npg_grad
+            new = current + (0.9 ** i) * learning_rate * npg_grad
             policy.set_parameters(new)
 
-            new_log_prob= policy.get_log_prob(observations, actions)
+            new_log_prob = policy.get_log_prob(observations, actions)
             kl = tr.exp(new_log_prob) * (new_log_prob - fixed_log_probs)
             if tr.mean(kl.sum(1, keepdim=True)) <= self.__delta:
                 print(i)

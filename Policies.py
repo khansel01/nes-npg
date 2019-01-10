@@ -13,7 +13,7 @@ class SoftmaxPolicy:
         self.__obs_dim = env.obs_dim()
         self.__act_dim = env.act_dim()
         # TODO weight act dim
-        self.weights = [] # np.random.sample(self.__obs_dim*(self.__act_dim+1))
+        self.weights = []  # np.random.sample(self.__obs_dim*(self.__act_dim+1))
         self.greedy = False
         self.eps = 0
         np.random.seed(1)
@@ -40,9 +40,9 @@ class SoftmaxPolicy:
     # TODO: Comment is missing
     # --
     def get_log_grad(self, state, action):
-        self.weights = np.random.sample(len(state)*(self.__act_dim)) \
+        self.weights = np.random.sample(len(state)*self.__act_dim) \
             if self.weights == [] else self.weights
-        log_grad = self.__get_p_grad(state)[action, :]\
+        log_grad = self.__get_p_grad(state)[action, :] \
                    / self.__get_prob(state)[action]
         return state.reshape(-1, 1) @ log_grad[None, :]
 
@@ -67,7 +67,7 @@ class GaussianPolicy:
         self.__obs_dim = env.obs_dim()
         self.__act_dim = env.act_dim()
         # TODO weight act dim
-        self.weights = [] # np.random.sample(self.__obs_dim*(self.__act_dim+1))
+        self.weights = []  # np.random.sample(self.__obs_dim*(self.__act_dim+1))
         self.greedy = False
         self.eps = 0
 

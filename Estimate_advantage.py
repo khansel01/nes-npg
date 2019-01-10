@@ -22,7 +22,12 @@ def estimate_advantage(trajectories, baseline, _gamma=0.98, _lambda=0.95):
         for i in range(len(delta) - 1, -1, -1):
             advantage[i] = delta[i] if i == len(delta) - 1 else \
                 delta[i] + _gamma * _lambda * advantage[i + 1]
-        # advantage = (advantage - np.mean(advantage)) / (
-        #             np.std(advantage) + self.__eps)
         t["advantages"] = advantage
+
+    advantages = np.concatenate([t["advantages"] for t in trajectories])
+    mean = np.mean(advantages)
+    std = np.std(advantages)
+    for t in trajectories:
+        t["advantages"] = (t["advantages"] - mean) / (std + 1e-10)
+
     return
