@@ -8,7 +8,7 @@ import torch.nn as nn
 
 
 class Policy:
-    def __init__(self, env, hidden_dim: tuple=(100, 100),
+    def __init__(self, env, hidden_dim: tuple=(128, 128),
                  activation: nn=nn.Tanh, lr: float=0.1, log_std=0):
 
         #   init
@@ -19,7 +19,7 @@ class Policy:
         self.log_std = nn.Parameter(tr.ones(1, self.output_dim) * log_std)
 
         #   create nn
-        self.act = activation
+        self.act = activation()
         self.network = nn.Sequential()
         hidden_dim = self.input_dim
         i = 0

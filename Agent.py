@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from Baseline import Baseline
 from Estimate_advantage import estimate_advantage
 from Estimate_value import estimate_value
 import time
@@ -11,7 +10,7 @@ import time
 
 
 class Agent:
-    def __init__(self, env, policy, algorithm,
+    def __init__(self, env, policy, algorithm, baseline,
                  _lambda=0.95, _gamma=0.98, render=False, plot=True):
         self.policy = policy
         self.env = env
@@ -19,8 +18,7 @@ class Agent:
         self.__lambda = _lambda
         self.__gamma = _gamma
         self.__eps = 1e-6
-        #self.baseline = Baseline(5 + 2, 1)
-        self.baseline = Baseline(5, 1)
+        self.baseline = baseline
         self.render = render
         self.plot = plot
 
@@ -33,6 +31,8 @@ class Agent:
             T0 = time.time()
 
         #   roll out trajectories
+        #     if i_episode == 3:
+        #         self.render = True
             trajectories = self.env.roll_out(self.policy, amount=amount,
                                              render=self.render)
 
