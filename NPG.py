@@ -9,7 +9,7 @@ from Conjugate_gradient import conjugate_gradient as cg
 
 class NPG:
     def __init__(self, _delta=0.05):
-        self.__delta = _delta
+        self.__delta = 2*_delta
 
     def do(self, trajectories, policy):
 

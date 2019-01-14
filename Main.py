@@ -5,6 +5,7 @@ from NN_GaussianPolicy import Policy
 #from policies.NN_SoftmaxPolicy import Policy
 from Environment import Environment
 from Agent import Agent
+from Baseline import Baseline
 
 #######################################
 # Environment
@@ -26,10 +27,12 @@ np.random.seed(0)
 tr.manual_seed(0)
 gym_env = 'CartpoleSwingShort-v0'
 env = Environment(gym_env)
-policy = Policy(env, hidden_dim=(150, 150, 50), activation=tr.nn.Tanh())
-algorithm = NPG(0.05)
-agent = Agent(env, policy, algorithm)
-agent.train_policy(2000, 1)
+policy = Policy(env, hidden_dim=(32, 32))
+baseline = Baseline(env, hidden_dim=(32, 32))
+algorithm = NPG(0.1)
+agent = Agent(env, policy, algorithm, baseline, _gamma=0.98)
+agent.train_policy(1500, 10)
+
 #agent.benchmark_test()
 
 
