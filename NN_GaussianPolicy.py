@@ -8,7 +8,7 @@ import torch.nn as nn
 
 
 class Policy:
-    def __init__(self, env, hidden_dim: tuple=(128, 128),
+    def __init__(self, env, hidden_dim: tuple=(64, 64),
                  activation: nn=nn.Tanh, lr: float=0.1, log_std=0):
 
         #   init
@@ -35,20 +35,23 @@ class Policy:
         for p in list(self.network.parameters())[-2:]:
             p.data *= 1e-2
 
+        #   add std to parameters
+        self.train_param = list(self.network.parameters()) + [self.log_std]
+
         #   get net shape and size
         self.net_shapes = [p.data.numpy().shape
-                           for p in self.network.parameters()]
+                           for p in self.train_param]
         self.net_sizes = [p.data.numpy().size
-                          for p in self.network.parameters()]
+                          for p in self.train_param]
 
     def get_parameters(self):
         params = np.concatenate([p.contiguous().view(-1).data.numpy()
-                                for p in self.network.parameters()])
+                                for p in self.train_param])
         return params.copy()
 
     def set_parameters(self, new_param):
         current_idx = 0
-        for idx, param in enumerate(self.network.parameters()):
+        for idx, param in enumerate(self.train_param):
             temp_param = \
                 new_param[current_idx:current_idx + self.net_sizes[idx]]
             temp_param = temp_param.reshape(self.net_shapes[idx])
@@ -58,9 +61,8 @@ class Policy:
 
     def get_action(self, state, greedy=False):
         mean = self.network(tr.from_numpy(state).float())
-
         if greedy:
-            return mean.detach().numpy().squeeze()
+            return mean
         else:
             std = tr.exp(self.log_std).detach().numpy().squeeze()
             noise = std * np.random.randn(self.output_dim)
@@ -68,10 +70,11 @@ class Policy:
 
     def get_log_prob(self, states, actions):
         mean = self.network(tr.from_numpy(states).float())
+        log_std = self.log_std.expand_as(mean)
 
         actions = tr.from_numpy(actions).float()
-        log_prob = - (actions - mean) ** 2 / (2.0 * tr.exp(self.log_std) ** 2)
-        log_prob -= self.log_std + 0.5 * np.log(2*np.pi)
+        log_prob = - (actions - mean) ** 2 / (2.0 * tr.exp(log_std) ** 2)
+        log_prob -= log_std + 0.5 * np.log(2*np.pi)
         return log_prob.sum(1, keepdim=True)
 
     def get_kl(self, states):
@@ -83,7 +86,7 @@ class Policy:
         std = tr.exp(log_std)
         fixed_std = std.detach()
 
-        kl = (fixed_std ** 2 + (mean - fixed_mean) ** 2)
+        kl = (fixed_std ** 2 + (fixed_mean - mean) ** 2)
         kl /= (2.0 * std ** 2)
         kl += log_std - fixed_log_std - 0.5
         return kl.sum(1, keepdim=True)

@@ -1,8 +1,7 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from Estimate_advantage import estimate_advantage
-from Estimate_value import estimate_value
 import time
+import matplotlib.pyplot as plt
+from Estimations import *
+from Logger import Logger
 
 #######################################
 # Agent
@@ -21,98 +20,139 @@ class Agent:
         self.baseline = baseline
         self.render = render
         self.plot = plot
+        self.logger = Logger()
 
-    def train_policy(self, episodes, amount: int=1):
-        mean_per_episode = []
-        std_per_episode = []
-        time_per_episode = []
+    def train_policy(self, episodes, amount: int=1, times: bool=False):
+
         for i_episode in range(episodes):
-            print("\nbegin episode: ", i_episode)
-            # T0 = time.time()
 
-        #   roll out trajectories
-        #     if i_episode == 3:
-        #         self.render = True
-            trajectories = self.env.roll_out(self.policy, amount=amount,
-                                             render=self.render)
+            #   roll out trajectories
+            delta_t_e = time.time()
+            if i_episode + 1 == episodes:
+                trajectories = self.env.roll_out(self.policy, amount=amount,
+                                                 render=self.render)
+            else:
+                trajectories = self.env.roll_out(self.policy, amount=amount,
+                                                 render=False)
 
-        #   log data
-            timesteps = np.mean([len(t["rewards"]) for t in trajectories])
-            rewards = [np.sum(t["rewards"]) for t in trajectories]
-            mean = np.mean(rewards)
-            std = np.std(rewards)
-            mean_per_episode.append(mean)
-            std_per_episode.append(std)
-            time_per_episode.append(timesteps)
-            print("Trial finished after {} timesteps and obtained {} Reward."
-                  .format(timesteps, mean))
+            #   update policy
+            delta_t_p = time.time()
 
-            # t0 = time.time()
-        #   estimate advantage for each step of a trial
+            print("log_grad:", self.policy.log_std.detach().numpy().squeeze())
+
             estimate_advantage(trajectories,
                                self.baseline, self.__gamma, self.__lambda)
-
-        #   Update policy
             self.algorithm.do(trajectories, self.policy)
-            # t1 = time.time()
-            # print("Update policy : {}".format(t1 - t0))
 
-        #   Update critic
-            # t0 = time.time()
+            delta_t_p = time.time() - delta_t_p
+
+            #   update critic
+            delta_t_c = time.time()
+
             estimate_value(trajectories, self.__gamma)
             self.baseline.train(trajectories)
-            # t1 = time.time()
-            # print("Update baseline : {}".format(t1 - t0))
-            #
-            # T1 = time.time()
-            # print("Do Episode : {}".format(T1 - T0))
 
-        self.__plot(mean_per_episode, std_per_episode,
-                    time_per_episode, int(200/10)) \
-            if self.plot is True else None
+            delta_t_c = time.time() - delta_t_c
+            delta_t_e = time.time() - delta_t_e
+
+            #   log data
+            self.logger.log_data(trajectories, self.policy.get_parameters(),
+                                 delta_t_c, delta_t_p, delta_t_e)
+
+            #   analyze episode
+            self.analyze(i_episode, times)
+
+        self.show() if self.plot is True else None
+
         self.env.close()
         return False
 
-    def __plot(self, mean, std, time, steps):
-        plt.subplot(2, 1, 1)
-        x = np.arange(0, int(len(mean)-1), steps)
-        y = np.asarray(mean)[x]
-        e = np.asarray(std)[x]
-        plt.errorbar(x, y, e, linestyle='None', marker='o')
-        plt.plot(np.arange(len(mean)), mean, 'g')
-        plt.subplot(2, 1, 2)
-        plt.plot(np.arange(len(time)), time, 'g')
-        plt.show()
+    def benchmark_test(self, episodes: int=100, render: bool=False):
+        self.set_best_policy()
+
+        trajectories = self.env.roll_out(self.policy, amount=episodes,
+                                         render=render)
+
+        # rewards_sum = np.concatenate(
+        #     [t["rewards"] for t in trajectories])
+
+        # average = rewards_sum / episodes
+        # print("Average Reward: ", average)
+        # if average >= 195:
+        #     return True
+        # else:
+        #     return False
         return
 
-    def benchmark_test(self):
-        trajectories = self.env.roll_out(self.policy, amount=10, render=True,
-                                         greedy=True)
-        timesteps = np.mean([len(t["rewards"]) for t in trajectories])
-        rewards = [np.sum(t["rewards"]) for t in trajectories]
-        mean = np.mean(rewards)
-        print("Benchmark finished with average of {} timesteps and obtained {}"
-              "average Reward.".format(timesteps, mean))
-        # total_rewards = np.zeros(100)
-        # print("Starting Benchmark:")
-        # print("-------------------")
-        # for i_episode in range(100):
-        #     print("Episode {}:".format(i_episode + 1))
-        #
-        #     state = self.env.reset()
-        #     t = 0
-        #     while(True):
-        #         if rend:
-        #             self.env.render()
-        #         action = self.policy.get_action(state)
-        #         state, reward, done, info = self.env.step(np.asarray(action))
-        #         total_rewards[i_episode] += reward
-        #         t += 1
-        #         if done:
-        #             print("Reward reached: ", total_rewards[i_episode])
-        #             print("Episode finished after {} timesteps.".format(
-        #                 t + 1))
-        #             break
-        # average = np.sum(total_rewards) / 100
-        # print("Average Reward: ", average)
+    def set_best_policy(self):
+        rewards = np.concatenate(
+            [episode["reward_mean"] for episode in self.logger.logger])\
+            .squeeze()
+        episode = self.logger.logger[rewards.argmax()]
+        self.policy.set_parameters(episode["policy_parameters"])
+        return
+
+    def analyze(self, i_episode, times: bool = False):
+        episode = self.logger.logger[i_episode]
+        if times:
+            print("Episode {} with {} roll-outs:\n "
+                  "finished after {} and obtained a reward of {}.\n "
+                  "Episode needs {} seconds.\n "
+                  "Update the baseline needs {} seconds.\n "
+                  "Update the policy needs {} sedonds.\n"
+                  .format(i_episode, episode["roll_outs"].squeeze(),
+                          episode["time_mean"].squeeze(),
+                          episode["reward_mean"].squeeze(),
+                          episode["time_episode"].squeeze(),
+                          episode["time_critic"].squeeze(),
+                          episode["time_policy"].squeeze()))
+            return
+        else:
+            print("Episode {} with {} roll-outs:\n "
+                  "finished after {} and obtained a reward of {}.\n "
+                  .format(i_episode, episode["roll_outs"].squeeze(),
+                          episode["time_mean"].squeeze(),
+                          episode["reward_mean"].squeeze()))
+            return
+
+    def show(self):
+        r_means = np.concatenate(
+            [episode["reward_mean"] for episode in self.logger.logger])\
+            .squeeze()
+        r_stds = np.concatenate(
+            [episode["reward_std"] for episode in self.logger.logger])\
+            .squeeze()
+
+        t_means = np.concatenate(
+            [episode["time_mean"] for episode in self.logger.logger])\
+            .squeeze()
+        t_stds = np.concatenate(
+            [episode["time_std"] for episode in self.logger.logger])\
+            .squeeze()
+
+        # get length
+        length = r_stds.size
+
+        #   plot
+        plt.subplot(2, 1, 1)
+        plt.fill_between(np.arange(length),
+                         r_means - r_stds, r_means + r_stds,
+                         alpha=0.3, label='standard deviation',
+                         color='green')
+        plt.plot(np.arange(length), r_means, label='mean',
+                 color='green')
+        plt.legend()
+        plt.xlabel('Episodes')
+        plt.ylabel('Rewards')
+
+        plt.subplot(2, 1, 2)
+        plt.fill_between(np.arange(length),
+                         t_means - t_stds, t_means + t_stds,
+                         alpha=0.3, label='standard deviation')
+        plt.plot(np.arange(length), t_means, label='mean')
+        plt.legend()
+        plt.xlabel('Episodes')
+        plt.ylabel('Time steps')
+        plt.show()
+        return
 

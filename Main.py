@@ -27,11 +27,11 @@ np.random.seed(0)
 tr.manual_seed(0)
 gym_env = 'CartpoleSwingShort-v0'
 env = Environment(gym_env)
-policy = Policy(env, hidden_dim=(100, 100))
-baseline = Baseline(env, hidden_dim=(150, 150))
-algorithm = NPG(0.001)
-agent = Agent(env, policy, algorithm, baseline, _gamma=0.99) # , render=True)
-agent.train_policy(1500, 10)
-agent.benchmark_test()
+policy = Policy(env, hidden_dim=(32, 32))
+baseline = Baseline(env, hidden_dim=(128, 128))
+algorithm = NPG(0.01)
+agent = Agent(env, policy, algorithm, baseline, _gamma=0.99)
+agent.train_policy(1000, 10)
 
+agent.benchmark_test(episodes=2, render=True)
 

@@ -30,7 +30,7 @@ class NPG:
         action_loss = action_losses.mean()
 
         vpg = tr.autograd.grad(action_loss,
-                               policy.network.parameters(), retain_graph=True)
+                               policy.train_param, retain_graph=True)
         vpg_grad = np.concatenate([v.contiguous().detach().view(-1).numpy()
                                    for v in vpg])
 
@@ -38,16 +38,17 @@ class NPG:
         def get_npg(v):
             damping = 1e-4
             kl = tr.mean(policy.get_kl(observations))
-            grads = tr.autograd.grad(kl, policy.network.parameters(),
+            grads = tr.autograd.grad(kl, policy.train_param,
                                      create_graph=True)
             grads_flat = tr.cat([grad.view(-1) for grad in grads])
             kl_v = tr.sum(grads_flat * tr.from_numpy(v).float())
-            grads_kl_v = tr.autograd.grad(kl_v, policy.network.parameters())
+            grads_kl_v = tr.autograd.grad(kl_v, policy.train_param)
             flat_grad_grad_v = np.concatenate(
                 [g.contiguous().view(-1).data.numpy() for g in grads_kl_v])
             return flat_grad_grad_v + v * damping
 
-        npg_grad = cg(get_npg, vpg_grad, x_0=vpg_grad.copy())
+        npg_grad = cg(get_npg, vpg_grad,
+                      x_0=vpg_grad.copy())
 
         #   update policy
         nominator = vpg_grad.T @ npg_grad + 1e-20
@@ -60,7 +61,6 @@ class NPG:
             new_log_prob = policy.get_log_prob(observations, actions)
             kl = tr.exp(new_log_prob) * (new_log_prob - fixed_log_probs)
             if tr.mean(kl.sum(1, keepdim=True)) <= self.__delta:
-                # print(i)
                 break
         return
 
