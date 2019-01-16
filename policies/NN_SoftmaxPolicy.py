@@ -9,7 +9,7 @@ from torch.distributions import Categorical
 
 
 class Policy:
-    def __init__(self, env, hidden_dim: tuple=(100, 100),
+    def __init__(self, env, hidden_dim: tuple=(64, 64),
                  activation: nn=nn.Tanh, lr: float=0.1):
 
         #   calling Super Class's constructor
@@ -26,7 +26,7 @@ class Policy:
         for i, next_hidden_dim in enumerate(self.hidden_dim):
             self.network.add_module('linear' + i.__str__(),
                                     nn.Linear(hidden_dim, next_hidden_dim))
-            self.network.add_module('activation' + i.__str__(), self.act)
+            self.network.add_module('activation' + i.__str__(), self.act())
             hidden_dim = next_hidden_dim
         self.network.add_module('linear' + (i+1).__str__(),
                                 nn.Linear(hidden_dim, self.output_dim))
@@ -58,7 +58,10 @@ class Policy:
 
     def get_action(self, state, greedy=False):
         prob = tr.softmax(self.network(tr.from_numpy(state).float()), dim=0)
-        return Categorical(prob).sample().numpy().squeeze()
+        if greedy:
+            return prob.detach().numpy().argmax().squeeze()
+        else:
+            return Categorical(prob).sample().numpy().squeeze()
 
     def get_log_prob(self, states, actions):
         log_prob = tr.log_softmax(self.network(tr.from_numpy(states).float()),
