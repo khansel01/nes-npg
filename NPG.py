@@ -60,7 +60,7 @@ class NPG:
             new_log_prob = policy.get_log_prob(observations, actions)
             kl = tr.exp(new_log_prob) * (new_log_prob - fixed_log_probs)
             if tr.mean(kl.sum(1, keepdim=True)) <= self.__delta:
-                print(i)
+                # print(i)
                 break
         return
 

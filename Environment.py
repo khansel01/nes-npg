@@ -62,7 +62,8 @@ class Environment:
         else:
             return action
 
-    def roll_out(self, policy, amount: int=1, render: bool=False):
+    def roll_out(self, policy, amount: int = 1, render: bool = False,
+                 greedy: bool = False):
         trajectories = []
 
         for s in range(amount):
@@ -80,14 +81,17 @@ class Environment:
             while done is not True and step < self.__horizon:
 
                 self.__env.render() if render else None
-                action = policy.get_action(observation)
+                action = policy.get_action(observation, greedy=greedy)
                 action = self.__act_clip(action)
 
                 next_observation, reward, done, _ =\
                     self.step(np.asarray(action))
                 observations.append(observation)
                 actions.append(action)
-                rewards.append(reward)
+                if reward < 1:
+                    rewards.append(reward)
+                else:
+                    rewards.append(reward*4)
 
                 observation = next_observation
                 if isinstance(observation, tuple):

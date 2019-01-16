@@ -28,7 +28,7 @@ class Agent:
         time_per_episode = []
         for i_episode in range(episodes):
             print("\nbegin episode: ", i_episode)
-            T0 = time.time()
+            # T0 = time.time()
 
         #   roll out trajectories
         #     if i_episode == 3:
@@ -47,25 +47,25 @@ class Agent:
             print("Trial finished after {} timesteps and obtained {} Reward."
                   .format(timesteps, mean))
 
-            t0 = time.time()
+            # t0 = time.time()
         #   estimate advantage for each step of a trial
             estimate_advantage(trajectories,
                                self.baseline, self.__gamma, self.__lambda)
 
         #   Update policy
             self.algorithm.do(trajectories, self.policy)
-            t1 = time.time()
-            print("Update policy : {}".format(t1 - t0))
+            # t1 = time.time()
+            # print("Update policy : {}".format(t1 - t0))
 
         #   Update critic
-            t0 = time.time()
+            # t0 = time.time()
             estimate_value(trajectories, self.__gamma)
             self.baseline.train(trajectories)
-            t1 = time.time()
-            print("Update baseline : {}".format(t1 - t0))
-
-            T1 = time.time()
-            print("Do Episode : {}".format(T1 - T0))
+            # t1 = time.time()
+            # print("Update baseline : {}".format(t1 - t0))
+            #
+            # T1 = time.time()
+            # print("Do Episode : {}".format(T1 - T0))
 
         self.__plot(mean_per_episode, std_per_episode,
                     time_per_episode, int(200/10)) \
@@ -86,7 +86,8 @@ class Agent:
         return
 
     def benchmark_test(self):
-        trajectories = self.env.roll_out(self.policy, amount=100, render=True)
+        trajectories = self.env.roll_out(self.policy, amount=10, render=True,
+                                         greedy=True)
         timesteps = np.mean([len(t["rewards"]) for t in trajectories])
         rewards = [np.sum(t["rewards"]) for t in trajectories]
         mean = np.mean(rewards)

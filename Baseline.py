@@ -12,7 +12,7 @@ class Baseline:
                  activation: nn=nn.Tanh, lr: float=0.1):
 
         #   init
-        self.input_dim = env.obs_dim()
+        self.input_dim = env.obs_dim() + 2
         self.output_dim = env.act_dim()
         self.hidden_dim = hidden_dim
         self.lr = lr
@@ -80,5 +80,5 @@ class Baseline:
             else:
                 val = np.zeros_like(rew).reshape(-1, 1)
 
-        return obs, val
-        #return np.concatenate((obs, act, rew), axis=1), val
+        # return obs, val
+        return np.concatenate((obs, act, rew), axis=1), val

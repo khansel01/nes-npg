@@ -59,9 +59,12 @@ class Policy:
     def get_action(self, state, greedy=False):
         mean = self.network(tr.from_numpy(state).float())
 
-        std = tr.exp(self.log_std).detach().numpy().squeeze()
-        noise = std * np.random.randn(self.output_dim)
-        return mean.detach().numpy().squeeze() + noise
+        if greedy:
+            return mean.detach().numpy().squeeze()
+        else:
+            std = tr.exp(self.log_std).detach().numpy().squeeze()
+            noise = std * np.random.randn(self.output_dim)
+            return mean.detach().numpy().squeeze() + noise
 
     def get_log_prob(self, states, actions):
         mean = self.network(tr.from_numpy(states).float())
