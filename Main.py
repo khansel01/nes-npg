@@ -33,9 +33,9 @@ def get_action(state, w):
     return 1 if x > 0.5 else 0
 
 
-def run(env, w):
+def fitness(env, w):
 
-    eps = 10
+    eps = 1
 
     s = np.size(w, 0)
     f = np.zeros(s)
@@ -60,7 +60,7 @@ def run(env, w):
     # a = np.argmax(f)
     # print(f[a], w[a])
 
-    return f / np.max(f)
+    return f / np.max(f), f
 
 
 def run_benchmark(w, env, episodes=1000):
@@ -74,7 +74,7 @@ def run_benchmark(w, env, episodes=1000):
         done = False
         while not done:
             action = get_action(state, w)
-            print(action)
+            # print(action)
             state, reward, done, info = env.step(action)
             total_rewards[i_episode] += reward
         print("Reward reached: ", total_rewards[i_episode])
@@ -104,12 +104,13 @@ def render(w, env, seed=False):
 
 np.random.seed(1)
 env = gym.make('CartPole-v0')
-nes = NES(env, 1, 0.005, 5)
+nes = NES(env, 1, 0.35, 50, max_iter=200)
 obs_space = len(env.observation_space.low)
-w, _ = nes.do(run, np.zeros(obs_space), np.ones(obs_space) * 2)
-# w, _ = nes.optimize(run, [2.518688, 0.29741, 21.013169, 39.44757], np.ones(obs_space))
-# print(w)
+# w, s = nes.do(fitness, np.zeros(obs_space), np.ones(obs_space))
+w, s = nes.optimize(fitness, np.zeros(obs_space), np.ones(obs_space))
+print(w, s)
 
+# w = [2.518688, 0.29741, 21.013169, 39.44757]
 # w = [-0.174842, 1.420497, 0.941925, 1.6674]
 # w = [2.97329, 1.058639, 20.500426, 40.637915]
 

@@ -32,50 +32,61 @@ class NES:
             z = mu + sigma * s
 
             # evaluate fitness
-            fitness = f(self.env, z)
+            fitness, g = f(self.env, z)
 
             # calculate log derivatives
-            log_d_mu = self.__calc_log_derivatives_mu(z, mu, sigma)
-            # log_d_mu = s
-
-            log_d_sigma = self.__calc_log_derivatives_sigma(z, mu, sigma)
-            # log_d_sigma = 0.5 * (np.dot(np.transpose(s), s) - 1 / sigma)
-
-            # calculate expected fitness
-            j_mu = np.dot(fitness, log_d_mu) / self.__population_size
-            j_sigma = log_d_sigma * np.mean(fitness)
+            # log_d_mu = self.__calc_log_derivatives_mu(z, mu, sigma)
+            log_d_mu = s
 
             # calculate fisher
-            fisher_mu = np.dot(np.transpose(log_d_mu), log_d_mu)
+            fisher_sigma = np.zeros((len(mu), len(mu)))
+            # fisher_mu is the identity
 
-            fisher_sigma = log_d_sigma * np.transpose(log_d_sigma)
+            # log_d_sigma = 0.5 * (np.dot(np.transpose(s), s) - 1 / sigma)
+
+            sum_sigma = 0
+            sum_mu = 0
+            log_d_sigma = np.zeros(
+                (self.__population_size, len(mu), len(mu)))
+
+            for i in range(self.__population_size):
+                z_minus_mu = np.transpose(z[i] - mu)
+                d = np.multiply(z_minus_mu,
+                                z_minus_mu.reshape(-1, 1)) / sigma ** 2
+                log_d_sigma[i] = (0.5 * d - 1 / sigma)
+                sum_sigma += log_d_sigma[i] * fitness[i]
+                sum_mu += log_d_mu[i] * fitness[i]
+                fisher_sigma += log_d_sigma[i] * np.transpose(log_d_sigma[i])
+
+            j_sigma = sum_sigma / self.__population_size
+            j_mu = sum_mu / self.__population_size
+
+            fisher_sigma /= self.__population_size
 
 
             # print(mu + self.__eta_mu * sigma * 1. / len(s) * np.dot(fitness, s))
             # update search space
-            mu += self.__eta_mu * np.dot(self.__inverse(fisher_mu), j_mu)
+            mu += self.__eta_mu * j_mu
             # print(mu)
 
             # We aren't using covariance, so we just need the diagonal
-            sigma += np.diagonal(self.__eta_sigma *
-                                 self.__inverse(fisher_sigma) * j_sigma)
+            # sigma += np.diagonal(self.__eta_sigma *
+            #                      self.__inverse(fisher_sigma) * j_sigma)
+            sigma += self.__eta_sigma / 2. * 1. / len(s) * sigma * np.dot(
+                fitness, s ** 2 - 1.)
 
             # sigma has to be positive
             if np.any(sigma < self.sigma_lower_bound):
                 sigma[sigma < self.sigma_lower_bound] = self.sigma_lower_bound
 
             generation += 1
+            print(generation, np.mean(g), max(g), sigma, mu)
 
             # until stopping criterion is met
             stop = generation >= self.max_iter
 
         return mu, sigma
 
-    @staticmethod
-    def __calc_log_derivatives_sigma(z, mu, sigma):
-        z_minus_mu = np.transpose(z - mu)
-        return 0.5 * (np.dot(z_minus_mu, np.transpose(z_minus_mu) / sigma**2)
-                      - 1 / sigma)
 
     @staticmethod
     def __calc_log_derivatives_mu(z, mu, sigma):
@@ -83,10 +94,11 @@ class NES:
 
     @staticmethod
     def __inverse(matrix):
-        u, s, v = np.linalg.svd(matrix)
-        print(u, s, v)
-        s = np.diag(s**-1)
-        return v @ (s @ u.T)
+        return np.linalg.inv(np.diag(np.diagonal(matrix)))
+        # u, s, v = np.linalg.svd(matrix)
+        # # print(u, s, v)
+        # s = np.diag(s**-1)
+        # return v @ (s @ u.T)
 
     # -------------------------------------------------------------------------
     # code from the internet to check
@@ -103,25 +115,26 @@ class NES:
         generation = 0
 
         learning_rate_mu = self.__eta_mu
-        learning_rate_sigma = self.__eta_sigma# default_learning_rate_sigma(mu.size)
+        learning_rate_sigma = default_learning_rate_sigma(mu.size)
 
         while True:
             s = rng.normal(0, 1, size=(self.__population_size, *np.shape(mu)))
             z = mu + sigma * s
 
-            fitness = func(self.env, z)
+            fitness, g = func(self.env, z)
 
             utility = fitness
 
             # update parameter of search distribution via natural gradient descent
             mu += learning_rate_mu * sigma * 1. / len(s) * np.dot(utility, s)
             sigma += learning_rate_sigma / 2. * 1. / len(s) * sigma * np.dot(utility, s ** 2 - 1.)
-            print(np.shape(sigma), np.shape(np.dot(utility, s)), np.shape(s), sigma)
+            # print(np.shape(sigma), np.shape(np.dot(utility, s)), np.shape(s), sigma)
 
             # enforce lower bound on sigma to avoid negative values
             if np.any(sigma < self.sigma_lower_bound):
                 sigma[sigma < self.sigma_lower_bound] = self.sigma_lower_bound
 
+            print(generation, np.mean(g), max(g), sigma, mu)
             generation += 1
 
             # exit if max iterations reached
