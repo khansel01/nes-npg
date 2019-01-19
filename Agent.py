@@ -22,68 +22,8 @@ class Agent:
         self.plot = plot
         self.logger = Logger()
 
-    def train_policy(self, episodes, amount: int=1, times: bool=False):
-
-        for i_episode in range(episodes):
-
-            #   roll out trajectories
-            delta_t_e = time.time()
-            if i_episode + 1 == episodes:
-                trajectories = self.env.roll_out(self.policy, amount=amount,
-                                                 render=self.render)
-            else:
-                trajectories = self.env.roll_out(self.policy, amount=amount,
-                                                 render=False)
-
-            #   update policy
-            delta_t_p = time.time()
-
-            print("log_grad:", self.policy.log_std.detach().numpy().squeeze())
-
-            estimate_advantage(trajectories,
-                               self.baseline, self.__gamma, self.__lambda)
-            self.algorithm.do(trajectories, self.policy)
-
-            delta_t_p = time.time() - delta_t_p
-
-            #   update critic
-            delta_t_c = time.time()
-
-            estimate_value(trajectories, self.__gamma)
-            self.baseline.train(trajectories)
-
-            delta_t_c = time.time() - delta_t_c
-            delta_t_e = time.time() - delta_t_e
-
-            #   log data
-            self.logger.log_data(trajectories, self.policy.get_parameters(),
-                                 delta_t_c, delta_t_p, delta_t_e)
-
-            #   analyze episode
-            self.analyze(i_episode, times)
-
-        self.show() if self.plot is True else None
-
-        self.env.close()
-        return False
-
-    def benchmark_test(self, episodes: int=100, render: bool=False):
-        self.set_best_policy()
-
-        trajectories = self.env.roll_out(self.policy, amount=episodes,
-                                         render=render)
-
-        # rewards_sum = np.concatenate(
-        #     [t["rewards"] for t in trajectories])
-
-        # average = rewards_sum / episodes
-        # print("Average Reward: ", average)
-        # if average >= 195:
-        #     return True
-        # else:
-        #     return False
-        return
-
+    """ Utility Functions """
+    """==============================================================="""
     def set_best_policy(self):
         rewards = np.concatenate(
             [episode["reward_mean"] for episode in self.logger.logger])\
@@ -130,10 +70,10 @@ class Agent:
             [episode["time_std"] for episode in self.logger.logger])\
             .squeeze()
 
-        # get length
+        """ get length """
         length = r_stds.size
 
-        #   plot
+        """ plot """
         plt.subplot(2, 1, 1)
         plt.fill_between(np.arange(length),
                          r_means - r_stds, r_means + r_stds,
@@ -154,5 +94,75 @@ class Agent:
         plt.xlabel('Episodes')
         plt.ylabel('Time steps')
         plt.show()
+        return
+
+    """ Main Functions """
+    """==============================================================="""
+    def train_policy(self, episodes, amount: int=1, times: bool=False,
+                     normalizer=None):
+
+        for i_episode in range(episodes):
+
+            """ roll out trajectories """
+            delta_t_e = time.time()
+            if i_episode + 1 == episodes:
+                trajectories = self.env.roll_out(self.policy, amount=amount,
+                                                 render=self.render,
+                                                 normalizer=normalizer)
+            else:
+                trajectories = self.env.roll_out(self.policy, amount=amount,
+                                                 render=False,
+                                                 normalizer=normalizer)
+
+            """ update policy """
+            delta_t_p = time.time()
+
+            print("log_grad:", self.policy.log_std.detach().numpy().squeeze())
+
+            estimate_advantage(trajectories,
+                               self.baseline, self.__gamma, self.__lambda)
+            self.algorithm.do(trajectories, self.policy)
+
+            delta_t_p = time.time() - delta_t_p
+
+            """ update critic """
+            delta_t_c = time.time()
+
+            estimate_value(trajectories, self.__gamma)
+            self.baseline.train(trajectories)
+
+            delta_t_c = time.time() - delta_t_c
+            delta_t_e = time.time() - delta_t_e
+
+            """ log data """
+            self.logger.log_data(trajectories, self.policy.get_parameters(),
+                                 delta_t_c, delta_t_p, delta_t_e)
+
+            """ analyze episode """
+            self.analyze(i_episode, times)
+
+            """ normalize update """
+            normalizer.update(trajectories) if not None else None
+
+        self.show() if self.plot is True else None
+
+        self.env.close()
+        return False
+
+    def benchmark_test(self, episodes: int=100, render: bool=False):
+        self.set_best_policy()
+
+        trajectories = self.env.roll_out(self.policy, amount=episodes,
+                                         render=render)
+
+        # rewards_sum = np.concatenate(
+        #     [t["rewards"] for t in trajectories])
+
+        # average = rewards_sum / episodes
+        # print("Average Reward: ", average)
+        # if average >= 195:
+        #     return True
+        # else:
+        #     return False
         return
 

@@ -19,6 +19,8 @@ class Environment:
         self.__seed = seed
         self.seed(self.__seed)
 
+    """ Utility Functions """
+    """==============================================================="""
     def close(self):
         self.__env.close()
         return
@@ -76,6 +78,9 @@ class Environment:
             if isinstance(observation, tuple):
                 observation = np.asarray(observation)
 
+            observation = normalizer.transform(observation) \
+                if not None else None
+
             step = 0
             done = False
             while done is not True and step < self.__horizon:
@@ -96,6 +101,9 @@ class Environment:
                 observation = next_observation
                 if isinstance(observation, tuple):
                     observation = np.asarray(observation)
+                observation = normalizer.transform(observation) \
+                    if not None else None
+
                 step += 1
                 if done:
                     break
