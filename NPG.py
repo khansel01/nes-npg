@@ -8,9 +8,12 @@ from Conjugate_gradient import conjugate_gradient as cg
 
 
 class NPG:
+
     def __init__(self, _delta=0.05):
         self.__delta = 2*_delta
 
+    """ Main Functions """
+    """==============================================================="""
     def do(self, trajectories, policy):
 
         observations = np.concatenate([t["observations"]
@@ -20,7 +23,7 @@ class NPG:
         advantages = np.concatenate([t["advantages"]
                                     for t in trajectories]).reshape(-1, 1)
 
-        #   vanilla gradient
+        """ vanilla gradient """
         with tr.no_grad():
             fixed_log_probs = policy.get_log_prob(observations, actions)
 
@@ -34,9 +37,9 @@ class NPG:
         vpg_grad = np.concatenate([v.contiguous().detach().view(-1).numpy()
                                    for v in vpg])
 
-        #   product inv(fisher) times vanilla gradient via conjugate grad
+        """ product inv(fisher) times vanilla gradient via conjugate grad """
         def get_npg(v):
-            damping = 1e-4
+            damping = 1e-2
             kl = tr.mean(policy.get_kl(observations))
             grads = tr.autograd.grad(kl, policy.train_param,
                                      create_graph=True)
@@ -50,18 +53,25 @@ class NPG:
         npg_grad = cg(get_npg, vpg_grad,
                       x_0=vpg_grad.copy())
 
-        #   update policy
+        """ update policy """
         nominator = vpg_grad.T @ npg_grad + 1e-20
         learning_rate = np.sqrt(self.__delta / nominator)
         current = policy.get_parameters()
-        for i in range(10):
-            new = current + (0.9 ** i )*learning_rate * npg_grad
-            policy.set_parameters(new)
+        new = current + learning_rate * npg_grad
+        policy.set_parameters(new)
 
-            new_log_prob = policy.get_log_prob(observations, actions)
-            kl = tr.exp(new_log_prob) * (new_log_prob - fixed_log_probs)
-            if tr.mean(kl.sum(1, keepdim=True)) <= self.__delta:
-                break
+        new_log_prob = policy.get_log_prob(observations, actions)
+        kl = tr.exp(new_log_prob) * (new_log_prob - fixed_log_probs)
+        if tr.mean(kl.sum(1, keepdim=True)) >= self.__delta:
+            print(True)
+        # for i in range(10):
+        #     new = current + (0.9 ** i )*learning_rate * npg_grad
+        #     policy.set_parameters(new)
+        #
+        #     new_log_prob = policy.get_log_prob(observations, actions)
+        #     kl = tr.exp(new_log_prob) * (new_log_prob - fixed_log_probs)
+        #     if tr.mean(kl.sum(1, keepdim=True)) <= self.__delta:
+        #         break
         return
 
 

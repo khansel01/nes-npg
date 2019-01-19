@@ -19,6 +19,8 @@ class Environment:
         self.__seed = seed
         self.seed(self.__seed)
 
+    """ Utility Functions """
+    """==============================================================="""
     def close(self):
         self.__env.close()
         return
@@ -62,7 +64,10 @@ class Environment:
         else:
             return action
 
-    def roll_out(self, policy, amount: int=1, render: bool=False):
+    """ Main Functions """
+    """==============================================================="""
+    def roll_out(self, policy, amount: int=1, normalizer=None,
+                 render: bool=False):
         trajectories = []
 
         for s in range(amount):
@@ -74,6 +79,9 @@ class Environment:
             observation = self.__env.reset()
             if isinstance(observation, tuple):
                 observation = np.asarray(observation)
+
+            observation = normalizer.transform(observation) \
+                if not None else None
 
             step = 0
             done = False
@@ -92,6 +100,9 @@ class Environment:
                 observation = next_observation
                 if isinstance(observation, tuple):
                     observation = np.asarray(observation)
+                observation = normalizer.transform(observation) \
+                    if not None else None
+
                 step += 1
                 if done:
                     break
