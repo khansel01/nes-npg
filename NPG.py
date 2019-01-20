@@ -1,6 +1,6 @@
 import numpy as np
 import torch as tr
-from Conjugate_gradient import conjugate_gradient as cg
+from utilities.Conjugate_gradient import conjugate_gradient as cg
 
 #######################################
 # NPG
@@ -9,6 +9,8 @@ from Conjugate_gradient import conjugate_gradient as cg
 
 class NPG:
 
+    """ Init """
+    """==============================================================="""
     def __init__(self, _delta=0.05):
         self.__delta = 2*_delta
 

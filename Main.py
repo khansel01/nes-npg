@@ -1,12 +1,11 @@
 import torch as tr
 import numpy as np
-from NPG import NPG
-from NN_GaussianPolicy import Policy
-#from policies.NN_SoftmaxPolicy import Policy
-from Environment import Environment
 from Agent import Agent
-from Baseline import Baseline
-from Normalizer import Normalizer
+from NPG import NPG
+from models.NN_GaussianPolicy import Policy
+from utilities.Environment import Environment
+from models.Baseline import Baseline
+from utilities.Normalizer import Normalizer
 
 #######################################
 # Environment
@@ -39,7 +38,7 @@ env = Environment(gym_env)
 policy = Policy(env, hidden_dim=(32, 32))
 
 """ create baseline """
-baseline = Baseline(env, hidden_dim=(32, 32))
+baseline = Baseline(env, hidden_dim=(64, 64))
 
 """ create Normalizer to scale the states/observations """
 normalizer = Normalizer(env)
@@ -48,7 +47,7 @@ normalizer = Normalizer(env)
 algorithm = NPG(0.001)
 
 """ create agent """
-agent = Agent(env, policy, algorithm, baseline, _gamma=0.99)
+agent = Agent(env, policy, algorithm, baseline, _gamma=0.9995)
 
 """ train the policy """
 agent.train_policy(1000, 20, normalizer=normalizer)

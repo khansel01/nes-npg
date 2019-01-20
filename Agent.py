@@ -1,7 +1,7 @@
 import time
 import matplotlib.pyplot as plt
-from Estimations import *
-from Logger import Logger
+from utilities.Estimations import *
+from utilities.Logger import Logger
 
 #######################################
 # Agent
@@ -24,16 +24,22 @@ class Agent:
 
     """ Utility Functions """
     """==============================================================="""
+
     def set_best_policy(self):
+
         rewards = np.concatenate(
             [episode["reward_mean"] for episode in self.logger.logger])\
             .squeeze()
+
         episode = self.logger.logger[rewards.argmax()]
+
         self.policy.set_parameters(episode["policy_parameters"])
         return
 
-    def analyze(self, i_episode, times: bool = False):
+    def printer(self, i_episode, times: bool = False):
+
         episode = self.logger.logger[i_episode]
+
         if times:
             print("Episode {} with {} roll-outs:\n "
                   "finished after {} and obtained a reward of {}.\n "
@@ -56,6 +62,8 @@ class Agent:
             return
 
     def show(self):
+
+        """ get data out of logger"""
         r_means = np.concatenate(
             [episode["reward_mean"] for episode in self.logger.logger])\
             .squeeze()
@@ -98,6 +106,7 @@ class Agent:
 
     """ Main Functions """
     """==============================================================="""
+
     def train_policy(self, episodes, amount: int=1, times: bool=False,
                      normalizer=None):
 
@@ -139,7 +148,7 @@ class Agent:
                                  delta_t_c, delta_t_p, delta_t_e)
 
             """ analyze episode """
-            self.analyze(i_episode, times)
+            self.printer(i_episode, times)
 
             """ normalize update """
             normalizer.update(trajectories) if not None else None
@@ -149,9 +158,14 @@ class Agent:
         self.env.close()
         return False
 
+    # TODO not finished
+    ''' run benchmark test'''
     def benchmark_test(self, episodes: int=100, render: bool=False):
+
+        """ set policy parameters to best performed parameters"""
         self.set_best_policy()
 
+        """ do roll outs"""
         trajectories = self.env.roll_out(self.policy, amount=episodes,
                                          render=render)
 
