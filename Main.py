@@ -25,14 +25,14 @@ from Normalizer import Normalizer
 
 
 """ Gausspolicy on cartpoleswingup """
-print("================== Start Cartpolesingup ==================")
+print("================== Start Cartpoleswingup ==================")
 
 """ set seed """
 np.random.seed(0)
 tr.manual_seed(0)
 
 """ define the environment """
-gym_env = 'CartpoleSwingShort-v0'
+gym_env = 'DoublePendulum-v0'  # 'Pendulum-v0'  # 'CartpoleSwingShort-v0'
 env = Environment(gym_env)
 
 """ create policy """
@@ -45,13 +45,13 @@ baseline = Baseline(env, hidden_dim=(32, 32))
 normalizer = Normalizer(env)
 
 """ create NPG-algorithm """
-algorithm = NPG(0.001)
+algorithm = NPG(0.05)
 
 """ create agent """
-agent = Agent(env, policy, algorithm, baseline, _gamma=0.99)
+agent = Agent(env, policy, algorithm, baseline, _lambda=0.96, _gamma=0.98, render=True)
 
 """ train the policy """
-agent.train_policy(1000, 20, normalizer=normalizer)
+agent.train_policy(100, 20, normalizer=normalizer)
 
 print("====================== DO Benchmark ======================")
 """ check the results """

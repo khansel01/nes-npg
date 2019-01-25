@@ -65,7 +65,7 @@ class Policy:
             return mean
         else:
             std = tr.exp(self.log_std).detach().numpy().squeeze()
-            noise = std * np.random.randn(self.output_dim)
+            noise = std*np.random.randn(self.output_dim)
             return mean.detach().numpy().squeeze() + noise
 
     def get_log_prob(self, states, actions):

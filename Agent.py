@@ -111,7 +111,7 @@ class Agent:
                                                  normalizer=normalizer)
             else:
                 trajectories = self.env.roll_out(self.policy, amount=amount,
-                                                 render=False,
+                                                 render=self.render,
                                                  normalizer=normalizer)
 
             """ update policy """
