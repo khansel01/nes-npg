@@ -61,6 +61,10 @@ class Environment:
 
     def __act_clip(self, action):
         if isinstance(self.__env.action_space, (LabeledBox, Box)):
+            if action > self.__env.action_space.high:
+                print(Warning, action)
+            elif action < self.__env.action_space.low:
+                print(Warning, action)
             return np.clip(action, self.__env.action_space.low,
                            self.__env.action_space.high)
         else:
@@ -88,7 +92,7 @@ class Environment:
 
             step = 0
             done = False
-            while not done and step < self.__horizon:
+            while step < self.__horizon and done is not True:
 
                 self.__env.render() if render else None
                 action = policy.get_action(observation.reshape(1, -1))

@@ -12,7 +12,8 @@ class Baseline:
     """ Init """
     """==============================================================="""
     def __init__(self, env, hidden_dim: tuple=(128, 128),
-                 activation: nn=nn.Tanh, batch_size:int = 64,lr: float=0.1):
+                 activation: nn=nn.Tanh, batch_size: int = 64,
+                 epochs: int = 10, lr: float=0.1):
 
         """ init """
         self.input_dim = env.obs_dim()
@@ -20,6 +21,7 @@ class Baseline:
         self.hidden_dim = hidden_dim
         self.act = activation
         self.batch_size = batch_size
+        self.epochs = epochs
         self.lr = lr
 
         """ create nn """
@@ -28,8 +30,7 @@ class Baseline:
 
         """ Create Loss function and Adam Optimizer """
         self.loss_fct = nn.MSELoss()
-        self.optimizer = tr.optim.Adam(self.network.parameters(), lr=self.lr)
-        self.loss = 1
+        self.optimizer = tr.optim.SGD(self.network.parameters(), lr=self.lr)
 
     """ Utility Functions """
     """==============================================================="""
@@ -59,29 +60,35 @@ class Baseline:
     """==============================================================="""
     def train(self, trajectories):
         data, values = self.__get_data(trajectories)
-        values = (values - np.mean(values)) / (np.std(values)+1e-10)
-        permuted_idx = np.random.permutation(len(values))
-        for batch in range(int(len(values)/self.batch_size)-1):
-            idx = tr.LongTensor(permuted_idx[batch*64:(batch+1)*64])
-            inputs = tr.from_numpy(data).float()[idx]
-            labels = tr.from_numpy(values).float()[idx]
 
-            self.optimizer.zero_grad()
-            predicted = self.network(inputs)
-            self.loss = self.loss_fct(predicted, labels)
+        # values = (values - values.mean())/(values.std() + 1e-10)
+        for e in range(self.epochs):
+            permuted_idx = np.random.permutation(len(values))
+            for batch in range(int(len(values)/self.batch_size)-1):
+                idx = tr.LongTensor(permuted_idx[batch*64:(batch+1)*64])
+                inputs = tr.from_numpy(data).float()[idx]
+                labels = tr.from_numpy(values).float()[idx]
 
-            """ back propagation"""
-            self.loss.backward()
+                self.optimizer.zero_grad()
+                predicted = self.network(inputs)
+                loss = self.loss_fct(predicted, labels)
 
-            """ update parameters"""
-            self.optimizer.step()
+                """ back propagation"""
+                loss.backward()
+
+                """ update parameters"""
+                self.optimizer.step()
         return
 
     def predict(self, trajectories):
-        x, _ = self.__get_data(trajectories)
-        x = tr.from_numpy(x).float()
-        y = self.network(x).detach().numpy().squeeze()
-        return y
+        obs, _ = self.__get_data(trajectories)
+        return self.network(tr.from_numpy(obs).float())\
+            .detach().numpy().squeeze()
+        # val = self.network(tr.from_numpy(obs).float())\
+        #     .detach().numpy().squeeze()
+        # return val * val.std() + val.mean()
+
+
 
 class Network(nn.Module):
     def __init__(self, input_dim: int = 1, output_dim: int=1,
