@@ -20,7 +20,8 @@ np.random.seed(0)
 tr.manual_seed(0)
 
 """ define the environment """
-gym_env = 'DoublePendulum-v0'  # 'Pendulum-v0'  # 'CartpoleSwingShort-v0'
+# gym_env = 'CartpoleSwingShort-v0'
+gym_env = 'Pendulum-v0'
 env = Environment(gym_env)
 
 """ create policy """
@@ -33,10 +34,10 @@ baseline = Baseline(env, hidden_dim=(32, 32))
 normalizer = Normalizer(env)
 
 """ create NPG-algorithm """
-algorithm = NPG(0.05)
+algorithm = NPG(0.0005)
 
 """ create agent """
-agent = Agent(env, policy, algorithm, baseline, _lambda=0.96, _gamma=0.98, render=True)
+agent = Agent(env, policy, algorithm, baseline)
 
 """ train the policy """
 agent.train_policy(100, 20, normalizer=normalizer)
@@ -45,4 +46,5 @@ print("====================== DO Benchmark ======================")
 """ check the results """
 #   TODO benchmark has a bug
 agent.benchmark_test(episodes=2, render=True)
+
 

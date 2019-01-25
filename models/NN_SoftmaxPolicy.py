@@ -9,16 +9,18 @@ from torch.distributions import Categorical
 
 
 class Policy:
+
+    """ Init """
+    """==============================================================="""
     def __init__(self, env, hidden_dim: tuple=(64, 64),
                  activation: nn=nn.Tanh, lr: float=0.1):
 
-        #   calling Super Class's constructor
         self.input_dim = env.obs_dim()
         self.output_dim = env.act_dim()
         self.hidden_dim = hidden_dim
         self.lr = lr
 
-        #   create nn
+        """ create nn """
         self.act = activation
         self.network = nn.Sequential()
         hidden_dim = self.input_dim
@@ -31,16 +33,18 @@ class Policy:
         self.network.add_module('linear' + (i+1).__str__(),
                                 nn.Linear(hidden_dim, self.output_dim))
 
-        #   set last layer weights and bias small
+        """ set last layer weights and bias small """
         for p in list(self.network.parameters())[-2:]:
             p.data *= 1e-2
 
-        #   get net shape and size
+        """ get net shape and size """
         self.net_shapes = [p.data.numpy().shape
                            for p in self.network.parameters()]
         self.net_sizes = [p.data.numpy().size
                           for p in self.network.parameters()]
 
+    """ Utility Functions """
+    """==============================================================="""
     def get_parameters(self):
         params = np.concatenate([p.contiguous().view(-1).data.numpy()
                                 for p in self.network.parameters()])
@@ -56,6 +60,8 @@ class Policy:
             current_idx += self.net_sizes[idx]
         return
 
+    """ Main Functions """
+    """==============================================================="""
     def get_action(self, state, greedy=False):
         prob = tr.softmax(self.network(tr.from_numpy(state).float()), dim=0)
         if greedy:

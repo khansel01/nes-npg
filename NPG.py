@@ -1,6 +1,6 @@
 import numpy as np
 import torch as tr
-from Conjugate_gradient import conjugate_gradient as cg
+from utilities.Conjugate_gradient import conjugate_gradient as cg
 
 #######################################
 # NPG
@@ -9,8 +9,11 @@ from Conjugate_gradient import conjugate_gradient as cg
 
 class NPG:
 
-    def __init__(self, _delta=0.05):
+    """ Init """
+    """==============================================================="""
+    def __init__(self, _delta=0.05, damping=1e-4):
         self.__delta = 2*_delta
+        self.damping = damping
 
     """ Main Functions """
     """==============================================================="""
@@ -33,25 +36,24 @@ class NPG:
         action_loss = action_losses.mean()
 
         vpg = tr.autograd.grad(action_loss,
-                               policy.train_param, retain_graph=True)
+                               policy.network.parameters(), retain_graph=True)
         vpg_grad = np.concatenate([v.contiguous().detach().view(-1).numpy()
                                    for v in vpg])
 
         """ product inv(fisher) times vanilla gradient via conjugate grad """
         def get_npg(v):
-            damping = 1e-2
+            damping = self.damping
             kl = tr.mean(policy.get_kl(observations))
-            grads = tr.autograd.grad(kl, policy.train_param,
+            grads = tr.autograd.grad(kl, policy.network.parameters(),
                                      create_graph=True)
             grads_flat = tr.cat([grad.view(-1) for grad in grads])
             kl_v = tr.sum(grads_flat * tr.from_numpy(v).float())
-            grads_kl_v = tr.autograd.grad(kl_v, policy.train_param)
+            grads_kl_v = tr.autograd.grad(kl_v, policy.network.parameters())
             flat_grad_grad_v = np.concatenate(
                 [g.contiguous().view(-1).data.numpy() for g in grads_kl_v])
             return flat_grad_grad_v + v * damping
 
-        npg_grad = cg(get_npg, vpg_grad,
-                      x_0=vpg_grad.copy())
+        npg_grad = cg(get_npg, vpg_grad)
 
         """ update policy """
         nominator = vpg_grad.T @ npg_grad + 1e-20
@@ -75,6 +77,7 @@ class NPG:
             #         print(i)
             #         break
         return
+
 
 
 

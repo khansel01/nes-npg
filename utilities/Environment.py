@@ -11,6 +11,8 @@ from quanser_robots.common import LabeledBox
 
 class Environment:
 
+    """ Init """
+    """==============================================================="""
     def __init__(self, gym_env, seed: int=0, horizon: bool=None):
         env = gym.make(gym_env)
         self.__env = env
@@ -64,29 +66,32 @@ class Environment:
         else:
             return action
 
-    def roll_out(self, policy, amount: int = 1, normalizer=None,
-                 render: bool = False, greedy: bool = False):
+    """ Main Functions """
+    """==============================================================="""
+    def roll_out(self, policy, n_roll_outs: int=1, normalizer=None,
+                 render: bool=False):
         trajectories = []
 
-        for s in range(amount):
+        for s in range(n_roll_outs):
 
             observations = []
             actions = []
             rewards = []
+            flag = []
 
             observation = self.__env.reset()
             if isinstance(observation, tuple):
                 observation = np.asarray(observation)
 
             observation = normalizer.transform(observation) \
-                if not None else None
+                if normalizer is not None else observation
 
             step = 0
             done = False
             while done is not True and step < self.__horizon:
 
                 self.__env.render() if render else None
-                action = policy.get_action(observation, greedy=greedy)
+                action = policy.get_action(observation.reshape(1, -1))
                 action = self.__act_clip(action)
 
                 next_observation, reward, done, _ =\
@@ -94,12 +99,13 @@ class Environment:
                 observations.append(observation)
                 actions.append(action)
                 rewards.append(reward)
+                flag.append(0) if done else flag.append(1)
 
                 observation = next_observation
                 if isinstance(observation, tuple):
                     observation = np.asarray(observation)
                 observation = normalizer.transform(observation) \
-                    if not None else None
+                    if normalizer is not None else observation
 
                 step += 1
                 if done:
@@ -108,7 +114,8 @@ class Environment:
             trajectory = dict(
                 observations=np.array(observations),
                 actions=np.array(actions),
-                rewards=np.array(rewards)
+                rewards=np.array(rewards),
+                flags=np.array(flag)
                 )
 
             trajectories.append(trajectory)

@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 #######################################
 # Log data
@@ -7,20 +6,25 @@ import matplotlib.pyplot as plt
 
 
 class Logger:
+
+    """ Init """
+    """==============================================================="""
     def __init__(self):
         self.logger = []
 
+    """ Main Functions """
+    """==============================================================="""
     def log_data(self, trajectories, policy_parameters,
                  delta_t_c, delta_t_p, delta_t_e):
 
-        #   get rewards
+        """ get rewards """
         rewards = np.asarray([np.sum(t["rewards"]) for t in trajectories])
         r_mean = rewards.mean()
         r_std = rewards.std()
         r_max = rewards.max()
         r_min = rewards.min()
 
-        #   get time steps
+        """ get time steps """
         time_steps = np.zeros(len(trajectories))
         for i, t in enumerate(trajectories):
             time_steps[i] = len(t["rewards"])
