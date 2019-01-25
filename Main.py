@@ -3,9 +3,8 @@ import numpy as np
 import gym
 import quanser_robots
 import matplotlib.pyplot as plt
-from NES import NES
-from Features import RbfFeatures, RBFs
-from Environment import Environment
+from NES import *
+from utilities.Environment import Environment
 from Agent import Agent
 
 #######################################
@@ -30,13 +29,13 @@ from Agent import Agent
 
 # np.random.seed(1)
 # env = gym.make('CartpoleSwingShort-v0')
-env = gym.make('Pendulum-v0')
-max_iter = 500
+#env = gym.make('Pendulum-v0')
+gym_env = 'Pendulum-v0'
+env = Environment(gym_env)
+episodes = 50
 # dim = 17
-obs_space = len(env.observation_space.low)# + 1
+obs_space = env.obs_dim
 
-""" train the policy """
-agent.train_policy(1000, 20, normalizer=normalizer)
 
 def get_action(state, w):
     # state = np.reshape(np.append(state, 1), (-1, 1))
@@ -45,34 +44,26 @@ def get_action(state, w):
     return [np.sum(x)]
 
 
-def fitness(env, w):
+def fitness(policy, env, w, n_roll_outs: int = 1):
 
-    eps = 1
+    samples = np.size(w, 0)
+    f = np.zeros(samples)
 
-    s = np.size(w, 0)
-    f = np.zeros(s)
+    seed = env.get_seed()
 
-    seed = env.seed()[0]
+    for s in range(samples):
 
-    for k in range(s):
+        policy.set_parameters(w[s])
 
         env.seed(seed)
-        total_reward = 0
-        for i in range(eps):
 
-            done = False
-            obs = env.reset()
+        trajectories: dict = env.roll_out(policy, n_roll_outs=n_roll_outs)
+        rewards = np.concatenate([t["rewards"]
+                                  for t in trajectories]).reshape(-1, 1)
 
-            while not done:
-                # env.render()
-                obs, reward, done, info = env.step(get_action(obs, w[k]))
-                total_reward += reward
+        f[s] = rewards.sum() / n_roll_outs
 
-        f[k] = total_reward / eps
-    # a = np.argmax(f)
-    # print(f[a], w[a])
-
-    return (f - np.min(f)) / -np.min(f), f
+    return f, f
 
 
 def run_benchmark(w, env, episodes=100):
@@ -114,36 +105,23 @@ def render(w, env, seed=False):
     return r
 
 
-nes = NES(env, 1, 0.3, 50, max_iter=max_iter)
-# w, s, r, e = nes.do(fitness,  np.zeros(obs_space ** 2),
-#                      np.ones(obs_space ** 2) * 0.05)
-# w, s, r, e = nes.optimize(fitness, np.zeros(obs_space ** 2),
-#                           np.ones(obs_space ** 2))
-w, s, r, e = nes.jupps(fitness, np.zeros(obs_space ** 2),
-                          np.ones(obs_space ** 2))
+# random_policy = PolicyNN(env, hidden_dim=(8, 8))
+random_policy = PolicySquare(env)
+nes = NES(env, 1, 0.3, 50, max_iter=episodes)
+mu = np.zeros(random_policy.length)
+sigma = np.ones(random_policy.length)
+w, s, r, e = nes.do(fitness, mu, sigma, random_policy)
 
 
 print(w, s)
 
-x = np.arange(max_iter)
+x = np.arange(episodes)
 
 print(np.shape(x), np.shape(r), np.shape(e))
 plt.errorbar(x, r, e, linestyle='-', marker='x', markeredgecolor='red')
 
 plt.show()
 
-# w = [2.518688, 0.29741, 21.013169, 39.44757]
-# w = [-0.174842, 1.420497, 0.941925, 1.6674]
-# w = [2.97329, 1.058639, 20.500426, 40.637915]
-
 run_benchmark(w, env)
-render(w, env)
+# print(render(w, env))
 
-# r = -1000
-#
-# while r < -300:
-#     w = np.random.rand(obs_space).reshape(1, -1) * 24
-#     r = np.mean(fitness(env, w))
-#     print(r, w)
-#
-# w = [0.729894, 9.423563, 18.105632]
