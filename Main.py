@@ -25,22 +25,22 @@ gym_env = 'Pendulum-v0'
 env = Environment(gym_env)
 
 """ create policy """
-policy = Policy(env, hidden_dim=(32, 32), log_std=-1)
+policy = Policy(env, hidden_dim=(8, 8), log_std=0)
 
 """ create baseline """
-baseline = Baseline(env, hidden_dim=(32, 32))
+baseline = Baseline(env, hidden_dim=(8, 8))
 
 """ create Normalizer to scale the states/observations """
 normalizer = Normalizer(env)
 
 """ create NPG-algorithm """
-algorithm = NPG(0.0005)
+algorithm = NPG(0.0025)
 
 """ create agent """
-agent = Agent(env, policy, algorithm, baseline)
+agent = Agent(env, policy, algorithm, baseline, _gamma=0.99, render=True)
 
 """ train the policy """
-agent.train_policy(100, 20, normalizer=normalizer)
+agent.train_policy(100, 50, normalizer=normalizer)
 
 print("====================== DO Benchmark ======================")
 """ check the results """

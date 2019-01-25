@@ -12,13 +12,12 @@ class Policy:
     """ Init """
     """==============================================================="""
     def __init__(self, env, hidden_dim: tuple=(64, 64),
-                 activation: nn=nn.Tanh, lr: float=0.1, log_std=0):
+                 activation: nn=nn.Tanh, log_std=0):
 
         """ init """
         self.input_dim = env.obs_dim()
         self.output_dim = env.act_dim()
         self.hidden_dim = hidden_dim
-        self.lr = lr
         self.act = activation
         self.log_std = log_std
 
@@ -54,7 +53,8 @@ class Policy:
     """ Main Functions """
     """==============================================================="""
     def get_action(self, state, greedy=False):
-        mean, log_std = self.network.forward(tr.from_numpy(state.reshape(1, -1)).float())
+        mean, log_std = self.network.forward(
+            tr.from_numpy(state.reshape(1, -1)).float())
         if greedy:
             return mean.detach().numpy().squeeze()
         else:
@@ -66,7 +66,8 @@ class Policy:
         mean, log_std = self.network.forward(tr.from_numpy(states).float())
 
         actions = tr.from_numpy(actions).float()
-        log_prob = - (actions - mean) ** 2 / (2.0 * tr.exp(log_std) ** 2)
+        log_prob = - (actions - mean) ** 2
+        log_prob /= (2.0 * tr.exp(log_std) ** 2 + 1e-10)
         log_prob -= log_std + 0.5 * self.output_dim * np.log(2 * np.pi)
         return log_prob.sum(1, keepdim=True)
 
@@ -78,8 +79,9 @@ class Policy:
         fixed_log_std = log_std.detach()
         fixed_std = std.detach()
 
-        kl = log_std - fixed_log_std - 0.5
-        kl += (fixed_std ** 2 + (fixed_mean - mean) ** 2) / (2.0 * std ** 2)
+        kl = (fixed_std ** 2 + (fixed_mean - mean) ** 2)
+        kl /= (2.0 * std ** 2 + 1e-10)
+        kl += log_std - fixed_log_std - 0.5
         return kl.sum(1, keepdim=True)
 
 

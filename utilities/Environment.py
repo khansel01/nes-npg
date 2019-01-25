@@ -13,7 +13,7 @@ class Environment:
 
     """ Init """
     """==============================================================="""
-    def __init__(self, gym_env, seed: int=0, horizon: bool=None):
+    def __init__(self, gym_env, seed: int=0, horizon: int=None):
         env = gym.make(gym_env)
         self.__env = env
         self.__horizon = self.__env.spec.timestep_limit if horizon is None\
@@ -61,6 +61,10 @@ class Environment:
 
     def __act_clip(self, action):
         if isinstance(self.__env.action_space, (LabeledBox, Box)):
+            if action > self.__env.action_space.high:
+                print(Warning, action)
+            elif action < self.__env.action_space.low:
+                print(Warning, action)
             return np.clip(action, self.__env.action_space.low,
                            self.__env.action_space.high)
         else:
@@ -88,11 +92,11 @@ class Environment:
 
             step = 0
             done = False
-            while done is not True and step < self.__horizon:
+            while step < self.__horizon and done is not True:
 
                 self.__env.render() if render else None
                 action = policy.get_action(observation.reshape(1, -1))
-                action = self.__act_clip(action)
+                # action = self.__act_clip(action)
 
                 next_observation, reward, done, _ =\
                     self.step(np.asarray(action))
