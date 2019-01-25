@@ -59,7 +59,7 @@ class Baseline:
     """==============================================================="""
     def train(self, trajectories):
         data, values = self.__get_data(trajectories)
-
+        values = (values - np.mean(values)) / (np.std(values)+1e-10)
         permuted_idx = np.random.permutation(len(values))
         for batch in range(int(len(values)/self.batch_size)-1):
             idx = tr.LongTensor(permuted_idx[batch*64:(batch+1)*64])
@@ -80,8 +80,8 @@ class Baseline:
     def predict(self, trajectories):
         x, _ = self.__get_data(trajectories)
         x = tr.from_numpy(x).float()
-        return self.network(x).detach().numpy().squeeze()
-
+        y = self.network(x).detach().numpy().squeeze()
+        return y
 
 class Network(nn.Module):
     def __init__(self, input_dim: int = 1, output_dim: int=1,

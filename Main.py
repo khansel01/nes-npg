@@ -20,11 +20,11 @@ np.random.seed(0)
 tr.manual_seed(0)
 
 """ define the environment """
-gym_env = 'DoublePendulum-v0'  # 'Pendulum-v0'  # 'CartpoleSwingShort-v0'
+gym_env = 'CartpoleSwingShort-v0'
 env = Environment(gym_env)
 
 """ create policy """
-policy = Policy(env, hidden_dim=(32, 32), log_std=-1)
+policy = Policy(env, hidden_dim=(32, 32), log_std=1)
 
 """ create baseline """
 baseline = Baseline(env, hidden_dim=(32, 32))
@@ -33,13 +33,13 @@ baseline = Baseline(env, hidden_dim=(32, 32))
 normalizer = Normalizer(env)
 
 """ create NPG-algorithm """
-algorithm = NPG(0.05)
+algorithm = NPG(0.001)
 
 """ create agent """
-agent = Agent(env, policy, algorithm, baseline, _lambda=0.96, _gamma=0.98, render=True)
+agent = Agent(env, policy, algorithm, baseline, _lambda=0.95, _gamma=0.99)
 
 """ train the policy """
-agent.train_policy(100, 20, normalizer=normalizer)
+agent.train_policy(500, 10, normalizer=normalizer)
 
 print("====================== DO Benchmark ======================")
 """ check the results """

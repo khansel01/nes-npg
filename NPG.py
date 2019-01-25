@@ -67,15 +67,15 @@ class NPG:
         if tr.mean(kl.sum(1, keepdim=True)) >= self.__delta:
             print(True)
             print(tr.mean(kl.sum(1, keepdim=True)) - self.__delta)
-            # for i in range(10):
-            #     new = current + (0.9 ** i )*learning_rate * npg_grad
-            #     policy.set_parameters(new)
-            #
-            #     new_log_prob = policy.get_log_prob(observations, actions)
-            #     kl = tr.exp(new_log_prob) * (new_log_prob - fixed_log_probs)
-            #     if tr.mean(kl.sum(1, keepdim=True)) <= self.__delta:
-            #         print(i)
-            #         break
+            for i in range(100):
+                new = current + (0.9 ** i)*learning_rate * npg_grad
+                policy.set_parameters(new)
+
+                new_log_prob = policy.get_log_prob(observations, actions)
+                kl = tr.exp(new_log_prob) * (new_log_prob - fixed_log_probs)
+                if tr.mean(kl.sum(1, keepdim=True)) <= self.__delta:
+                    print(i)
+                    break
         return
 
 

@@ -116,10 +116,11 @@ class Agent:
             if i_episode + 1 == episodes:
                 trajectories = self.env.roll_out(self.policy,
                                                  n_roll_outs=n_roll_outs,
-                                                 render=self.render,
+                                                 render=True,
                                                  normalizer=normalizer)
             else:
-                trajectories = self.env.roll_out(self.policy, amount=amount,
+                trajectories = self.env.roll_out(self.policy,
+                                                 n_roll_outs=n_roll_outs,
                                                  render=self.render,
                                                  normalizer=normalizer)
 
@@ -167,7 +168,7 @@ class Agent:
         self.set_best_policy()
 
         """ do roll outs"""
-        trajectories = self.env.roll_out(self.policy, amount=episodes,
+        trajectories = self.env.roll_out(self.policy, n_roll_outs=episodes,
                                          render=render)
 
         # rewards_sum = np.concatenate(
