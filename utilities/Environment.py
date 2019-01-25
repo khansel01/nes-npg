@@ -13,12 +13,14 @@ class Environment:
 
     """ Init """
     """==============================================================="""
-    def __init__(self, gym_env, seed: int=0, horizon: int=None):
+    def __init__(self, gym_env, seed: int=0,
+                 horizon: int=None, clip: int=None):
         env = gym.make(gym_env)
         self.__env = env
         self.__horizon = self.__env.spec.timestep_limit if horizon is None\
             else horizon
         self.__seed = seed
+        self.__clip = clip
         self.seed(self.__seed)
 
     """ Utility Functions """
@@ -60,11 +62,9 @@ class Environment:
         return out
 
     def __act_clip(self, action):
-        if isinstance(self.__env.action_space, (LabeledBox, Box)):
-            if action > self.__env.action_space.high:
-                print(Warning, action)
-            elif action < self.__env.action_space.low:
-                print(Warning, action)
+        if self.__clip is not None:
+            return np.clip(action, self.__clip, self.__clip)
+        elif isinstance(self.__env.action_space, (LabeledBox, Box)):
             return np.clip(action, self.__env.action_space.low,
                            self.__env.action_space.high)
         else:
@@ -96,10 +96,9 @@ class Environment:
 
                 self.__env.render() if render else None
                 action = policy.get_action(observation.reshape(1, -1))
-                # action = self.__act_clip(action)
 
                 next_observation, reward, done, _ =\
-                    self.step(np.asarray(action))
+                    self.step(np.asarray(self.__act_clip(action)))
                 observations.append(observation)
                 actions.append(action)
                 rewards.append(reward)

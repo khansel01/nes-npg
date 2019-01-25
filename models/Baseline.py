@@ -30,7 +30,7 @@ class Baseline:
 
         """ Create Loss function and Adam Optimizer """
         self.loss_fct = nn.MSELoss()
-        self.optimizer = tr.optim.SGD(self.network.parameters(), lr=self.lr)
+        self.optimizer = tr.optim.Adam(self.network.parameters(), lr=self.lr)
 
     """ Utility Functions """
     """==============================================================="""
