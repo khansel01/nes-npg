@@ -24,7 +24,8 @@ class NES:
         # random number generator for drawing samples z_k
         sampler = np.random.RandomState()
 
-        z = np.zeros((self.__population_size, len(mu)))
+        rewards = np.array([])
+        stds = np.array([])
 
         while not stop:
             # sample
@@ -72,20 +73,80 @@ class NES:
             # We aren't using covariance, so we just need the diagonal
             # sigma += np.diagonal(self.__eta_sigma *
             #                      self.__inverse(fisher_sigma) * j_sigma)
-            sigma += self.__eta_sigma / 2. * 1. / len(s) * sigma * np.dot(
+            sigma += self.__eta_sigma / 2. / len(s) * sigma * np.dot(
                 fitness, s ** 2 - 1.)
 
             # sigma has to be positive
             if np.any(sigma < self.sigma_lower_bound):
                 sigma[sigma < self.sigma_lower_bound] = self.sigma_lower_bound
 
+            # print(generation, np.mean(g), max(g), sigma, mu)
+            rewards = np.append(rewards, np.mean(g))
+            stds = np.append(stds, np.std(g))
+
             generation += 1
-            print(generation, np.mean(g), max(g), sigma, mu)
 
             # until stopping criterion is met
             stop = generation >= self.max_iter
 
-        return mu, sigma
+        return mu, sigma, rewards, stds
+
+    def jupps(self, f, mu, sigma):
+        stop = False
+        generation = 0
+
+        # random number generator for drawing samples z_k
+        sampler = np.random.RandomState()
+
+        rewards = np.array([])
+        stds = np.array([])
+
+        while not stop:
+            # draw samples
+            s = sampler.normal(0, 1, (self.__population_size, len(mu)))
+
+            z = mu + sigma * s
+
+            # evaluate fitness
+            fitness, g = f(self.env, z)
+
+            # compute utilities
+            s_sorted, u = self.__utility(s, fitness)
+            # s_sorted, u = s, fitness
+
+            # compute gradients
+            j_mu = u @ s_sorted
+            j_sigma = u @ (s_sorted**2 - 1)
+
+            # update parameters
+            mu += self.__eta_mu * sigma * j_mu
+            sigma += np.exp(self.__eta_sigma / 2 * j_sigma)
+
+            # sigma has to be positive
+            if np.any(sigma < self.sigma_lower_bound):
+                sigma[sigma < self.sigma_lower_bound] = self.sigma_lower_bound
+
+            print(generation, np.mean(g), max(g), sigma, mu)
+            rewards = np.append(rewards, np.mean(g))
+            stds = np.append(stds, np.std(g))
+
+            generation += 1
+
+            # until stopping criterion is met
+            stop = generation >= self.max_iter
+
+        return mu, sigma, rewards, stds
+
+    def __utility(self, s, f):
+        indices = np.argsort(f, kind="mergesort")
+        # descending
+        s_sorted = s[indices[::-1]]
+        log_half = np.log(0.5 * self.__population_size + 1)
+        log_k = np.log(np.arange(1, self.__population_size + 1))
+        numerator = np.maximum(0, log_half - log_k)
+        u = numerator / np.sum(numerator) - 1 / self.__population_size
+
+        return s_sorted, u
 
 
     @staticmethod
@@ -117,6 +178,9 @@ class NES:
         learning_rate_mu = self.__eta_mu
         learning_rate_sigma = default_learning_rate_sigma(mu.size)
 
+        rewards = np.array([])
+        stds = np.array([])
+
         while True:
             s = rng.normal(0, 1, size=(self.__population_size, *np.shape(mu)))
             z = mu + sigma * s
@@ -135,13 +199,16 @@ class NES:
                 sigma[sigma < self.sigma_lower_bound] = self.sigma_lower_bound
 
             print(generation, np.mean(g), max(g), sigma, mu)
+            rewards = np.append(rewards, np.mean(g))
+            stds = np.append(stds, np.std(g))
+
             generation += 1
 
             # exit if max iterations reached
-            if generation > self.max_iter or np.all(sigma < 1e-10):
+            if generation >= self.max_iter or np.all(sigma < 1e-10):
                 break
 
-        return mu, sigma
+        return mu, sigma, rewards, stds
 
 
 def default_learning_rate_sigma(dimensions):
