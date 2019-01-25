@@ -1,55 +1,81 @@
 import numpy as np
+import torch as tr
+from utilities.Conjugate_gradient import conjugate_gradient as cg
 
 #######################################
 # NPG
 #######################################
 
 
-#TODO comments
 class NPG:
-    def __init__(self, _delta=0.05):
-        np.random.seed(1)
-        self.__delta = _delta
 
+    """ Init """
+    """==============================================================="""
+    def __init__(self, _delta=0.05):
+        self.__delta = 2*_delta
+
+    """ Main Functions """
+    """==============================================================="""
     def do(self, trajectories, policy):
+
         observations = np.concatenate([t["observations"]
                                        for t in trajectories])
         actions = np.concatenate([t["actions"]
                                   for t in trajectories]).reshape(-1, 1)
-
-        advantage = np.concatenate([t["advantages"]
+        advantages = np.concatenate([t["advantages"]
                                     for t in trajectories]).reshape(-1, 1)
 
-        #   vanilla gradient for each step
-        log_grad = np.zeros((policy.weights.size, len(actions)))
-        for i in range(len(actions)):
-            log_grad[:, i:i + 1] = policy.get_log_grad(
-                observations[i, :], actions[i]).reshape((-1, 1), order='F')
-        #log_grad = policy.get_log_grad(observations, actions)
+        """ vanilla gradient """
+        with tr.no_grad():
+            fixed_log_probs = policy.get_log_prob(observations, actions)
 
-        #   vanilla gradient for each step
-        vpg = log_grad @ advantage
-        vpg /= log_grad.shape[1]
+        log_probs = policy.get_log_prob(observations, actions)
+        action_losses = tr.from_numpy(advantages).float() * tr.exp(
+            log_probs - fixed_log_probs)
+        action_loss = action_losses.mean()
 
-        #   Fisher matrix
-        fisher = log_grad @ log_grad.T
-        fisher /= log_grad.shape[1]
-        fisher = np.diagonal(fisher)[None, :]
-        fisher = np.diagflat(fisher)
-        inv_fisher = self.__compute_inverse(fisher)
+        vpg = tr.autograd.grad(action_loss,
+                               policy.train_param, retain_graph=True)
+        vpg_grad = np.concatenate([v.contiguous().detach().view(-1).numpy()
+                                   for v in vpg])
 
-        #   update step
-        nominator = vpg.T @ (inv_fisher @ vpg)
+        """ product inv(fisher) times vanilla gradient via conjugate grad """
+        def get_npg(v):
+            damping = 1e-2
+            kl = tr.mean(policy.get_kl(observations))
+            grads = tr.autograd.grad(kl, policy.train_param,
+                                     create_graph=True)
+            grads_flat = tr.cat([grad.view(-1) for grad in grads])
+            kl_v = tr.sum(grads_flat * tr.from_numpy(v).float())
+            grads_kl_v = tr.autograd.grad(kl_v, policy.train_param)
+            flat_grad_grad_v = np.concatenate(
+                [g.contiguous().view(-1).data.numpy() for g in grads_kl_v])
+            return flat_grad_grad_v + v * damping
+
+        npg_grad = cg(get_npg, vpg_grad,
+                      x_0=vpg_grad.copy())
+
+        """ update policy """
+        nominator = vpg_grad.T @ npg_grad + 1e-20
         learning_rate = np.sqrt(self.__delta / nominator)
-        step = np.multiply(learning_rate, (inv_fisher @ vpg))
-        policy.weights += step.reshape(policy.weights.shape, order='F')
+        current = policy.get_parameters()
+        new = current + learning_rate * npg_grad
+        policy.set_parameters(new)
+
+        new_log_prob = policy.get_log_prob(observations, actions)
+        kl = tr.exp(new_log_prob) * (new_log_prob - fixed_log_probs)
+        if tr.mean(kl.sum(1, keepdim=True)) >= self.__delta:
+            print(True)
+        # for i in range(10):
+        #     new = current + (0.9 ** i )*learning_rate * npg_grad
+        #     policy.set_parameters(new)
+        #
+        #     new_log_prob = policy.get_log_prob(observations, actions)
+        #     kl = tr.exp(new_log_prob) * (new_log_prob - fixed_log_probs)
+        #     if tr.mean(kl.sum(1, keepdim=True)) <= self.__delta:
+        #         break
         return
 
-    @staticmethod
-    def __compute_inverse(matrix):
-        u, s, v = np.linalg.svd(matrix)
-        s = np.diag(s**-1)
-        return v.T @ (s @ u.T)
 
 
 

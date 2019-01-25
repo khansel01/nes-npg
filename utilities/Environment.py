@@ -11,6 +11,8 @@ from quanser_robots.common import LabeledBox
 
 class Environment:
 
+    """ Init """
+    """==============================================================="""
     def __init__(self, gym_env, seed: int=0, horizon: bool=None):
         env = gym.make(gym_env)
         self.__env = env

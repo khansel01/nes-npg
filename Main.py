@@ -1,3 +1,4 @@
+import torch as tr
 import numpy as np
 import gym
 import quanser_robots
@@ -34,6 +35,8 @@ max_iter = 500
 # dim = 17
 obs_space = len(env.observation_space.low)# + 1
 
+""" train the policy """
+agent.train_policy(1000, 20, normalizer=normalizer)
 
 def get_action(state, w):
     # state = np.reshape(np.append(state, 1), (-1, 1))

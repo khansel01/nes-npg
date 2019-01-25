@@ -8,16 +8,19 @@ import torch.nn as nn
 
 
 class Baseline:
+
+    """ Init """
+    """==============================================================="""
     def __init__(self, env, hidden_dim: tuple=(128, 128),
                  activation: nn=nn.Tanh, lr: float=0.1):
 
-        #   init
+        """ init """
         self.input_dim = env.obs_dim()
         self.output_dim = env.act_dim()
         self.hidden_dim = hidden_dim
         self.lr = lr
 
-        #   create nn
+        """ create nn """
         self.act = activation()
         self.network = nn.Sequential()
         hidden_dim = self.input_dim
@@ -30,33 +33,17 @@ class Baseline:
         self.network.add_module('linear' + (i+1).__str__(),
                                 nn.Linear(hidden_dim, self.output_dim))
 
-        #   set last layer weights and bias small
+        """ set last layer weights and bias small """
         for p in list(self.network.parameters())[-2:]:
             p.data *= 1e-2
 
-        # Create Loss function and SGD Optimizer
+        """ Create Loss function and SGD Optimizer """
         self.loss_fct = nn.MSELoss()
         self.optimizer = tr.optim.SGD(self.network.parameters(), lr=self.lr)
         self.loss = 1
 
-    def train(self, trajectories, eps=1e-6):
-        data, values = self.__get_data(trajectories)
-        while self.loss > eps:
-            # increase the number of epochs by 1 every time
-            inputs = tr.from_numpy(data).float()
-            labels = tr.from_numpy(values).float()
-            self.optimizer.zero_grad()
-            predicted = self.network(inputs)
-            self.loss = self.loss_fct(predicted, labels)
-            self.loss.backward()  # back props
-            self.optimizer.step()  # update the parameter
-        return
-
-    def predict(self, trajectories):
-        x, _ = self.__get_data(trajectories)
-        x = tr.from_numpy(x).float()
-        return self.network(x).detach().numpy().squeeze()
-
+    """ Utility Functions """
+    """==============================================================="""
     @staticmethod
     def __get_data(trajectories):
         if isinstance(trajectories, list):
@@ -81,4 +68,27 @@ class Baseline:
                 val = np.zeros_like(rew).reshape(-1, 1)
 
         return obs, val
-        #return np.concatenate((obs, act, rew), axis=1), val
+        # return np.concatenate((obs, act, rew), axis=1), val
+
+    """ Main Functions """
+    """==============================================================="""
+    def train(self, trajectories, eps=1e-6):
+        data, values = self.__get_data(trajectories)
+        while self.loss > eps:
+            inputs = tr.from_numpy(data).float()
+            labels = tr.from_numpy(values).float()
+            self.optimizer.zero_grad()
+            predicted = self.network(inputs)
+            self.loss = self.loss_fct(predicted, labels)
+
+            """ back propagation"""
+            self.loss.backward()
+
+            """ update parameters"""
+            self.optimizer.step()
+        return
+
+    def predict(self, trajectories):
+        x, _ = self.__get_data(trajectories)
+        x = tr.from_numpy(x).float()
+        return self.network(x).detach().numpy().squeeze()
