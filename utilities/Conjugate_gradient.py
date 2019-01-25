@@ -6,7 +6,7 @@ import numpy as np
 #######################################
 
 
-def conjugate_gradient(f_Ax, b, x_0=None, cg_iters=10, residual_tol=1e-10):
+def conjugate_gradient(f_Ax, b, cg_iters=10, residual_tol=1e-10):
     x = np.zeros_like(b)  # if x_0 is None else x_0
     r = b.copy()  # if x_0 is None else b-f_Ax(x_0)
     p = r.copy()

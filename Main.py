@@ -12,45 +12,35 @@ from utilities.Normalizer import Normalizer
 #######################################
 
 
-## Softmaxpolicy on cartpole
-# np.random.seed(0)
-# tr.manual_seed(0)
-# gym_env = 'CartPole-v0'
-# env = Environment(gym_env)
-# policy = Policy(env, hidden_dim=(100, 100, 100), activation=tr.nn.Tanh())
-# algorithm = NPG(0.01)
-# agent = Agent(env, policy, algorithm)
-# agent.train_policy(200, 10)
-
-
 """ Gausspolicy on cartpoleswingup """
-print("================== Start Cartpolesingup ==================")
+print("================== Start Cartpoleswingup ==================")
 
 """ set seed """
 np.random.seed(0)
 tr.manual_seed(0)
 
 """ define the environment """
-gym_env = 'CartpoleSwingShort-v0'
+# gym_env = 'CartpoleSwingShort-v0'
+gym_env = 'Pendulum-v0'
 env = Environment(gym_env)
 
 """ create policy """
-policy = Policy(env, hidden_dim=(32, 32))
+policy = Policy(env, hidden_dim=(32, 32), log_std=-1)
 
 """ create baseline """
-baseline = Baseline(env, hidden_dim=(64, 64))
+baseline = Baseline(env, hidden_dim=(32, 32))
 
 """ create Normalizer to scale the states/observations """
 normalizer = Normalizer(env)
 
 """ create NPG-algorithm """
-algorithm = NPG(0.001)
+algorithm = NPG(0.0005)
 
 """ create agent """
-agent = Agent(env, policy, algorithm, baseline, _gamma=0.9995)
+agent = Agent(env, policy, algorithm, baseline)
 
 """ train the policy """
-agent.train_policy(1000, 20, normalizer=normalizer)
+agent.train_policy(100, 20, normalizer=normalizer)
 
 print("====================== DO Benchmark ======================")
 """ check the results """

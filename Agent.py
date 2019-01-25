@@ -16,7 +16,6 @@ class Agent:
         self.algorithm = algorithm
         self.__lambda = _lambda
         self.__gamma = _gamma
-        self.__eps = 1e-6
         self.baseline = baseline
         self.render = render
         self.plot = plot
@@ -61,7 +60,7 @@ class Agent:
                           episode["reward_mean"].squeeze()))
             return
 
-    def show(self):
+    def plotter(self):
 
         """ get data out of logger"""
         r_means = np.concatenate(
@@ -107,7 +106,7 @@ class Agent:
     """ Main Functions """
     """==============================================================="""
 
-    def train_policy(self, episodes, amount: int=1, times: bool=False,
+    def train_policy(self, episodes, n_roll_outs: int=1, times: bool=False,
                      normalizer=None):
 
         for i_episode in range(episodes):
@@ -115,18 +114,20 @@ class Agent:
             """ roll out trajectories """
             delta_t_e = time.time()
             if i_episode + 1 == episodes:
-                trajectories = self.env.roll_out(self.policy, amount=amount,
+                trajectories = self.env.roll_out(self.policy,
+                                                 n_roll_outs=n_roll_outs,
                                                  render=self.render,
                                                  normalizer=normalizer)
             else:
-                trajectories = self.env.roll_out(self.policy, amount=amount,
+                trajectories = self.env.roll_out(self.policy,
+                                                 n_roll_outs=n_roll_outs,
                                                  render=False,
                                                  normalizer=normalizer)
 
             """ update policy """
             delta_t_p = time.time()
 
-            print("log_grad:", self.policy.log_std.detach().numpy().squeeze())
+            print("log_std:", self.policy.network.log_std)
 
             estimate_advantage(trajectories,
                                self.baseline, self.__gamma, self.__lambda)
@@ -151,9 +152,10 @@ class Agent:
             self.printer(i_episode, times)
 
             """ normalize update """
-            normalizer.update(trajectories) if not None else None
+            normalizer.update(trajectories) if normalizer is not None \
+                else None
 
-        self.show() if self.plot is True else None
+        self.plotter() if self.plot is True else None
 
         self.env.close()
         return False
