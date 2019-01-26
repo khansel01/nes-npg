@@ -21,22 +21,22 @@ print("===================== Start {} =====================".format(gym_env))
 env = Environment(gym_env)
 
 """ create policy """
-policy = Policy(env, hidden_dim=(8, 8), log_std=0)
+policy = Policy(env, hidden_dim=(4, 4), log_std=0)
 
 """ create baseline """
-baseline = Baseline(env, hidden_dim=(8, 8))
+baseline = Baseline(env, hidden_dim=(4, 4))
 
 """ create Normalizer to scale the states/observations """
 normalizer = Normalizer(env)
 
 """ create NPG-algorithm """
-algorithm = NPG(0.0025)
+algorithm = NPG(0.005)
 
 """ create agent """
 agent = Agent(env, policy, algorithm, baseline, render=True)
 
 """ train the policy """
-agent.train_policy(200, 50, normalizer=normalizer)
+agent.train_policy(200, 100, normalizer=normalizer)
 
 print("====================== DO Benchmark ======================")
 """ check the results """

@@ -46,8 +46,6 @@ class Policy:
             temp_param = temp_param.reshape(self.net_shapes[idx])
             param.data = tr.from_numpy(temp_param).float()
             current_idx += self.net_sizes[idx]
-        #self.network.log_std.data = \
-        #    tr.clamp(self.network.log_std, -3).data
         return
 
     """ Main Functions """

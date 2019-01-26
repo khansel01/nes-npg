@@ -16,15 +16,15 @@ np.random.seed(0)
 tr.manual_seed(0)
 
 """ define the environment """
-gym_env = 'CartpoleSwingShort-v0'
+gym_env = 'DoublePendulum-v0'
 print("===================== Start {} =====================".format(gym_env))
 env = Environment(gym_env)
 
 """ create policy """
-policy = Policy(env, hidden_dim=(15, 15), log_std=0)
+policy = Policy(env, hidden_dim=(32, 32), log_std=0)
 
 """ create baseline """
-baseline = Baseline(env, hidden_dim=(15, 15), epochs=10)
+baseline = Baseline(env, hidden_dim=(32, 32))
 
 """ create Normalizer to scale the states/observations """
 normalizer = Normalizer(env)
@@ -33,14 +33,12 @@ normalizer = Normalizer(env)
 algorithm = NPG(0.005)
 
 """ create agent """
-agent = Agent(env, policy, algorithm, baseline, _gamma=0.99)
+agent = Agent(env, policy, algorithm, baseline, render=True)
 
 """ train the policy """
-agent.train_policy(1000, 20, normalizer=normalizer)
+agent.train_policy(1000, 100, normalizer=normalizer)
 
 print("====================== DO Benchmark ======================")
 """ check the results """
 #   TODO benchmark has a bug
 agent.benchmark_test(episodes=2, render=True)
-
-
