@@ -34,6 +34,9 @@ class Environment:
     def get_seed(self):
         return self.__env.seed()[0]
 
+    def render(self):
+        return self.__env.render()
+
     def reset(self):
         return self.__env.reset()
 
@@ -95,10 +98,9 @@ class Environment:
 
                 self.__env.render() if render else None
                 action = policy.get_action(observation.reshape(1, -1))
-                action = self.__act_clip(action)
 
                 next_observation, reward, done, _ =\
-                    self.step(np.asarray(action))
+                    self.step(np.asarray([action]))
                 observations.append(observation)
                 actions.append(action)
                 rewards.append(reward)
@@ -118,39 +120,11 @@ class Environment:
                 observations=np.array(observations),
                 actions=np.array(actions),
                 rewards=np.array(rewards),
-                flags=np.array(flag)
+                flags=np.array(flag),
+                steps=step
                 )
 
             trajectories.append(trajectory)
 
         return trajectories
-
-    # def roll_out(self, policy, w, n_roll_outs: int = 1):
-    #
-    #     s = np.size(w, 0)
-    #     f = np.zeros(s)
-    #
-    #     seed = self.get_seed()
-    #
-    #     for k in range(s):
-    #
-    #         self.seed(seed)
-    #         policy.set_parameters(w[k])
-    #
-    #         total_reward = 0
-    #         for i in range(n_roll_outs):
-    #
-    #             done = False
-    #             obs = self.__env.reset()
-    #
-    #             while not done:
-    #                 # env.render()
-    #                 obs, reward, done, info =\
-    #                     self.__env.step(policy.get_action(obs))
-    #
-    #                 total_reward += reward
-    #
-    #         f[k] = total_reward / n_roll_outs
-    #
-    #     return f, f
 

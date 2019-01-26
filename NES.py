@@ -9,12 +9,23 @@ import torch.nn as nn
 
 #TODO comments
 class NES:
-    def __init__(self, env, eta_sigma, eta_mu, population_size=5,
+    def __init__(self, env, size, eta_sigma=None, eta_mu=None, population_size=None,
                  sigma_lower_bound=1e-10, max_iter=100):
 
-        self.__population_size = population_size
-        self.__eta_sigma = eta_sigma
-        self.__eta_mu = eta_mu
+        log_3d = 3 * np.log(size)
+
+        if population_size is not None:
+            self.__population_size = population_size
+        else:
+            self.__population_size = int(4 + np.floor(log_3d))
+
+        if eta_sigma is not None:
+            self.__eta_sigma = eta_sigma
+        else:
+            self.__eta_sigma = (9 + log_3d) / (5 * np.sqrt(size))
+
+        self.__eta_mu = eta_mu if eta_mu is not None else 1
+
         self.env = env
         self.max_iter = max_iter
         self.sigma_lower_bound = sigma_lower_bound
@@ -36,9 +47,7 @@ class NES:
             z = mu + sigma * s
 
             # evaluate fitness
-            fitness, g = f(policy, self.env, z, 1)
-            # fitness, g = self.env.roll_out(policy, z)
-
+            fitness, g = f(policy, self.env, z)
 
             # compute utilities
             s_sorted, u = self.__utility(s, fitness)
@@ -48,6 +57,9 @@ class NES:
             j_mu = u @ s_sorted
             j_sigma = u @ (s_sorted**2 - 1)
 
+            # calculate current value for learning curve
+            val, st = f(policy, self.env, [mu])
+
             # update parameters
             mu += self.__eta_mu * sigma * j_mu
             sigma *= np.exp(self.__eta_sigma / 2 * j_sigma)
@@ -56,9 +68,11 @@ class NES:
             if np.any(sigma < self.sigma_lower_bound):
                 sigma[sigma < self.sigma_lower_bound] = self.sigma_lower_bound
 
-            print(generation, np.mean(g), max(g), sigma, mu)
-            rewards = np.append(rewards, np.mean(g))
-            stds = np.append(stds, np.std(g))
+            print(generation, val[0],  np.mean(fitness), max(fitness),
+                  np.mean(g), max(g), max(mu))
+
+            rewards = np.append(rewards, val)
+            stds = np.append(stds, np.std(fitness))
 
             generation += 1
 
