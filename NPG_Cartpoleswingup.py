@@ -11,36 +11,32 @@ from utilities.Normalizer import Normalizer
 # Environment
 #######################################
 
-
-""" Gausspolicy on cartpoleswingup """
-print("================== Start Cartpoleswingup ==================")
-
 """ set seed """
 np.random.seed(0)
 tr.manual_seed(0)
 
 """ define the environment """
-# gym_env = 'CartpoleSwingShort-v0'
-gym_env = 'Pendulum-v0'
+gym_env = 'CartpoleSwingShort-v0'
+print("===================== Start {} =====================".format(gym_env))
 env = Environment(gym_env)
 
 """ create policy """
-policy = Policy(env, hidden_dim=(32, 32), log_std=-1)
+policy = Policy(env, hidden_dim=(5, 5), log_std=0)
 
 """ create baseline """
-baseline = Baseline(env, hidden_dim=(32, 32))
+baseline = Baseline(env, hidden_dim=(5, 5), epochs=10)
 
 """ create Normalizer to scale the states/observations """
 normalizer = Normalizer(env)
 
 """ create NPG-algorithm """
-algorithm = NPG(0.0005)
+algorithm = NPG(0.005)
 
 """ create agent """
-agent = Agent(env, policy, algorithm, baseline)
+agent = Agent(env, policy, algorithm, baseline, _gamma=0.99)
 
 """ train the policy """
-agent.train_policy(100, 20, normalizer=normalizer)
+agent.train_policy(1000, 20, normalizer=normalizer)
 
 print("====================== DO Benchmark ======================")
 """ check the results """

@@ -99,6 +99,7 @@ class Environment:
 
                 next_observation, reward, done, _ =\
                     self.step(np.asarray(self.__act_clip(action)))
+
                 observations.append(observation)
                 actions.append(action)
                 rewards.append(reward)

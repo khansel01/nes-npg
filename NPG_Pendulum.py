@@ -21,7 +21,7 @@ print("===================== Start {} =====================".format(gym_env))
 env = Environment(gym_env)
 
 """ create policy """
-policy = Policy(env, hidden_dim=(8, 8), log_std=1)
+policy = Policy(env, hidden_dim=(8, 8), log_std=0)
 
 """ create baseline """
 baseline = Baseline(env, hidden_dim=(8, 8))
