@@ -60,8 +60,6 @@ class Baseline:
     """==============================================================="""
     def train(self, trajectories):
         data, values = self.__get_data(trajectories)
-
-        # values = (values - values.mean())/(values.std() + 1e-10)
         for e in range(self.epochs):
             permuted_idx = np.random.permutation(len(values))
             for batch in range(int(len(values)/self.batch_size)-1):

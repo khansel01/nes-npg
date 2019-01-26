@@ -20,23 +20,23 @@ np.random.seed(0)
 tr.manual_seed(0)
 
 """ define the environment """
-gym_env = 'CartpoleSwingShort-v0'
+gym_env = 'Pendulum-v0'
 env = Environment(gym_env)
 
 """ create policy """
-policy = Policy(env, hidden_dim=(8, 8), log_std=0)
+policy = Policy(env, hidden_dim=(3, 3), log_std=0)
 
 """ create baseline """
-baseline = Baseline(env, hidden_dim=(8, 8))
+baseline = Baseline(env, hidden_dim=(3, 3), epochs=10)
 
 """ create Normalizer to scale the states/observations """
 normalizer = Normalizer(env)
 
 """ create NPG-algorithm """
-algorithm = NPG(0.0025)
+algorithm = NPG(0.005)
 
 """ create agent """
-agent = Agent(env, policy, algorithm, baseline, _gamma=0.99, render=True)
+agent = Agent(env, policy, algorithm, baseline, _gamma=0.99)
 
 """ train the policy """
 agent.train_policy(100, 50, normalizer=normalizer)

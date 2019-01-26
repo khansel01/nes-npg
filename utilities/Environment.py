@@ -61,10 +61,6 @@ class Environment:
 
     def __act_clip(self, action):
         if isinstance(self.__env.action_space, (LabeledBox, Box)):
-            if action > self.__env.action_space.high:
-                print(Warning, action)
-            elif action < self.__env.action_space.low:
-                print(Warning, action)
             return np.clip(action, self.__env.action_space.low,
                            self.__env.action_space.high)
         else:
@@ -99,7 +95,7 @@ class Environment:
                 # action = self.__act_clip(action)
 
                 next_observation, reward, done, _ =\
-                    self.step(np.asarray(action))
+                    self.step(np.asarray(self.__act_clip(action)))
                 observations.append(observation)
                 actions.append(action)
                 rewards.append(reward)
