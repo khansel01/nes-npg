@@ -23,39 +23,6 @@ episodes = 1000
 obs_space = env.obs_dim()
 
 
-def get_action(state, w):
-    # state = np.reshape(np.append(state, 1), (-1, 1))
-    state = np.reshape(state, (-1, 1))
-    x = np.dot(np.reshape(state*np.transpose(state), (1, -1)), w)
-    return [np.sum(x)]
-
-
-def fitness(policy, env, w, n_roll_outs: int = 1):
-
-    samples = np.size(w, 0)
-    f = np.zeros(samples)
-    steps = np.zeros(samples)
-
-    seed = env.get_seed()
-
-    for s in range(samples):
-
-        policy.set_parameters(w[s])
-
-        env.seed(seed)
-
-        trajectories: dict = env.roll_out(policy, n_roll_outs=n_roll_outs)
-        rewards = np.concatenate([t["rewards"]
-                                  for t in trajectories]).reshape(-1, 1)
-
-        steps[s] = np.array([t["steps"] for t in trajectories]).sum()\
-                   / n_roll_outs
-
-        f[s] = rewards.sum() / n_roll_outs
-
-    return f, steps
-
-
 def run_benchmark(policy, w, env, episodes=100):
     total_rewards = np.zeros(episodes)
     print("Starting Benchmark:")
@@ -107,7 +74,22 @@ random_policy = PolicyNN(env, hidden_dim=(obs_space, obs_space))
 nes = NES(env, random_policy.length, max_iter=episodes, population_size=50)
 mu = np.zeros(random_policy.length)
 sigma = np.ones(random_policy.length) * 100
-w, s, r, e = nes.do(fitness, mu, sigma, random_policy)
+w, s, r, e = nes.do(mu, sigma, random_policy)
+
+print(w, s)
+
+x = np.arange(episodes)
+plt.errorbar(x, r, e, linestyle='-', marker='x', markeredgecolor='red')
+
+plt.show()
+
+run_benchmark(random_policy, w, env)
+for i in range(20):
+    print(render(random_policy, w, env, step_size=1))
+
+
+
+
 
 # # Qube
 # w = np.array([-31785.660418, -2227.473459, 7.347786, -0.299539, 77.704061,
@@ -137,15 +119,3 @@ w, s, r, e = nes.do(fitness, mu, sigma, random_policy)
 #  9.44686, 7.502085, -0.27206, 3.667115, 29.933978, 0.415163,
 #  -3.615755, -24.248179, 0.834203, -0.748019, -10.027531,
 #  -4.539246, -2.154302, -3.628191, -0.108677, 2.820117, 0.82556])
-
-print(w, s)
-
-x = np.arange(episodes)
-plt.errorbar(x, r, e, linestyle='-', marker='x', markeredgecolor='red')
-
-plt.show()
-
-run_benchmark(random_policy, w, env)
-for i in range(20):
-    print(render(random_policy, w, env, step_size=1))
-

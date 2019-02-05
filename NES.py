@@ -7,38 +7,67 @@ import torch.nn as nn
 #######################################
 
 
-#TODO comments
+# TODO comments
 class NES:
-    def __init__(self, env, size, eta_sigma=None, eta_mu=None, population_size=None,
-                 sigma_lower_bound=1e-10, max_iter=100):
+    def __init__(self, env, policy, eta_sigma=None,
+                 eta_mu=None, population_size=None,
+                 sigma_lower_bound=1e-10, episodes=100, hidden_dim=(8,)):
 
-        log_3d = 3 * np.log(size)
+        if policy == 'nn':
+            self.__policy = PolicyNN(env, hidden_dim=hidden_dim)
+        elif policy == 'square':
+            self.__policy = PolicySquare(env)
+        else:
+            self.__policy = PolicySquare(env)
+
+        # pre calculate value fro performance
+        log_d = np.log(self.__policy.length)
 
         if population_size is not None:
             self.__population_size = population_size
         else:
-            self.__population_size = int(4 + np.floor(log_3d))
+            self.__population_size = 4 + int(3 * log_d)
 
         if eta_sigma is not None:
             self.__eta_sigma = eta_sigma
         else:
-            self.__eta_sigma = (9 + log_3d) / (5 * np.sqrt(size))
+            self.__eta_sigma = (3 + log_d) / np.sqrt(self.__policy.length) / 5
 
         self.__eta_mu = eta_mu if eta_mu is not None else 1
 
-        self.env = env
-        self.max_iter = max_iter
-        self.sigma_lower_bound = sigma_lower_bound
+        self.__env = env
+        self.__episodes = episodes
+        self.__sigma_lower_bound = sigma_lower_bound
 
-    def do(self, f, mu, sigma, policy):
+        # utility is always equal hence we can pre compute it here
+        log_half = np.log(0.5 * self.__population_size + 1)
+        log_k = np.log(np.arange(1, self.__population_size + 1))
+        numerator = np.maximum(0, log_half - log_k)
+        self.__u = numerator / np.sum(numerator) - 1 / self.__population_size
+
+    def do(self, seed=None, sigma_init=1.0):
+
+        if seed is not None:
+            tr.random.manual_seed(seed)
+            np.random.seed(seed)
+
         stop = False
         generation = 0
+        mu = np.zeros(self.__policy.length)
+
+        if sigma_init <= self.__sigma_lower_bound:
+            sigma_init = self.__sigma_lower_bound
+
+        sigma = np.ones(self.__policy.length) * sigma_init
 
         # random number generator for drawing samples z_k
-        sampler = np.random.RandomState()
+        sampler = np.random.RandomState(0)
 
-        rewards = np.array([])
+        means = np.array([])
         stds = np.array([])
+
+        u_eta_sigma_half = self.__eta_sigma / 2 * self.__u
+        u_eta_mu = self.__eta_mu * self.__u
 
         while not stop:
             # draw samples
@@ -47,70 +76,128 @@ class NES:
             z = mu + sigma * s
 
             # evaluate fitness
-            fitness, g = f(policy, self.env, z)
+            fitness, g = self.f_norm(self.__policy, self.__env, z)
+            # fitness, g = self.f(z)
 
             # compute utilities
-            s_sorted, u = self.__utility(s, fitness)
-            # s_sorted, u = s, fitness
+            s_sorted = s[np.argsort(fitness, kind="mergesort")[::-1]]
 
-            # compute gradients
-            j_mu = u @ s_sorted
-            j_sigma = u @ (s_sorted**2 - 1)
+            # # compute gradients
+            # j_mu = self.__u @ s_sorted
+            # j_sigma = self.__u @ (s_sorted ** 2 - 1)
+            #
+            # # update parameters
+            # mu += self.__eta_mu * sigma * j_mu
+            # sigma *= np.exp(self.__eta_sigma / 2 * j_sigma)
 
-            # calculate current value for learning curve
-            val, st = f(policy, self.env, [mu])
-
-            # update parameters
-            mu += self.__eta_mu * sigma * j_mu
-            sigma *= np.exp(self.__eta_sigma / 2 * j_sigma)
+            # use pre computed values
+            mu += sigma * (u_eta_mu @ s_sorted)
+            sigma *= np.exp(u_eta_sigma_half @ (s_sorted ** 2 - 1))
 
             # sigma has to be positive
-            if np.any(sigma < self.sigma_lower_bound):
-                sigma[sigma < self.sigma_lower_bound] = self.sigma_lower_bound
+            sigma[sigma < self.__sigma_lower_bound] = self.__sigma_lower_bound
 
-            print(generation, val[0],  np.mean(fitness), max(fitness),
-                  np.mean(g), max(g), max(mu))
+            # safe values for learning curve
+            m = np.mean(fitness)
 
-            rewards = np.append(rewards, val)
+            means = np.append(means, m)
             stds = np.append(stds, np.std(fitness))
+
+            print(generation, m, max(fitness),
+                  np.mean(g), max(g), max(sigma))
 
             generation += 1
 
             # until stopping criterion is met
-            stop = generation >= self.max_iter
+            stop = generation >= self.__episodes
 
-        return mu, sigma, rewards, stds
+        self.__policy.set_parameters(mu)
 
-    def __utility(self, s, f):
-        indices = np.argsort(f, kind="mergesort")
-        # descending
-        s_sorted = s[indices[::-1]]
-        log_half = np.log(0.5 * self.__population_size + 1)
-        log_k = np.log(np.arange(1, self.__population_size + 1))
-        numerator = np.maximum(0, log_half - log_k)
-        u = numerator / np.sum(numerator) - 1 / self.__population_size
+        return self.__policy, sigma, means, stds
 
-        return s_sorted, u
+    # fitness functions
+    def f(self, w, n_roll_outs: int = 1):
 
-    # -------------------------------------------------------------------------
+        samples = np.size(w, 0)
+        f = np.zeros(samples)
+        steps = np.zeros(samples)
+
+        seed = self.__env.get_seed()
+
+        for s in range(samples):
+            self.__policy.set_parameters(w[s])
+
+            self.__env.seed(seed)
+
+            trajectories: dict = self.__env.roll_out(self.__policy,
+                                                     n_roll_outs=n_roll_outs)
+
+            rewards = np.concatenate([t["rewards"]
+                                      for t in trajectories]).reshape(-1, 1)
+
+            steps[s] = np.array(
+                [t["steps"] for t in trajectories]).sum() / n_roll_outs
+
+            f[s] = rewards.sum() / n_roll_outs
+
+        return f, steps
+
+    @staticmethod
+    def f_norm(policy, env, w, n_roll_outs: int = 1):
+
+        samples = np.size(w, 0)
+        f = np.zeros(samples)
+        steps = np.zeros(samples)
+
+        seed = np.random.randint(2**32 - 1)
+
+        for s in range(samples):
+
+            policy.set_parameters(w[s])
+            env.seed(seed)
+
+            NES.roll_out(policy, env, f, steps, s, n_roll_outs)
+
+        return f, steps
+
+    @staticmethod
+    def roll_out(policy, env, f, steps, s, n_roll_outs):
+
+        rewards = 0
+        t = 0
+
+        for i in range(n_roll_outs):
+
+            done = False
+            obs = env.reset()
+
+            while not done:
+                a = policy.get_action(obs)
+                obs, r, done, _ = env.step(a)
+                rewards += r
+                t += 1
+
+        f[s] = rewards / n_roll_outs
+        steps[s] = t / n_roll_outs
+
+    # ------------------------------------------------------------------------
     # Policy
 
 
 class PolicyNN:
-
     """ Init """
     """==============================================================="""
+
     def __init__(self, env, hidden_dim: tuple = (64, 64),
                  activation: nn = nn.Tanh):
-
         """ init """
-        self.input_dim = env.obs_dim()
-        self.output_dim = env.act_dim()
+        self.__input_dim = env.obs_dim() + 1
+        self.__output_dim = env.act_dim()
         self.hidden_dim = hidden_dim
         self.act = activation
 
         """ create nn """
-        self.network = Network(self.input_dim, self.output_dim,
+        self.network = Network(self.__input_dim, self.__output_dim,
                                self.hidden_dim, self.act)
 
         """ get net shape and size """
@@ -125,9 +212,10 @@ class PolicyNN:
 
     """ Utility Functions """
     """==============================================================="""
+
     def get_parameters(self):
         params = np.concatenate([p.contiguous().view(-1).data.numpy()
-                                for p in self.network.parameters()])
+                                 for p in self.network.parameters()])
         return params.copy()
 
     def set_parameters(self, new_param):
@@ -142,40 +230,45 @@ class PolicyNN:
 
     """ Main Functions """
     """==============================================================="""
-    def get_action(self, state, greedy=False):
-        action = self.network.forward(tr.from_numpy(state).float())
-        return action.detach().numpy().squeeze()
+
+    def get_action(self, state):
+        return self.network.forward(tr.from_numpy(np.append(state, 1)).float()
+                                    ).detach().numpy().squeeze().reshape(-1)
 
 
 class PolicySquare:
-
     """ Init """
     """==============================================================="""
 
     def __init__(self, env):
         """ init """
-        self.input_dim = env.obs_dim()
-        self.output_dim = env.act_dim()
+        self.__input_dim = env.obs_dim() + 1
+        self.__output_dim = env.act_dim()
 
-        self.length = self.input_dim ** 2
-        self.__params = np.zeros(self.length)
+        self.__indices = np.tril_indices(self.__input_dim)
+
+        self.__params = np.zeros((int(self.__input_dim
+                                      * (self.__input_dim + 1) / 2),
+                                  self.__output_dim))
+
+        self.length = np.size(self.__params)
 
     """ Utility Functions """
     """==============================================================="""
 
     def get_parameters(self):
-        return self.__params
+        return self.__params.reshape(1)
 
     def set_parameters(self, new_param):
-        self.__params = new_param
+        self.__params = new_param.reshape(-1, self.__output_dim)
 
     """ Main Functions """
     """==============================================================="""
 
     def get_action(self, state):
-        o = np.reshape(state, (-1, 1))
-        x = np.reshape(o * np.transpose(o), (1, -1)) @ self.__params
-        return [np.sum(x)]
+        o = np.reshape(np.append(state, 1), (-1, 1))
+        x = (o * o.transpose())[self.__indices] @ self.__params
+        return np.array(np.sum(x)).reshape(-1)
 
 
 class Network(nn.Module):
@@ -184,14 +277,14 @@ class Network(nn.Module):
 
         """ init """
         super(Network, self).__init__()
-        self.input_dim = input_dim
-        self.output_dim = output_dim
+        self.__input_dim = input_dim
+        self.__output_dim = output_dim
         self.hidden_dim = hidden_dim
         self.act = activation()
         self.net = nn.Sequential()
 
         """ create NN """
-        hidden_dim = self.input_dim
+        hidden_dim = self.__input_dim
         i = 0
         for i, next_hidden_dim in enumerate(self.hidden_dim):
             self.net.add_module('linear' + i.__str__(),
@@ -202,7 +295,7 @@ class Network(nn.Module):
             self.net.add_module('activation' + i.__str__(), self.act)
             hidden_dim = next_hidden_dim
         self.net.add_module('linear' + (i + 1).__str__(),
-                            nn.Linear(hidden_dim, self.output_dim))
+                            nn.Linear(hidden_dim, self.__output_dim))
 
         """ set last layer weights and bias small """
         for p in list(self.net.parameters())[-2:]:

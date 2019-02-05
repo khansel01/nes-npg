@@ -2,6 +2,7 @@ import numpy as np
 import gym
 from gym.spaces.discrete import Discrete
 from gym.spaces.box import Box
+import quanser_robots
 from quanser_robots.common import LabeledBox
 
 #######################################
@@ -20,16 +21,15 @@ class Environment:
             else horizon
         self.__seed = seed
         self.seed(self.__seed)
+        self.__name = gym_env
 
     """ Utility Functions """
     """==============================================================="""
     def close(self):
-        self.__env.close()
-        return
+        return self.__env.close()
 
     def seed(self, seed):
-        self.__env.seed(seed)
-        return
+        return self.__env.seed(seed)
 
     def get_seed(self):
         return self.__env.seed()[0]
@@ -64,6 +64,9 @@ class Environment:
                   .format(type(self.__env.action_space)))
             out = None
         return out
+
+    def get_name(self):
+        return self.__name
 
     def __act_clip(self, action):
         if isinstance(self.__env.action_space, (LabeledBox, Box)):
