@@ -16,10 +16,13 @@ print("================== Start {} ==================".format(gym_env))
 
 """ create NES-algorithm """
 episodes = 1000
-algorithm = NES(env, policy='nn', hidden_dim=(6, 6), episodes=episodes)
+hidden_dim = (6, 6)
+print(hidden_dim)
+algorithm = NES(env, policy='nn', hidden_dim=hidden_dim,
+                episodes=episodes)
 
 """ train the policy """
-policy, sigma, means, stds = algorithm.do()
+policy, sigma, means, stds = algorithm.do(sigma_init=1)
 
 """ plot learning curve"""
 x = np.arange(episodes)
@@ -29,7 +32,9 @@ Helper.plot(gym_env, x, means, stds)
 Helper.run_benchmark(policy, env)
 
 """ render one episode"""
-Helper.render(policy, env, step_size=1)
+# Helper.render(policy, env, step_size=1)
 
 """ close environment"""
 env.close()
+
+print(policy.get_parameters())

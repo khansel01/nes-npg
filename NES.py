@@ -61,12 +61,12 @@ class NES:
         sigma = np.ones(self.__policy.length) * sigma_init
 
         # random number generator for drawing samples z_k
-        sampler = np.random.RandomState(0)
+        sampler = np.random.RandomState(seed)
 
         means = np.array([])
         stds = np.array([])
 
-        u_eta_sigma_half = self.__eta_sigma / 2 * self.__u
+        u_eta_sigma_half = 0.5 * self.__eta_sigma * self.__u
         u_eta_mu = self.__eta_mu * self.__u
 
         while not stop:
@@ -191,7 +191,7 @@ class PolicyNN:
     def __init__(self, env, hidden_dim: tuple = (64, 64),
                  activation: nn = nn.Tanh):
         """ init """
-        self.__input_dim = env.obs_dim() + 1
+        self.__input_dim = env.obs_dim()
         self.__output_dim = env.act_dim()
         self.hidden_dim = hidden_dim
         self.act = activation
@@ -232,7 +232,7 @@ class PolicyNN:
     """==============================================================="""
 
     def get_action(self, state):
-        return self.network.forward(tr.from_numpy(np.append(state, 1)).float()
+        return self.network.forward(tr.from_numpy(state).float()
                                     ).detach().numpy().squeeze().reshape(-1)
 
 

@@ -7,7 +7,10 @@ import Helper
 #######################################
 
 """ define the environment """
-gym_env = 'Pendulum-v0'
+# gym_env = 'Pendulum-v0'
+gym_env = 'Qube-v0'
+# gym_env = 'Levitation-v0'
+# gym_env = 'Walker2d-v2'
 # gym_env = 'DoublePendulum-v0'
 # gym_env = 'Cartpole-v0'
 # gym_env = 'CartpoleSwingShort-v0'
@@ -19,11 +22,11 @@ print("================== Start {} ==================".format(gym_env))
 
 
 """ create NES-algorithm """
-episodes = 100
-algorithm = NES(env, policy='square', episodes=episodes, population_size=15)
+episodes = 10000
+algorithm = NES(env, policy='square', episodes=episodes)
 
 """ train the policy """
-policy, sigma, means, stds = algorithm.do()
+policy, sigma, means, stds = algorithm.do(sigma_init=25)
 
 """ plot learning curve"""
 x = np.arange(episodes)
