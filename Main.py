@@ -36,11 +36,12 @@ algorithm = NPG(0.005)
 agent = Agent(env, policy, algorithm, baseline, _gamma=0.99)
 
 """ train the policy """
-agent.train_policy(1000, 20, normalizer=normalizer)
+agent.train_policy(200, 20, normalizer=normalizer)
 
 print("====================== DO Benchmark ======================")
 """ check the results """
 #   TODO benchmark has a bug
 agent.benchmark_test(episodes=2, render=True)
 
-
+env.reset()
+env.close()

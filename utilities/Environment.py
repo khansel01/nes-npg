@@ -3,6 +3,7 @@ import gym
 from gym.spaces.discrete import Discrete
 from gym.spaces.box import Box
 from quanser_robots.common import LabeledBox
+from quanser_robots import GentlyTerminating
 
 #######################################
 # Environment
@@ -15,7 +16,7 @@ class Environment:
     """==============================================================="""
     def __init__(self, gym_env, seed: int=0,
                  horizon: int=None, clip: int=None):
-        env = gym.make(gym_env)
+        env = GentlyTerminating(gym.make(gym_env))
         self.__env = env
         self.__horizon = self.__env.spec.timestep_limit if horizon is None\
             else horizon
@@ -63,7 +64,7 @@ class Environment:
 
     def __act_clip(self, action):
         if self.__clip is not None:
-            return np.clip(action, self.__clip, self.__clip)
+            return np.clip(action, [-self.__clip], [self.__clip])
         elif isinstance(self.__env.action_space, (LabeledBox, Box)):
             return np.clip(action, self.__env.action_space.low,
                            self.__env.action_space.high)
@@ -73,7 +74,7 @@ class Environment:
     """ Main Functions """
     """==============================================================="""
     def roll_out(self, policy, n_roll_outs: int=1, normalizer=None,
-                 render: bool=False):
+                 render: bool=False, greedy: bool=False):
         trajectories = []
 
         for s in range(n_roll_outs):
@@ -95,7 +96,8 @@ class Environment:
             while step < self.__horizon and done is not True:
 
                 self.__env.render() if render else None
-                action = policy.get_action(observation.reshape(1, -1))
+                action = policy.get_action(observation.reshape(1, -1),
+                                           greedy=greedy)
 
                 next_observation, reward, done, _ =\
                     self.step(np.asarray(self.__act_clip(action)))

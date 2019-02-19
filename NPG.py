@@ -13,6 +13,7 @@ class NPG:
     """ Init """
     """==============================================================="""
     def __init__(self, _delta=0.05, damping=1e-4):
+        self.delta = _delta
         self.__delta = 2 * _delta
         self.damping = damping
 

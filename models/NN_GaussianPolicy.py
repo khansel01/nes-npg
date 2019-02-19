@@ -11,8 +11,8 @@ class Policy:
 
     """ Init """
     """==============================================================="""
-    def __init__(self, env, hidden_dim: tuple=(64, 64),
-                 activation: nn=nn.Tanh, log_std=0):
+    def __init__(self, env, hidden_dim: tuple = (64, 64),
+                 activation: nn = nn.Tanh, log_std=0):
 
         """ init """
         self.input_dim = env.obs_dim()
