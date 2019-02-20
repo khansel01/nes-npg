@@ -113,7 +113,9 @@ class NPG:
 
         """ calculate return values """
         returns = np.asarray([np.sum(t["rewards"]) for t in trajectories])
-        time_steps = np.array([t["time_steps"] for t in trajectories]).sum()
+
+        time_steps = np.array([t["time_steps"]
+                               for t in trajectories]).sum() / n_roll_outs
 
         return returns, time_steps
 
