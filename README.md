@@ -1,9 +1,8 @@
-# reinf
-Reinforcmentlerning
+# Reinforcement Learning
 
 TODO:
-- Safe Policy, Baseline and Norminator
-- Log data with Johannes approach ( i have to as johannes how the pakage is called)
+- Safe Policy, Baseline and Normalizer
+- Log data with Tensor Board
 - Virtual Environment, that anyone works with the same versions ? 
 - Combine NES and NPG
 - Readme

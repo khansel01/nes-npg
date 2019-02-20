@@ -2,6 +2,7 @@ import numpy as np
 import torch as tr
 import copy
 from utilities.Conjugate_gradient import conjugate_gradient as cg
+from utilities.Estimations import *
 
 #######################################
 # NPG
@@ -12,10 +13,16 @@ class NPG:
 
     """ Init """
     """==============================================================="""
-    def __init__(self, _delta=0.05, damping=1e-4):
+    def __init__(self, baseline, _delta=0.05, damping=1e-4,
+                 _lambda=0.95, _gamma=0.98, normalizer=None):
+
         self.delta = _delta
         self.__delta = 2 * _delta
         self.damping = damping
+        self.__lambda = _lambda
+        self.__gamma = _gamma
+        self.baseline = baseline
+        self.__normalizer = normalizer
 
     """ Utility Functions """
     """==============================================================="""
@@ -34,7 +41,17 @@ class NPG:
 
     """ Main Functions """
     """==============================================================="""
-    def do(self, trajectories, policy):
+    def do(self, env, policy, n_roll_outs):
+
+        print("log_std:", policy.network.log_std)
+
+        trajectories = env.roll_out(policy,
+                                    n_roll_outs=n_roll_outs,
+                                    render=False,
+                                    normalizer=self.__normalizer)
+
+        estimate_advantage(trajectories,
+                           self.baseline, self.__gamma, self.__lambda)
 
         observations = np.concatenate([t["observations"]
                                        for t in trajectories])
@@ -74,7 +91,7 @@ class NPG:
         npg_grad = cg(get_npg, vpg_grad)
 
         """ update policy """
-        #nominator = vpg_grad.T @ npg_grad + 1e-20
+        # nominator = vpg_grad.T @ npg_grad + 1e-20
         nominator = npg_grad.dot(get_npg(npg_grad))
         learning_rate = np.sqrt(self.__delta / nominator)
         current = policy.get_parameters()
@@ -85,8 +102,28 @@ class NPG:
                 break
             elif i == 99:
                 policy.set_parameters(current)
-        return
 
+        """ update baseline """
+        estimate_value(trajectories, self.__gamma)
+        self.baseline.train(trajectories)
+
+        """ update normalizer """
+        if self.__normalizer is not None:
+            self.__normalizer.update(trajectories)
+
+        """ calculate return values """
+        returns = np.asarray([np.sum(t["rewards"]) for t in trajectories])
+        time_steps = np.array([t["time_steps"] for t in trajectories]).sum()
+
+        return returns, time_steps
+
+    def get_title(self):
+        return "NPG \u03B3 = {}, \u03BB = {}, \u03B4 = {} \n" \
+               "Baseline: {} with {} epochs" .format(self.__gamma,
+                                                     self.__lambda,
+                                                     self.__delta,
+                                                     self.baseline.hidden_dim,
+                                                     self.baseline.epochs)
 
 
 

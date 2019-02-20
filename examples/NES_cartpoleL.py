@@ -1,36 +1,34 @@
 from NES import *
 from utilities.Environment import Environment
-import Helper
+from utilities import Helper
+from models.NN_GaussianPolicy import Policy
+from Agent import Agent
 
 #######################################
 # Environment
 #######################################
 
 """ define the environment """
-gym_env = 'BallBalancerSim-v0'
-
+gym_env = 'CartpoleStabLong-v0'
 env = Environment(gym_env)
 
 print("================== Start {} ==================".format(gym_env))
 
 
+""" create policy """
+policy = Policy(env, hidden_dim=(8,))
+
 """ create NES-algorithm """
-episodes = 500
-algorithm = NES(env, policy='nn', hidden_dim=(10, ), episodes=episodes)
+algorithm = NES(policy.length)
+
+""" create agent """
+agent = Agent(env, policy, algorithm)
 
 """ train the policy """
-""" train the policy """
-policy, sigma, means, stds = algorithm.do()
-
-""" plot learning curve"""
-x = np.arange(episodes)
-Helper.plot(gym_env, x, means, stds)
+agent.train_policy(episodes=80, n_roll_outs=1)
 
 """ check the results """
 Helper.run_benchmark(policy, env)
 
 """ render one episode"""
-Helper.render(policy, env, step_size=10)
-
-""" close environment"""
-env.close()
+Helper.render(policy, env, step_size=1)

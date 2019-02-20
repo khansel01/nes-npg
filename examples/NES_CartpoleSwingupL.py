@@ -1,6 +1,8 @@
 from NES import *
 from utilities.Environment import Environment
-import Helper
+from utilities import Helper
+from models.SquaredFeaturePolicy import PolicySquare
+from Agent import Agent
 
 #######################################
 # Environment
@@ -12,23 +14,20 @@ env = Environment(gym_env)
 
 print("================== Start {} ==================".format(gym_env))
 
+""" create policy """
+policy = PolicySquare(env)
 
 """ create NES-algorithm """
-episodes = 100
-algorithm = NES(env, policy='square', episodes=episodes, population_size=15)
+algorithm = NES(policy.length)
+
+""" create agent """
+agent = Agent(env, policy, algorithm)
 
 """ train the policy """
-policy, sigma, means, stds = algorithm.do()
-
-""" plot learning curve"""
-x = np.arange(episodes)
-Helper.plot(gym_env, x, means, stds)
+agent.train_policy(episodes=500, n_roll_outs=1)
 
 """ check the results """
 Helper.run_benchmark(policy, env)
 
 """ render one episode"""
 Helper.render(policy, env, step_size=1)
-
-""" close environment"""
-env.close()

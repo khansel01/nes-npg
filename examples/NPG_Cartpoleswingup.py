@@ -4,6 +4,7 @@ from Agent import Agent
 from NPG import NPG
 from models.NN_GaussianPolicy import Policy
 from utilities.Environment import Environment
+from utilities import Helper
 from models.Baseline import Baseline
 from utilities.Normalizer import Normalizer
 
@@ -16,32 +17,34 @@ np.random.seed(0)
 tr.manual_seed(0)
 
 """ define the environment """
-gym_env = 'Qube-v0'
+gym_env = 'CartpoleSwingShort-v0'
+env = Environment(gym_env, horizon=2000, clip=10)
+
 print("===================== Start {} =====================".format(gym_env))
-env = Environment(gym_env)
+
 
 """ create policy """
-policy = Policy(env, hidden_dim=(6, 6))
+policy = Policy(env, hidden_dim=(8,), log_std=np.log(3.5))
 
 """ create baseline """
-baseline = Baseline(env, hidden_dim=(4, 4), epochs=10)
+baseline = Baseline(env, hidden_dim=(8, 8), epochs=50, lr=1e-3)
 
 """ create Normalizer to scale the states/observations """
 normalizer = Normalizer(env)
 
+
 """ create NPG-algorithm """
-algorithm = NPG(0.05)
+algorithm = NPG(0.0001, _gamma=0.997, _lambda=0.945, normalizer=normalizer)
 
 """ create agent """
-agent = Agent(env, policy, algorithm, baseline, _gamma=0.999, render=True)
+agent = Agent(env, policy, algorithm, baseline)
 
 """ train the policy """
-agent.train_policy(300, 100, normalizer=normalizer)
+agent.train_policy(500, 20)
 
 print("====================== DO Benchmark ======================")
 """ check the results """
-#   TODO benchmark has a bug
-agent.benchmark_test(episodes=2, render=True)
+Helper.run_benchmark(policy, env)
 
-env.reset()
-env.close()
+""" render one episode"""
+Helper.render(policy, env, step_size=10)

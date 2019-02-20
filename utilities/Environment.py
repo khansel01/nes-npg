@@ -29,6 +29,9 @@ class Environment:
         self.seed(self.__seed)
         self.__name = gym_env
 
+    def __del__(self):
+        self.__env.close()
+
     """ Utility Functions """
     """==============================================================="""
     def close(self):
@@ -128,7 +131,8 @@ class Environment:
                 observations=np.array(observations),
                 actions=np.array(actions),
                 rewards=np.array(rewards),
-                flags=np.array(flag)
+                flags=np.array(flag),
+                time_steps=step
                 )
 
             trajectories.append(trajectory)
