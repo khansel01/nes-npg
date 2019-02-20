@@ -43,4 +43,5 @@ print("====================== DO Benchmark ======================")
 #   TODO benchmark has a bug
 agent.benchmark_test(episodes=2, render=True)
 
-
+env.reset()
+env.close()

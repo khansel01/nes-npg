@@ -82,6 +82,11 @@ class Agent:
 
         """ plot """
         plt.subplot(2, 1, 1)
+        plt.title("NPG \u03B3 = {}, \u03BB = {}, \u03B4 = {} \n"
+                  "Policy: {}, Baseline: {} with {} epochs"
+                  .format(self.__gamma, self.__lambda, self.algorithm.delta,
+                          self.policy.hidden_dim,
+                          self.baseline.hidden_dim, self.baseline.epochs))
         plt.fill_between(np.arange(length),
                          r_means - r_stds, r_means + r_stds,
                          alpha=0.3, label='standard deviation',
@@ -110,6 +115,8 @@ class Agent:
                      normalizer=None):
 
         for i_episode in range(episodes):
+
+            self.env.seed(0)
 
             """ roll out trajectories """
             delta_t_e = time.time()
@@ -168,8 +175,8 @@ class Agent:
         self.set_best_policy()
 
         """ do roll outs"""
-        trajectories = self.env.roll_out(self.policy, amount=episodes,
-                                         render=render)
+        trajectories = self.env.roll_out(self.policy, n_roll_outs=episodes,
+                                         render=render, greedy=True)
 
         # rewards_sum = np.concatenate(
         #     [t["rewards"] for t in trajectories])
