@@ -36,5 +36,5 @@ def estimate_advantage(trajectories, baseline, _gamma=0.98, _lambda=0.95):
     mean = advantages.mean()
     std = advantages.std()
     for t in trajectories:
-        t["advantages"] = (t["advantages"] - mean)/(std + 1e-10)
+        t["advantages"] = (t["advantages"] - mean)/(std + 1e-6)
     return

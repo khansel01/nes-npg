@@ -32,6 +32,10 @@ class Policy:
         self.net_sizes = [p.data.numpy().size
                           for p in self.network.parameters()]
 
+        self.length = \
+            len(np.concatenate([p.contiguous().view(-1).data.numpy()
+                                for p in self.network.parameters()]))
+
     """ Utility Functions """
     """==============================================================="""
     def get_parameters(self):
@@ -47,6 +51,8 @@ class Policy:
             temp_param = temp_param.reshape(self.net_shapes[idx])
             param.data = tr.from_numpy(temp_param).float()
             current_idx += self.net_sizes[idx]
+        #self.network.log_std.data = \
+        #    tr.clamp(self.network.log_std, -3).data
         return
 
     """ Main Functions """

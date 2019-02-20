@@ -2,6 +2,7 @@ import numpy as np
 import gym
 from gym.spaces.discrete import Discrete
 from gym.spaces.box import Box
+import quanser_robots
 from quanser_robots.common import LabeledBox
 from quanser_robots import GentlyTerminating
 
@@ -26,22 +27,28 @@ class Environment:
         self.act_high = self.__env.action_space.high \
             if clip is None else np.ones(1) * clip
         self.seed(self.__seed)
+        self.__name = gym_env
 
     """ Utility Functions """
     """==============================================================="""
     def close(self):
-        self.__env.close()
-        return
+        return self.__env.close()
 
     def seed(self, seed):
-        self.__env.seed(seed)
-        return
+        return self.__env.seed(seed)
+
+    def get_seed(self):
+        return self.__env.seed()[0]
+
+    def render(self):
+        return self.__env.render()
 
     def reset(self):
         return self.__env.reset()
 
     def step(self, action):
-        return self.__env.step(action)
+        a = self.__act_clip(action)
+        return self.__env.step(a)
 
     def obs_dim(self):
         if isinstance(self.__env.observation_space, (LabeledBox, Box)):
@@ -64,6 +71,9 @@ class Environment:
                   .format(type(self.__env.action_space)))
             out = None
         return out
+
+    def get_name(self):
+        return self.__name
 
     def __act_clip(self, action):
         return np.clip(action, self.act_low, self.act_high)
