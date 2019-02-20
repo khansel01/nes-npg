@@ -44,9 +44,3 @@ def render(policy, env, seed=False, step_size=1):
         step += 1
     return r
 
-
-def plot(gym_env, x, means, stds):
-    plt.errorbar(x, means, stds, linestyle='-', marker='x',
-                 markeredgecolor='red')
-    plt.suptitle(gym_env)
-    plt.show()

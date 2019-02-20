@@ -24,7 +24,7 @@ class PolicySquare:
     """==============================================================="""
 
     def get_parameters(self):
-        return self.__params.reshape(1)
+        return self.__params.reshape(1, -1)
 
     def set_parameters(self, new_param):
         self.__params = new_param.reshape(-1, self.__output_dim)

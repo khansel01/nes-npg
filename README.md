@@ -7,6 +7,7 @@ TODO:
 - Combine NES and NPG
 - Readme
 - Paper
+- Greedy plots per episode to show relevant results
 
 
 Question to Riad:

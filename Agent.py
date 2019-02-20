@@ -62,7 +62,8 @@ class Agent:
 
         """ plot """
         plt.subplot(2, 1, 1)
-        plt.title(self.algorithm.get_title()
+        plt.title(self.env.get_name() + "\n"
+                  + self.algorithm.get_title()
                   + ", Policy: {}".format(self.policy.hidden_dim))
 
         plt.fill_between(np.arange(length),

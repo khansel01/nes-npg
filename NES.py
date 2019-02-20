@@ -152,8 +152,8 @@ class NES:
     def get_title(self):
         return "NES \u03BB = {}, "  \
                "\u03C3\u2080 = {}, " \
-               "\u03B7_\u03C3 = {}, " \
-               "\u03B7_\u03BC = {} \n".format(self.__population_size,
-                                              self.__sigma_init,
-                                              self.__eta_sigma,
-                                              self.__eta_mu)
+               "\u03B7_\u03C3 = {:.4f}, " \
+               "\u03B7_\u03BC = {}".format(self.__population_size,
+                                           self.__sigma_init,
+                                           self.__eta_sigma,
+                                           self.__eta_mu)

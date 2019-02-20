@@ -25,10 +25,10 @@ algorithm = NES(policy.length)
 agent = Agent(env, policy, algorithm)
 
 """ train the policy """
-agent.train_policy(episodes=40, n_roll_outs=1)
+agent.train_policy(episodes=10, n_roll_outs=1)
 
 """ check the results """
 Helper.run_benchmark(policy, env)
 
 """ render one episode"""
-Helper.render(policy, env, step_size=1)
+Helper.render(policy, env, step_size=10)

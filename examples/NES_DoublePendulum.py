@@ -30,4 +30,4 @@ agent.train_policy(episodes=500, n_roll_outs=1)
 Helper.run_benchmark(policy, env)
 
 """ render one episode"""
-Helper.render(policy, env, step_size=1)
+Helper.render(policy, env, step_size=10)
