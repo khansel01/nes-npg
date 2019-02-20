@@ -13,7 +13,7 @@ class Baseline:
     """==============================================================="""
     def __init__(self, env, hidden_dim: tuple=(128, 128),
                  activation: nn=nn.Tanh, batch_size: int = 64,
-                 epochs: int = 10, lr: float=0.1):
+                 epochs: int = 10, lr: float=1e-3):
 
         """ init """
         self.input_dim = env.obs_dim()
@@ -30,7 +30,7 @@ class Baseline:
 
         """ Create Loss function and Adam Optimizer """
         self.loss_fct = nn.MSELoss()
-        self.optimizer = tr.optim.Adam(self.network.parameters(), lr=self.lr)
+        self.optimizer = tr.optim.SGD(self.network.parameters(), lr=self.lr)
 
     """ Utility Functions """
     """==============================================================="""

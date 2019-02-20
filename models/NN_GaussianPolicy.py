@@ -12,14 +12,15 @@ class Policy:
     """ Init """
     """==============================================================="""
     def __init__(self, env, hidden_dim: tuple=(64, 64),
-                 activation: nn=nn.Tanh, log_std=0):
+                 activation: nn=nn.Tanh, log_std=None):
 
         """ init """
         self.input_dim = env.obs_dim()
         self.output_dim = env.act_dim()
         self.hidden_dim = hidden_dim
         self.act = activation
-        self.log_std = log_std
+        self.log_std = tr.from_numpy(np.log(env.act_high/2)).float()\
+            if log_std is None else log_std
 
         """ create nn """
         self.network = Network(self.input_dim, self.output_dim,

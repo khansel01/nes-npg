@@ -24,16 +24,16 @@ class Agent:
     """ Utility Functions """
     """==============================================================="""
 
-    # def set_best_policy(self):
-    #
-    #     rewards = np.concatenate(
-    #         [episode["reward_mean"] for episode in self.logger.logger])\
-    #         .squeeze()
-    #
-    #     episode = self.logger.logger[rewards.argmax()]
-    #
-    #     self.policy.set_parameters(episode["policy_parameters"])
-    #     return
+    def set_best_policy(self):
+
+        rewards = np.concatenate(
+            [episode["reward_mean"] for episode in self.logger.logger])\
+            .squeeze()
+
+        episode = self.logger.logger[rewards.argmax()]
+
+        self.policy.set_parameters(episode["policy_parameters"])
+        return
 
     def printer(self, i_episode, times: bool = False):
 
@@ -165,7 +165,7 @@ class Agent:
     def benchmark_test(self, episodes: int=100, render: bool=False):
 
         # """ set policy parameters to best performed parameters"""
-        # self.set_best_policy()
+        self.set_best_policy()
 
         """ do roll outs"""
         trajectories = self.env.roll_out(self.policy, amount=episodes,

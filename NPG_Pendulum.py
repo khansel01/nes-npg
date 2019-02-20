@@ -33,10 +33,10 @@ normalizer = Normalizer(env)
 algorithm = NPG(0.005)
 
 """ create agent """
-agent = Agent(env, policy, algorithm, baseline, render=True)
+agent = Agent(env, policy, algorithm, baseline, _gamma=0.99, render=True)
 
 """ train the policy """
-agent.train_policy(200, 100, normalizer=normalizer)
+agent.train_policy(100, 100, normalizer=normalizer)
 
 print("====================== DO Benchmark ======================")
 """ check the results """

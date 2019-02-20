@@ -21,10 +21,10 @@ print("===================== Start {} =====================".format(gym_env))
 env = Environment(gym_env)
 
 """ create policy """
-policy = Policy(env, hidden_dim=(32, 32), log_std=0)
+policy = Policy(env, hidden_dim=(8,))
 
 """ create baseline """
-baseline = Baseline(env, hidden_dim=(32, 32))
+baseline = Baseline(env, hidden_dim=(6, 6))
 
 """ create Normalizer to scale the states/observations """
 normalizer = Normalizer(env)
