@@ -1,6 +1,7 @@
 import numpy as np
 import torch as tr
 import torch.nn as nn
+from models.NN_GaussianPolicy import Policy
 
 #######################################
 # NES
@@ -15,6 +16,8 @@ class NES:
 
         if policy == 'nn':
             self.__policy = PolicyNN(env, hidden_dim=hidden_dim)
+        elif policy == 'gaussian':
+            self.__policy = Policy(env, hidden_dim=hidden_dim)
         elif policy == 'square':
             self.__policy = PolicySquare(env)
         else:
@@ -172,7 +175,7 @@ class NES:
             obs = env.reset()
 
             while not done:
-                a = policy.get_action(obs)
+                a = policy.get_action(obs, greedy=True)
                 obs, r, done, _ = env.step(a)
                 rewards += r
                 t += 1
@@ -231,7 +234,7 @@ class PolicyNN:
     """ Main Functions """
     """==============================================================="""
 
-    def get_action(self, state):
+    def get_action(self, state, greedy=True):
         return self.network.forward(tr.from_numpy(state).float()
                                     ).detach().numpy().squeeze().reshape(-1)
 
@@ -265,7 +268,7 @@ class PolicySquare:
     """ Main Functions """
     """==============================================================="""
 
-    def get_action(self, state):
+    def get_action(self, state, greedy=True):
         o = np.reshape(np.append(state, 1), (-1, 1))
         x = (o * o.transpose())[self.__indices] @ self.__params
         return np.array(np.sum(x)).reshape(-1)

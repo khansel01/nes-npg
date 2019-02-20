@@ -12,7 +12,7 @@ def run_benchmark(policy, env, episodes=100):
         state = env.reset()
         done = False
         while not done:
-            action = policy.get_action(state)
+            action = policy.get_action(state, greedy=True)
             # print(action)
             state, reward, done, info = env.step(action)
             total_rewards[i_episode] += reward
@@ -38,7 +38,7 @@ def render(policy, env, seed=False, step_size=1):
     step = 0
     while not done:
         env.render() if step % step_size == 0 else None
-        action = policy.get_action(state)
+        action = policy.get_action(state, greedy=True)
         state, reward, done, info = env.step(action)
         r += reward
         step += 1

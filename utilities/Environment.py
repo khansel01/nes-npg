@@ -41,7 +41,8 @@ class Environment:
         return self.__env.reset()
 
     def step(self, action):
-        return self.__env.step(action)
+        a = self.__act_clip(action)
+        return self.__env.step(a)
 
     def obs_dim(self):
         if isinstance(self.__env.observation_space, (LabeledBox, Box)):

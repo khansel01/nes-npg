@@ -15,7 +15,7 @@ print("================== Start {} ==================".format(gym_env))
 
 """ create NES-algorithm """
 episodes = 40
-algorithm = NES(env, policy='nn', hidden_dim=(8, ),
+algorithm = NES(env, policy='gaussian', hidden_dim=(8, ),
                 episodes=episodes)
 
 """ train the policy """
