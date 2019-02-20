@@ -34,9 +34,12 @@ class Agent:
     def print(self, i_episode):
 
         episode = self.logger.logger[i_episode]
-        print("Episode {} with {} roll-outs:\n "
-              "finished after {} and obtained a reward of {}.\n "
-              .format(i_episode, episode["roll_outs"],
+
+        s = "s" if episode["roll_outs"] > 1 else ""
+
+        print("Episode {} with {} roll-out{}:\n"
+              "finished after {} time steps and obtained a reward of {}.\n "
+              .format(i_episode, episode["roll_outs"], s,
                       episode["time_mean"].squeeze(),
                       episode["reward_mean"].squeeze()))
 
@@ -76,7 +79,7 @@ class Agent:
 
         plt.legend()
         plt.xlabel('Episodes')
-        plt.ylabel('Rewards')
+        plt.ylabel('Total reward')
 
         plt.subplot(2, 1, 2)
         plt.fill_between(np.arange(length),

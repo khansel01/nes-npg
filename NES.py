@@ -150,10 +150,10 @@ class NES:
         steps[s] = t / n_roll_outs
 
     def get_title(self):
-        return "NES \u03BB = {}, "  \
-               "\u03C3\u2080 = {}, " \
-               "\u03B7_\u03C3 = {:.4f}, " \
-               "\u03B7_\u03BC = {}".format(self.__population_size,
-                                           self.__sigma_init,
-                                           self.__eta_sigma,
-                                           self.__eta_mu)
+        return r"NES $\lambda = {}, "  \
+               r"\sigma_0 = {}, " \
+               r"\eta_\sigma = {:.4f}, " \
+               r"\eta_\mu = {}$".format(self.__population_size,
+                                        self.__sigma_init,
+                                        self.__eta_sigma,
+                                        self.__eta_mu)

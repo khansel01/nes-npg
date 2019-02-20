@@ -1,11 +1,13 @@
 import torch as tr
 import numpy as np
-import gym
-import quanser_robots
-import matplotlib.pyplot as plt
-from NES import *
-from utilities.Environment import Environment
 from Agent import Agent
+from NPG import NPG
+from NES import NES
+from models.NN_GaussianPolicy import Policy
+from utilities.Environment import Environment
+from utilities import Helper
+from models.Baseline import Baseline
+from utilities.Normalizer import Normalizer
 
 #######################################
 # Environment
@@ -16,41 +18,42 @@ np.random.seed(0)
 tr.manual_seed(0)
 
 """ define the environment """
-gym_env = 'CartpoleSwingShort-v0'
-print("===================== Start {} =====================".format(gym_env))
+gym_env = 'Pendulum-v0'
+# gym_env = 'Qube-v0'
+# gym_env = 'Levitation-v0'
+# gym_env = 'Walker2d-v2'
+# gym_env = 'DoublePendulum-v0'
+# gym_env = 'Cartpole-v0'
+# gym_env = 'CartpoleSwingShort-v0'
+# gym_env = 'CartpoleSwingLong-v0'
+
 env = Environment(gym_env)
 
+print("===================== Start {} =====================".format(gym_env))
+
+
 """ create policy """
-policy = Policy(env, hidden_dim=(5, 5), log_std=0)
+policy = Policy(env, hidden_dim=(4, 4), log_std=0)
 
 """ create baseline """
-baseline = Baseline(env, hidden_dim=(5, 5), epochs=10)
+baseline = Baseline(env, hidden_dim=(4, 4))
 
-    state = env.reset()
-    done = False
-    r = 0
-    policy.set_parameters(w)
-    step = 0
-    while not done:
-        env.render() if step % step_size == 0 else None
-        action = policy.get_action(state)
-        state, reward, done, info = env.step(np.asarray([action]))
-        r += reward
-        # print(action, state[4])
-        step += 1
-    return r
+""" create Normalizer to scale the states/observations """
+normalizer = Normalizer(env)
 
 """ create NPG-algorithm """
-algorithm = NPG(0.005)
+# algorithm = NES(policy.length)
+algorithm = NPG(baseline, 0.005, _gamma=0.99, normalizer=normalizer)
 
 """ create agent """
-agent = Agent(env, policy, algorithm, baseline, _gamma=0.99)
+agent = Agent(env, policy, algorithm)
 
 """ train the policy """
-agent.train_policy(200, 20, normalizer=normalizer)
+agent.train_policy(episodes=5, n_roll_outs=1)
 
-x = np.arange(episodes)
-plt.errorbar(x, r, e, linestyle='-', marker='x', markeredgecolor='red')
+print("====================== DO Benchmark ======================")
+""" check the results """
+Helper.run_benchmark(policy, env)
 
-env.reset()
-env.close()
+""" render one episode"""
+Helper.render(policy, env, step_size=1)

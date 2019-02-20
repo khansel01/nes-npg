@@ -30,18 +30,17 @@ baseline = Baseline(env, hidden_dim=(6, 6))
 normalizer = Normalizer(env)
 
 """ create NPG-algorithm """
-algorithm = NPG(0.005)
+algorithm = NPG(baseline, 0.005)
 
 """ create agent """
-agent = Agent(env, policy, algorithm, baseline, render=True)
+agent = Agent(env, policy, algorithm)
 
 """ train the policy """
-agent.train_policy(1000, 100, normalizer=normalizer)
+agent.train_policy(1000, 100)
 
 print("====================== DO Benchmark ======================")
 """ check the results """
-#   TODO benchmark has a bug
-agent.benchmark_test(episodes=2, render=True)
+Helper.run_benchmark(policy, env)
 
-env.reset()
-env.close()
+""" render one episode"""
+Helper.render(policy, env, step_size=1)

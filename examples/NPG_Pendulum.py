@@ -33,10 +33,10 @@ baseline = Baseline(env, hidden_dim=(4, 4))
 normalizer = Normalizer(env)
 
 """ create NPG-algorithm """
-algorithm = NPG(0.005, _gamma=0.99, normalizer=normalizer)
+algorithm = NPG(baseline, 0.005, _gamma=0.99, normalizer=normalizer)
 
 """ create agent """
-agent = Agent(env, policy, algorithm, baseline)
+agent = Agent(env, policy, algorithm)
 
 """ train the policy """
 agent.train_policy(100, 100)
