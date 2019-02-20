@@ -20,7 +20,10 @@ class Environment:
         self.__horizon = self.__env.spec.timestep_limit if horizon is None\
             else horizon
         self.__seed = seed
-        self.__clip = clip
+        self.act_low = self.__env.action_space.low \
+            if clip is None else -np.ones(1) * clip
+        self.act_high = self.__env.action_space.high \
+            if clip is None else np.ones(1) * clip
         self.seed(self.__seed)
 
     """ Utility Functions """
@@ -62,13 +65,7 @@ class Environment:
         return out
 
     def __act_clip(self, action):
-        if self.__clip is not None:
-            return np.clip(action, self.__clip, self.__clip)
-        elif isinstance(self.__env.action_space, (LabeledBox, Box)):
-            return np.clip(action, self.__env.action_space.low,
-                           self.__env.action_space.high)
-        else:
-            return action
+        return np.clip(action, self.act_low, self.act_high)
 
     """ Main Functions """
     """==============================================================="""
