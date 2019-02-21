@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def run_benchmark(policy, env, episodes=100):
+def run_benchmark(policy, env, episodes=100, normalizer=None):
     total_rewards = np.zeros(episodes)
     print("Starting Benchmark:")
     print("-------------------")
@@ -10,11 +10,15 @@ def run_benchmark(policy, env, episodes=100):
         # print("Episode {}:".format(i_episode + 1))
 
         state = env.reset()
+        state = normalizer.transform(state) \
+            if normalizer is not None else state
         done = False
         while not done:
             action = policy.get_action(state, greedy=True)
             # print(action)
             state, reward, done, info = env.step(action)
+            state = normalizer.transform(state) \
+                if normalizer is not None else state
             total_rewards[i_episode] += reward
 
         print(i_episode + 1,

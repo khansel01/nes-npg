@@ -19,13 +19,13 @@ print("================== Start {} ==================".format(gym_env))
 policy = Policy(env, hidden_dim=(10,))
 
 """ create NES-algorithm """
-algorithm = NES(policy.length, sigma_init=10.0)
+algorithm = NES(policy.length, sigma_init=1.0)
 
 """ create agent """
 agent = Agent(env, policy, algorithm)
 
 """ train the policy """
-agent.train_policy(episodes=1000, n_roll_outs=1)
+agent.train_policy(episodes=500, n_roll_outs=1)
 
 """ check the results """
 Helper.run_benchmark(policy, env)

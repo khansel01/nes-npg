@@ -18,13 +18,13 @@ tr.manual_seed(0)
 
 """ define the environment """
 gym_env = 'CartpoleSwingShort-v0'
-env = Environment(gym_env, horizon=2000, clip=10)
+env = Environment(gym_env, horizon=2000)
 
 print("===================== Start {} =====================".format(gym_env))
 
 
 """ create policy """
-policy = Policy(env, hidden_dim=(8,), log_std=np.log(3.5))
+policy = Policy(env, hidden_dim=(8,), log_std=np.log(12))
 
 """ create baseline """
 baseline = Baseline(env, hidden_dim=(8, 8), epochs=50, lr=1e-3)
@@ -34,7 +34,8 @@ normalizer = Normalizer(env)
 
 
 """ create NPG-algorithm """
-algorithm = NPG(baseline, 0.0001, _gamma=0.997, _lambda=0.945, normalizer=normalizer)
+algorithm = NPG(baseline, 0.0001, _gamma=0.997, _lambda=0.945,
+                normalizer=normalizer)
 
 """ create agent """
 agent = Agent(env, policy, algorithm)

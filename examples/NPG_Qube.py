@@ -39,11 +39,11 @@ algorithm = NPG(baseline, 0.05, _gamma=0.999, normalizer=normalizer)
 agent = Agent(env, policy, algorithm)
 
 """ train the policy """
-agent.train_policy(300, 100)
+agent.train_policy(600, 100)
 
 print("====================== DO Benchmark ======================")
 """ check the results """
-Helper.run_benchmark(policy, env)
+Helper.run_benchmark(policy, env, normalizer=normalizer)
 
 """ render one episode"""
 Helper.render(policy, env, step_size=1)
