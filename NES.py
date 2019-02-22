@@ -64,8 +64,7 @@ class NES:
         z = self.__mu + self.__sigma * s
 
         # evaluate fitness
-        fitness, steps = self.f_norm(policy, env,
-                                     z, n_roll_outs)
+        fitness, steps = self.f(policy, env, z, n_roll_outs)
 
         # sort samples according to fitness
         s_sorted = s[np.argsort(fitness, kind="mergesort")[::-1]]

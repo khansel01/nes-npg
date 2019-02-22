@@ -7,6 +7,7 @@ from utilities.Environment import Environment
 from utilities import Helper
 from models.Baseline import Baseline
 from utilities.Normalizer import Normalizer
+import pickle
 
 #######################################
 # Environment
@@ -22,6 +23,10 @@ env = Environment(gym_env, horizon=2000)
 
 print("===================== Start {} =====================".format(gym_env))
 
+# """ load pretrained data """
+# path = "{}_npg.p".format(gym_env)
+# pickle_in = open(path, "rb")
+# policy, baseline, normalizer = pickle.load(pickle_in)
 
 """ create policy """
 policy = Policy(env, hidden_dim=(8,), log_std=np.log(12))
@@ -45,7 +50,12 @@ agent.train_policy(500, 20)
 
 print("====================== DO Benchmark ======================")
 """ check the results """
-Helper.run_benchmark(policy, env)
+Helper.run_benchmark(policy, env, normalizer=normalizer)
 
 """ render one episode"""
 Helper.render(policy, env, step_size=10)
+
+""" Save trained data """
+pickle_out = open("{}_npg.p".format(gym_env), "wb")
+pickle.dump((policy, baseline, normalizer), pickle_out)
+pickle_out.close()

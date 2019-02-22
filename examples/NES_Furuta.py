@@ -3,6 +3,7 @@ from utilities.Environment import Environment
 from utilities import Helper
 from models.NN_GaussianPolicy import Policy
 from Agent import Agent
+import pickle
 
 #######################################
 # Environment
@@ -14,6 +15,10 @@ env = Environment(gym_env)
 
 print("================== Start {} ==================".format(gym_env))
 
+""" load pretrained data """
+# path = "{}_clipped_nes.p".format(gym_env)
+# pickle_in = open(path, "rb")
+# policy = pickle.load(pickle_in)
 
 """ create policy """
 policy = Policy(env, hidden_dim=(6, 6))
@@ -32,3 +37,8 @@ Helper.run_benchmark(policy, env)
 
 """ render one episode"""
 Helper.render(policy, env, step_size=1)
+
+""" Save trained data """
+pickle_out = open("{}_nes.p".format(gym_env), "wb")
+pickle.dump(policy, pickle_out)
+pickle_out.close()
