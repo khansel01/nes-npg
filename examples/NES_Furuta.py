@@ -9,6 +9,10 @@ import pickle
 # Environment
 #######################################
 
+""" set seed """
+np.random.seed(0)
+tr.manual_seed(0)
+
 """ define the environment """
 gym_env = 'Qube-v0'
 env = Environment(gym_env)
@@ -16,7 +20,7 @@ env = Environment(gym_env)
 print("================== Start {} ==================".format(gym_env))
 
 """ load pretrained data """
-# path = "{}_clipped_nes.p".format(gym_env)
+# path = "{}_nes.p".format(gym_env)
 # pickle_in = open(path, "rb")
 # policy = pickle.load(pickle_in)
 
@@ -30,7 +34,7 @@ algorithm = NES(policy.length, sigma_init=1.0)
 agent = Agent(env, policy, algorithm)
 
 """ train the policy """
-agent.train_policy(episodes=1000, n_roll_outs=1)
+agent.train_policy(episodes=2000, n_roll_outs=10)
 
 """ check the results """
 Helper.run_benchmark(policy, env)
