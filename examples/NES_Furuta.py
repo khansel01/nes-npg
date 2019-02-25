@@ -21,24 +21,24 @@ print("================== Start {} ==================".format(gym_env))
 # policy = pickle.load(pickle_in)
 
 """ create policy """
-policy = Policy(env, hidden_dim=(6, 6))
+policy = Policy(env, hidden_dim=(10,))
 
 """ create NES-algorithm """
-algorithm = NES(policy.length, population_size=50, sigma_init=2.0)
+algorithm = NES(policy.length, sigma_init=1.0)
 
 """ create agent """
 agent = Agent(env, policy, algorithm)
 
 """ train the policy """
-agent.train_policy(episodes=1000, n_roll_outs=10)
+agent.train_policy(episodes=1000, n_roll_outs=1)
 
 """ check the results """
 Helper.run_benchmark(policy, env)
 
 """ render one episode"""
-Helper.render(policy, env, step_size=1)
+# Helper.render(policy, env, step_size=1)
 
 """ Save trained data """
-pickle_out = open("{}_nes.p".format(gym_env), "wb")
+pickle_out = open("{}_3_nes.p".format(gym_env), "wb")
 pickle.dump(policy, pickle_out)
 pickle_out.close()

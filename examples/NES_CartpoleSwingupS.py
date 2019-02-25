@@ -34,7 +34,7 @@ agent = Agent(env, policy, algorithm)
 agent.train_policy(episodes=10, n_roll_outs=5)
 
 """ check the results """
-Helper.run_benchmark(policy, env)
+Helper.run_benchmark(policy, env, episodes=1)
 
 """ render one episode"""
 Helper.render(policy, env, step_size=5)

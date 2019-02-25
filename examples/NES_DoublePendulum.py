@@ -11,7 +11,7 @@ import pickle
 
 """ define the environment """
 gym_env = 'DoublePendulum-v0'
-env = Environment(gym_env)
+env = Environment(gym_env, clip=10)
 
 print("================== Start {} ==================".format(gym_env))
 
@@ -39,6 +39,6 @@ Helper.run_benchmark(policy, env)
 Helper.render(policy, env, step_size=10)
 
 """ Save trained data """
-pickle_out = open("{}_nes.p".format(gym_env), "wb")
+pickle_out = open("{}_clipped_nes.p".format(gym_env), "wb")
 pickle.dump(policy, pickle_out)
 pickle_out.close()
