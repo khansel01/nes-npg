@@ -57,6 +57,9 @@ class NES:
     """ Main Functions """
     """==============================================================="""
     def do(self, env, policy, n_roll_outs):
+
+        self.__mu = policy.get_parameters()
+
         # draw samples
         s = self.__sampler.normal(0, 1, (self.__population_size,
                                          len(self.__mu)))
