@@ -9,11 +9,13 @@ def run_benchmark(policy, env, episodes=100, normalizer=None):
     for i_episode in range(episodes):
         # print("Episode {}:".format(i_episode + 1))
 
+        env.seed(i_episode)
         state = env.reset()
         state = normalizer.transform(state) \
             if normalizer is not None else state
         done = False
         while not done:
+            env.render()
             action = policy.get_action(state, greedy=True)
             # print(action)
             state, reward, done, info = env.step(action)

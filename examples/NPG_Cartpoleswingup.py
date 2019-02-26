@@ -19,7 +19,7 @@ tr.manual_seed(0)
 
 """ define the environment """
 gym_env = 'CartpoleSwingShort-v0'
-env = Environment(gym_env, horizon=2000)
+env = Environment(gym_env, horizon=2000, clip=3)
 
 print("===================== Start {} =====================".format(gym_env))
 
@@ -29,18 +29,17 @@ print("===================== Start {} =====================".format(gym_env))
 # policy, baseline, normalizer = pickle.load(pickle_in)
 
 """ create policy """
-policy = Policy(env, hidden_dim=(8,), log_std=np.log(12))
+policy = Policy(env, hidden_dim=(10,))
 
 """ create baseline """
-baseline = Baseline(env, hidden_dim=(8, 8), epochs=50, lr=1e-3)
+baseline = Baseline(env, hidden_dim=(50, 50), epochs=10)
 
 """ create Normalizer to scale the states/observations """
 normalizer = Normalizer(env)
 
 
 """ create NPG-algorithm """
-algorithm = NPG(baseline, 0.0001, _gamma=0.997, _lambda=0.945,
-                normalizer=normalizer)
+algorithm = NPG(baseline, 0.05, _gamma=0.999, normalizer=normalizer)
 
 """ create agent """
 agent = Agent(env, policy, algorithm)

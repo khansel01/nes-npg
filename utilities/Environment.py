@@ -110,7 +110,7 @@ class Environment:
                                            greedy=greedy)
 
                 next_observation, reward, done, _ =\
-                    self.step(np.asarray(self.__act_clip(action)))
+                    self.step(np.asarray(action))
 
                 observations.append(observation)
                 actions.append(action)
@@ -136,6 +136,6 @@ class Environment:
                 )
 
             trajectories.append(trajectory)
-
+            self.__env.step(np.zeros(1))
         return trajectories
 

@@ -115,10 +115,10 @@ class Agent:
 
     # TODO not finished
     ''' run benchmark test'''
-    def benchmark_test(self, episodes: int = 100, render: bool = False):
+    def benchmark_test(self, episodes: int = 1, render: bool = False):
 
         """ set policy parameters to best performed parameters"""
-        self.set_best_policy()
+        # self.set_best_policy()
 
         """ do roll outs"""
         trajectories = self.env.roll_out(self.policy, n_roll_outs=episodes,
