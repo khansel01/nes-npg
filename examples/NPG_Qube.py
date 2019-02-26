@@ -4,7 +4,6 @@ from Agent import Agent
 from NPG import NPG
 from models.NN_GaussianPolicy import Policy
 from utilities.Environment import Environment
-from utilities import Helper
 from models.Baseline import Baseline
 from utilities.Normalizer import Normalizer
 import pickle
@@ -14,8 +13,8 @@ import pickle
 #######################################
 
 
-def main(load: bool=False, train: bool=False, benchmark: bool=False,
-         save: bool=False, render: bool=True):
+def main(load: bool = False, train: bool = False, benchmark: bool = False,
+         save: bool = False, render: bool = True):
     """ set seed """
     np.random.seed(0)
     tr.manual_seed(0)
@@ -51,7 +50,7 @@ def main(load: bool=False, train: bool=False, benchmark: bool=False,
     if train:
         """ train the policy """
         print("{:=^50s}".format(' Train '))
-        agent.train_policy(500, 100, save=save)
+        agent.train_policy(episodes=500, n_roll_outs=100, save=save)
 
     if benchmark:
         """ check the results """
