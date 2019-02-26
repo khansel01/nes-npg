@@ -13,47 +13,58 @@ import pickle
 # Environment
 #######################################
 
-""" set seed """
-np.random.seed(0)
-tr.manual_seed(0)
 
-""" define the environment """
-gym_env = 'Qube-v0'
-env = Environment(gym_env)
+def main(load: bool=False, train: bool=False, benchmark: bool=False,
+         save: bool=False, render: bool=True):
+    """ set seed """
+    np.random.seed(0)
+    tr.manual_seed(0)
 
-print("===================== Start {} =====================".format(gym_env))
+    """ define the environment """
+    gym_env = 'Qube-v0'
+    env = Environment(gym_env)
+    print("{:=^50s}".format(' Start {} '.format(gym_env)))
 
-""" load pretrained data """
-path = "{}_npg.p".format(gym_env)
-pickle_in = open(path, "rb")
-policy, baseline, normalizer = pickle.load(pickle_in)
+    if load:
+        """ load pretrained policy, baseline, Normalizer from data """
+        print("{:=^50s}".format(' Load '))
+        path = "{}_300_[5.]_NPG.p".format(gym_env)
 
-# """ create policy """
-# policy = Policy(env, hidden_dim=(6, 6))
-#
-# """ create baseline """
-# baseline = Baseline(env, hidden_dim=(6, 6), epochs=10)
-#
-# """ create Normalizer to scale the states/observations """
-# normalizer = Normalizer(env)
-#
-# """ create NPG-algorithm """
-# algorithm = NPG(baseline, 0.05, _gamma=0.996, normalizer=normalizer)
-#
-# """ create agent """
-# agent = Agent(env, policy, algorithm)
-#
-# """ train the policy """
-# agent.train_policy(500, 100)
+        pickle_in = open(path, "rb")
 
-print("====================== DO Benchmark ======================")
-""" check the results """
-Helper.run_benchmark(policy, env, normalizer=normalizer)
+        policy, algorithm = pickle.load(pickle_in)
+    else:
+        """ create new policy, baseline, Normalizer """
+        print("{:=^50s}".format(' Init '))
+        policy = Policy(env, hidden_dim=(6, 6))
 
-# """ render one episode"""
-# Helper.render(policy, env, step_size=1)
+        baseline = Baseline(env, hidden_dim=(6, 6), epochs=10)
 
-# """ Save trained data """
-# pickle_out = open("{}_npg.p".format(gym_env), "wb")
-# pickle.dump((policy, baseline, normalizer), pickle_out)
-# pickle_out.close()
+        normalizer = Normalizer(env)
+
+        """ create NPG-algorithm """
+        algorithm = NPG(baseline, 0.05, _gamma=0.996, normalizer=normalizer)
+
+    """ create agent """
+    agent = Agent(env, policy, algorithm)
+
+    if train:
+        """ train the policy """
+        print("{:=^50s}".format(' Train '))
+        agent.train_policy(500, 100, save=save)
+
+    if benchmark:
+        """ check the results """
+        print("{:=^50s}".format(' Benchmark '))
+        agent.run_benchmark()
+
+    if render:
+        """ render one episode"""
+        print("{:=^50s}".format(' Render '))
+        agent.run_benchmark(episodes=1, render=True)
+
+    return
+
+
+if __name__ == '__main__':
+    main(load=False, train=False, benchmark=True, save=False, render=True)

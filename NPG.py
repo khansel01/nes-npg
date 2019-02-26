@@ -22,10 +22,14 @@ class NPG:
         self.__lambda = _lambda
         self.__gamma = _gamma
         self.baseline = baseline
-        self.__normalizer = normalizer
+        self.normalizer = normalizer
 
     """ Utility Functions """
     """==============================================================="""
+    @staticmethod
+    def get_name():
+        return 'NPG'
+
     def line_search(self, old_policy, new_policy, observations):
         obs = tr.from_numpy(observations).float()
         old_mean, old_log_std = old_policy.network(obs)
@@ -48,7 +52,7 @@ class NPG:
         trajectories = env.roll_out(policy,
                                     n_roll_outs=n_roll_outs,
                                     render=False,
-                                    normalizer=self.__normalizer)
+                                    normalizer=self.normalizer)
 
         estimate_advantage(trajectories,
                            self.baseline, self.__gamma, self.__lambda)
@@ -108,8 +112,8 @@ class NPG:
         self.baseline.train(trajectories)
 
         """ update normalizer """
-        if self.__normalizer is not None:
-            self.__normalizer.update(trajectories)
+        if self.normalizer is not None:
+            self.normalizer.update(trajectories)
 
         """ calculate return values """
         returns = np.asarray([np.sum(t["rewards"]) for t in trajectories])

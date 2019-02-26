@@ -16,7 +16,7 @@ class Environment:
     """ Init """
     """==============================================================="""
     def __init__(self, gym_env, seed: int=0,
-                 horizon: int=None, clip: int=None):
+                 horizon: int=None, clip: float=None):
         env = GentlyTerminating(gym.make(gym_env))
         self.__env = env
         self.__horizon = self.__env.spec.timestep_limit if horizon is None\
@@ -78,6 +78,10 @@ class Environment:
     def get_name(self):
         return self.__name
 
+    def to_string(self):
+        return "{}_{}_{}".format(self.__name, self.__horizon,
+                                 self.act_high[0])
+
     def __act_clip(self, action):
         return np.clip(action, self.act_low, self.act_high)
 
@@ -102,6 +106,7 @@ class Environment:
                 if normalizer is not None else observation
 
             step = 0
+            total_reward = 0
             done = False
             while step < self.__horizon and done is not True:
 
@@ -115,6 +120,7 @@ class Environment:
                 observations.append(observation)
                 actions.append(action)
                 rewards.append(reward)
+                total_reward += reward
                 flag.append(0) if done else flag.append(1)
 
                 observation = next_observation
@@ -132,7 +138,8 @@ class Environment:
                 actions=np.array(actions),
                 rewards=np.array(rewards),
                 flags=np.array(flag),
-                time_steps=step
+                time_steps=step,
+                total_reward=total_reward,
                 )
 
             trajectories.append(trajectory)

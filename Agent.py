@@ -2,6 +2,7 @@ import time
 import matplotlib.pyplot as plt
 from utilities.Logger import Logger
 import numpy as np
+import pickle
 
 #######################################
 # Agent
@@ -95,7 +96,7 @@ class Agent:
     """ Main Functions """
     """==============================================================="""
 
-    def train_policy(self, episodes, n_roll_outs: int = 1):
+    def train_policy(self, episodes, n_roll_outs: int = 1, save: bool=False):
 
         for i_episode in range(episodes):
 
@@ -110,28 +111,106 @@ class Agent:
             """ analyze episode """
             self.print(i_episode)
 
+            if save:
+                pickle_out = open("{}_{}.p".format(self.env.to_string(),
+                                                   self.algorithm.get_name()),
+                                  "wb")
+                pickle.dump((self.policy, self.algorithm), pickle_out)
+                pickle_out.close()
+
         if self.plot:
             self.plot_results()
 
-    # TODO not finished
     ''' run benchmark test'''
-    def benchmark_test(self, episodes: int = 1, render: bool = False):
 
-        """ set policy parameters to best performed parameters"""
-        # self.set_best_policy()
+    def run_benchmark(self, episodes=100, render: bool=False):
 
-        """ do roll outs"""
+        """ Starting Benchmark """
         trajectories = self.env.roll_out(self.policy, n_roll_outs=episodes,
-                                         render=render, greedy=True)
+                                         normalizer=self.algorithm.normalizer,
+                                         greedy=True, render=render)
 
-        # rewards_sum = np.concatenate(
-        #     [t["rewards"] for t in trajectories])
+        total_rewards = []
+        for i, t in np.ndenumerate(trajectories):
+            print(i[0] + 1,
+                  "Reward reached: ", t["total_reward"])
+            total_rewards.append(t["total_reward"])
 
-        # average = rewards_sum / episodes
-        # print("Average Reward: ", average)
-        # if average >= 195:
-        #     return True
-        # else:
-        #     return False
+        if render:
+            return
+
+        print("-------------------")
+        print("Average reward: ", np.mean(total_rewards))
+        print("Min reward:", np.min(total_rewards))
+        print("Max reward:", np.max(total_rewards))
+
+        """ 1. Plot: Total reward"""
+        plt.plot(np.arange(len(total_rewards)), total_rewards,
+                 label='Total reward per episode', color='darkgreen')
+        plt.fill_between(np.arange(len(total_rewards)),
+                         0, total_rewards,
+                         alpha=0.3, color='green')
+        plt.legend()
+        plt.xlabel('Episodes')
+        plt.ylim(bottom=0)
+        plt.ylabel('Total reward')
+        plt.show()
+
+        """ 2. Plot: reward per time step"""
+        plt.plot(np.arange(trajectories[0]["time_steps"]),
+                 trajectories[0]["rewards"],
+                 label='1. Run', color='green')
+        plt.plot(np.arange(trajectories[1]["time_steps"]),
+                 trajectories[1]["rewards"],
+                 label='2. Run', color='blue')
+        plt.plot(np.arange(trajectories[2]["time_steps"]),
+                 trajectories[2]["rewards"],
+                 label='3. Run', color='red')
+        # plt.plot(np.arange(trajectories[3]["time_steps"]),
+        #          trajectories[3]["rewards"],
+        #          label='4. Run', color='orange')
+        # plt.plot(np.arange(trajectories[4]["time_steps"]),
+        #          trajectories[4]["rewards"],
+        #          label='5. Run', color='pink')
+        plt.legend()
+        plt.xlabel('Time steps')
+        plt.ylabel('Reward')
+        plt.show()
+
+        """ 3. Plot: Cumulative reward"""
+        plt.plot(np.arange(trajectories[0]["time_steps"]),
+                 np.cumsum(trajectories[0]["rewards"]),
+                 label='1. Run', color='green')
+        plt.plot(np.arange(trajectories[1]["time_steps"]),
+                 np.cumsum(trajectories[1]["rewards"]),
+                 label='2. Run', color='blue')
+        plt.plot(np.arange(trajectories[2]["time_steps"]),
+                 np.cumsum(trajectories[2]["rewards"]),
+                 label='3. Run', color='red')
+        plt.plot(np.arange(trajectories[3]["time_steps"]),
+                 np.cumsum(trajectories[3]["rewards"]),
+                 label='4. Run', color='orange')
+        plt.plot(np.arange(trajectories[4]["time_steps"]),
+                 np.cumsum(trajectories[4]["rewards"]),
+                 label='5. Run', color='pink')
+        plt.plot(np.arange(trajectories[5]["time_steps"]),
+                 np.cumsum(trajectories[5]["rewards"]),
+                 label='6. Run', color='darkgreen')
+        plt.plot(np.arange(trajectories[6]["time_steps"]),
+                 np.cumsum(trajectories[6]["rewards"]),
+                 label='7. Run', color='brown')
+        plt.plot(np.arange(trajectories[7]["time_steps"]),
+                 np.cumsum(trajectories[7]["rewards"]),
+                 label='8. Run', color='gold')
+        plt.plot(np.arange(trajectories[8]["time_steps"]),
+                 np.cumsum(trajectories[8]["rewards"]),
+                 label='9. Run', color='cyan')
+        plt.plot(np.arange(trajectories[9]["time_steps"]),
+                 np.cumsum(trajectories[9]["rewards"]),
+                 label='10. Run', color='coral')
+        plt.legend()
+        plt.xlabel('Time steps')
+        plt.ylabel('Cumulative reward')
+        plt.show()
         return
 

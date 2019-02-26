@@ -15,7 +15,7 @@ def run_benchmark(policy, env, episodes=100, normalizer=None):
             if normalizer is not None else state
         done = False
         while not done:
-            env.render()
+            # env.render()
             action = policy.get_action(state, greedy=True)
             # print(action)
             state, reward, done, info = env.step(action)

@@ -10,8 +10,7 @@ import torch as tr
 class NES:
     def __init__(self, n_parameters, eta_sigma=None,
                  eta_mu=None, population_size=None,
-                 sigma_lower_bound=1e-10,
-                 seed=None, sigma_init=1.0):
+                 sigma_lower_bound=1e-10, sigma_init=1.0):
 
         # pre calculate value fro performance
         log_d = np.log(n_parameters)
@@ -36,10 +35,6 @@ class NES:
         numerator = np.maximum(0, log_half - log_k)
         self.__u = numerator / np.sum(numerator) - 1 / self.__population_size
 
-        if seed is not None:
-            tr.random.manual_seed(seed)
-            np.random.seed(seed)
-
         self.__mu = np.zeros(n_parameters)
 
         if sigma_init <= self.__sigma_lower_bound:
@@ -49,7 +44,7 @@ class NES:
         self.__sigma_init = sigma_init
 
         # random number generator for drawing samples z_k
-        self.__sampler = np.random.RandomState(seed)
+        self.__sampler = np.random.RandomState(np.random.rand)
 
         self.__u_eta_sigma_half = 0.5 * self.__eta_sigma * self.__u
         self.__u_eta_mu = self.__eta_mu * self.__u
@@ -113,6 +108,8 @@ class NES:
 
         return f, steps
 
+    """ Utility Functions """
+    """==============================================================="""
     @staticmethod
     def f_norm(policy, env, w, n_roll_outs: int = 1):
 
@@ -159,3 +156,7 @@ class NES:
                                         self.__sigma_init,
                                         self.__eta_sigma,
                                         self.__eta_mu)
+
+    @staticmethod
+    def get_name():
+        return 'NPG'
