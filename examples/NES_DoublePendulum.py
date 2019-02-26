@@ -1,6 +1,5 @@
 from NES import *
 from utilities.Environment import Environment
-from utilities import Helper
 from models.SquaredFeaturePolicy import PolicySquare
 from Agent import Agent
 import pickle
@@ -9,36 +8,53 @@ import pickle
 # Environment
 #######################################
 
-""" define the environment """
-gym_env = 'DoublePendulum-v0'
-env = Environment(gym_env, clip=10)
 
-print("================== Start {} ==================".format(gym_env))
+def main(load: bool = False, train: bool = False, benchmark: bool = False,
+         save: bool = False, render: bool = True):
+    """ set seed """
+    np.random.seed(0)
+    tr.manual_seed(0)
 
-# """ load pretrained data """
-# path = "{}_nes.p".format(gym_env)
-# pickle_in = open(path, "rb")
-# policy = pickle.load(pickle_in)
+    """ define the environment """
+    gym_env = 'DoublePendulum-v0'
+    env = Environment(gym_env, clip=10)
+    print("{:=^50s}".format(' Start {} '.format(gym_env)))
 
-""" create policy """
-policy = PolicySquare(env)
+    if load:
+        """ load pretrained policy, algorithm from data """
+        print("{:=^50s}".format(' Load '))
+        path = "{}_300_[5.]_NPG.p".format(gym_env)
 
-""" create NES-algorithm """
-algorithm = NES(policy.length, sigma_init=1.0)
+        pickle_in = open(path, "rb")
 
-""" create agent """
-agent = Agent(env, policy, algorithm)
+        policy, algorithm = pickle.load(pickle_in)
+    else:
+        """ create policy, algorithm """
+        print("{:=^50s}".format(' Init '))
+        policy = PolicySquare(env)
 
-""" train the policy """
-agent.train_policy(episodes=1000, n_roll_outs=1)
+        algorithm = NES(policy.length, sigma_init=1.0)
 
-""" check the results """
-Helper.run_benchmark(policy, env)
+    """ create agent """
+    agent = Agent(env, policy, algorithm)
 
-""" render one episode"""
-Helper.render(policy, env, step_size=10)
+    if train:
+        """ train the policy """
+        print("{:=^50s}".format(' Train '))
+        agent.train_policy(episodes=1000, n_roll_outs=1, save=save)
 
-""" Save trained data """
-pickle_out = open("{}_clipped_nes.p".format(gym_env), "wb")
-pickle.dump(policy, pickle_out)
-pickle_out.close()
+    if benchmark:
+        """ check the results """
+        print("{:=^50s}".format(' Benchmark '))
+        agent.run_benchmark()
+
+    if render:
+        """ render one episode"""
+        print("{:=^50s}".format(' Render '))
+        agent.run_benchmark(episodes=1, render=True)
+
+    return
+
+
+if __name__ == '__main__':
+    main(load=False, train=False, benchmark=True, save=False, render=True)
