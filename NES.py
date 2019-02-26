@@ -44,7 +44,8 @@ class NES:
         self.__sigma_init = sigma_init
 
         # random number generator for drawing samples z_k
-        self.__sampler = np.random.RandomState(np.random.rand)
+        seed: int = int(np.random.rand() * 2**32 - 1)
+        self.__sampler = np.random.RandomState(seed)
 
         self.__u_eta_sigma_half = 0.5 * self.__eta_sigma * self.__u
         self.__u_eta_mu = self.__eta_mu * self.__u
