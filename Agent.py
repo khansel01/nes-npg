@@ -61,6 +61,10 @@ class Agent:
             [episode["time_std"] for episode in self.logger.logger])\
             .squeeze()
 
+        benchmark = np.asarray(
+            [episode["benchmark_reward"] for episode in self.logger.logger])\
+            .squeeze()
+
         """ get length """
         length = r_stds.size
 
@@ -69,15 +73,13 @@ class Agent:
         plt.title(self.env.get_name() + "\n"
                   + self.algorithm.get_title()
                   + ", Policy: {}".format(self.policy.hidden_dim))
-
         plt.fill_between(np.arange(length),
                          r_means - r_stds, r_means + r_stds,
                          alpha=0.3, label='standard deviation',
                          color='green')
-
         plt.plot(np.arange(length), r_means, label='mean',
                  color='green')
-
+        plt.plot(np.arange(length), benchmark, label='benchmark')
         plt.legend()
         plt.xlabel('Episodes')
         plt.ylabel('Total reward')
@@ -112,9 +114,17 @@ class Agent:
             returns, steps = self.algorithm.do(self.env, self.policy,
                                                n_roll_outs)
 
+            """ do greedy run for plot purposes"""
+            self.env.seed(0)
+            eval: dict = self.env.roll_out(self.policy,
+                                     normalizer=self.algorithm.normalizer,
+                                     greedy=True)
+            self.env.seed()
+
             """ log data """
             self.logger.log_data(returns, steps, n_roll_outs,
-                                 self.policy.get_parameters())
+                                 self.policy.get_parameters(),
+                                 eval[0]["total_reward"])
 
             """ analyze episode """
             self.print(i_episode)
