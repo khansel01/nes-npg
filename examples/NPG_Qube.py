@@ -21,7 +21,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
     """ define the environment """
     gym_env = 'Qube-v0'
-    env = Environment(gym_env, clip=5)
+    env = Environment(gym_env, clip=4.5)
     print("{:-^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
@@ -41,7 +41,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
         normalizer = Normalizer(env)
 
         """ create NPG-algorithm """
-        algorithm = NPG(baseline, 0.05, _gamma=0.9999, normalizer=normalizer)
+        algorithm = NPG(baseline, 0.05, _gamma=0.999, normalizer=normalizer)
 
     """ create agent """
     agent = Agent(env, policy, algorithm)
@@ -49,7 +49,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         """ train the policy """
         print("{:-^50s}".format(' Train '))
-        agent.train_policy(episodes=20, n_roll_outs=100, save=save)
+        agent.train_policy(episodes=10, n_roll_outs=10, save=save)
 
     if benchmark:
         """ check the results """
@@ -65,4 +65,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=True, train=True, benchmark=False, save=False, render=False)
+    main(load=False, train=True, benchmark=True, save=True, render=True)

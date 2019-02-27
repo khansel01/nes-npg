@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from utilities.Logger import Logger
 import numpy as np
 import pickle
+import csv
 
 #######################################
 # Agent
@@ -46,24 +47,62 @@ class Agent:
 
     def plot_results(self):
 
+        """ string for csv file """
+        string = 'trained_data/training_data_{}_{}.csv'\
+            .format(self.env.to_string(), self.algorithm.get_name())
+
         """ get data out of logger"""
-        r_means = np.concatenate(
-            [episode["reward_mean"] for episode in self.logger.logger])\
-            .squeeze()
-        r_stds = np.concatenate(
-            [episode["reward_std"] for episode in self.logger.logger])\
-            .squeeze()
+        r_means = []
+        r_stds = []
+        t_means = []
+        t_stds = []
+        benchmark = []
+        with open(string, 'w') as writerFile:
+            for i, e in np.ndenumerate(self.logger.logger):
+                r_means.append(e["reward_mean"])
+                r_stds.append(e["reward_std"])
+                t_means.append(e["time_mean"])
+                t_stds.append(e["time_std"])
+                benchmark.append(e["benchmark_reward"])
 
-        t_means = np.concatenate(
-            [episode["time_mean"] for episode in self.logger.logger])\
-            .squeeze()
-        t_stds = np.concatenate(
-            [episode["time_std"] for episode in self.logger.logger])\
-            .squeeze()
+                """ write to csv file """
+                writer = csv.writer(writerFile)
+                writer.writerow([i[0], e["reward_mean"].squeeze(),
+                                e["reward_mean"].squeeze()
+                                - e["reward_std"].squeeze(),
+                                e["reward_mean"].squeeze()
+                                + e["reward_std"].squeeze(),
+                                e["benchmark_reward"].squeeze(),
+                                e["time_mean"].squeeze(),
+                                e["time_mean"].squeeze()
+                                - e["time_std"].squeeze(),
+                                e["time_mean"].squeeze()
+                                + e["time_std"].squeeze()])
+            writerFile.close()
 
-        benchmark = np.asarray(
-            [episode["benchmark_reward"] for episode in self.logger.logger])\
-            .squeeze()
+        r_means = np.concatenate(r_means).squeeze()
+        r_stds = np.concatenate(r_stds).squeeze()
+        t_means = np.concatenate(t_means).squeeze()
+        t_stds = np.concatenate(t_stds).squeeze()
+        benchmark = np.asarray(benchmark).squeeze()
+
+        # r_means = np.concatenate(
+        #     [episode["reward_mean"] for episode in self.logger.logger])\
+        #     .squeeze()
+        # r_stds = np.concatenate(
+        #     [episode["reward_std"] for episode in self.logger.logger])\
+        #     .squeeze()
+        #
+        # t_means = np.concatenate(
+        #     [episode["time_mean"] for episode in self.logger.logger])\
+        #     .squeeze()
+        # t_stds = np.concatenate(
+        #     [episode["time_std"] for episode in self.logger.logger])\
+        #     .squeeze()
+        #
+        # benchmark = np.asarray(
+        #     [episode["benchmark_reward"] for episode in self.logger.logger])\
+        #     .squeeze()
 
         """ get length """
         length = r_stds.size
@@ -93,13 +132,6 @@ class Agent:
         plt.xlabel('Episodes')
         plt.ylabel('Time steps')
         plt.show()
-
-        """ save in csv """
-        string = 'trained_data/training_data_{}_{}.csv'\
-            .format(self.env.to_string(), self.algorithm.get_name())
-        array = np.asarray((r_means, r_stds, t_means, t_stds, benchmark))
-        np.savetxt(string, array.T, delimiter=',', fmt='%10.5f',
-                   header="r_means, r_stds, t_means, t_sdts, benchmark")
         return
 
     """ Main Functions """
