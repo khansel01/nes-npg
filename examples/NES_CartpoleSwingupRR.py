@@ -17,13 +17,13 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
     """ define the environment """
     gym_env = 'CartpoleSwingRR-v0'
-    env = Environment(gym_env, clip=3)
+    env = Environment(gym_env, clip=5)
     print("{:=^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
         """ load pretrained policy, algorithm from data """
         print("{:=^50s}".format(' Load '))
-        path = "{}_300_[5.]_NPG.p".format(gym_env)
+        path = "trained_data/{}_10000_5.0_NES.p".format(gym_env)
 
         pickle_in = open(path, "rb")
 
@@ -41,7 +41,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         """ train the policy """
         print("{:=^50s}".format(' Train '))
-        agent.train_policy(episodes=10, n_roll_outs=1, save=save)
+        agent.train_policy(episodes=25, n_roll_outs=1, save=save)
 
     if benchmark:
         """ check the results """
@@ -57,4 +57,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=False, train=False, benchmark=True, save=False, render=True)
+    main(load=True, train=True, benchmark=True, save=True, render=True)

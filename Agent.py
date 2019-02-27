@@ -130,6 +130,7 @@ class Agent:
         """ Starting Benchmark """
         trajectories = self.env.roll_out(self.policy, n_roll_outs=episodes,
                                          normalizer=None,
+                                         # normalizer=self.algorithm.normalizer,
                                          greedy=True, render=render)
 
         total_rewards = []
