@@ -1,0 +1,49 @@
+\documentclass[tikz,border=2mm]{standalone}
+\usepackage{pgfplots}
+\usepackage{csvsimple}
+
+\pgfplotsset{compat=newest}
+\pgfplotstableread[col sep = comma]{training_data_Qube-v0_300_4.5_NPG.csv}\mydata
+\pagestyle{empty}
+\usepgfplotslibrary{patchplots}
+\usepgfplotslibrary{fillbetween}
+
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[
+    %Place legend
+    width=15cm, height=5cm,
+    legend pos = south east,
+    %X and y axis min max
+    %xmin = 0%, xmax = 0.5,
+    %ymin = 0, ymax = 6,
+    % change  optic
+    axis lines=middle,
+    axis line style={->},
+    x label style={at={(axis description cs:0.5,-0.1)},anchor=north},
+    y label style={at={(axis description cs:-0.1,.5)},rotate=90,anchor=south},
+    xlabel={Episodes},
+    ylabel={Reward},
+    % label for axis
+    %smooth,
+    no markers
+    ]
+    % add a plot
+    \addplot [name path=r1, color=black!50!green, thick]
+        table[y index = 1] from \mydata; %node[above,pos=1] {$x^2$};
+    \addlegendentry{mean}
+    \addplot [name path=benchmark, color=blue, thick]
+        table[y index = 4] from \mydata;
+    \addlegendentry{benchmark}
+    % fill between
+    \addplot [name path=r2, color=black!50!green!30, opacity=0, thick]
+        table[y index = 2] from \mydata;
+    \addlegendentry{}
+    \addplot [name path=r3, color=black!50!green!30, opacity=0, thick]
+        table[y index = 3] from \mydata;
+    \addlegendentry{}
+    \addplot [black!50!green!30, opacity=50] fill between[of= table[y index = 3] from \mydata and table[y index = 2] from \mydata];
+    \addlegendentry{standard deviation}
+\end{axis}
+\end{tikzpicture}
+\end{document}
