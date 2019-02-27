@@ -116,15 +116,15 @@ class Agent:
 
             """ do greedy run for plot purposes"""
             self.env.seed(0)
-            eval: dict = self.env.roll_out(self.policy,
-                                     normalizer=self.algorithm.normalizer,
-                                     greedy=True)
+            b: dict = self.env.roll_out(self.policy,
+                                        normalizer=self.algorithm.normalizer,
+                                        greedy=True)
             self.env.seed()
 
             """ log data """
             self.logger.log_data(returns, steps, n_roll_outs,
                                  self.policy.get_parameters(),
-                                 eval[0]["total_reward"])
+                                 b[0]["total_reward"])
 
             """ analyze episode """
             self.print(i_episode)

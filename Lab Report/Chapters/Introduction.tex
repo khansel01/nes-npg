@@ -1,0 +1,22 @@
+\section{Introduction}
+\label{intro}
+The field of Reinforcement Learning is progressing further and further. A lot of algorithm have been published over the past years using various approaches to solve blackbox problems. We have been assigned the task to implement two of those algorithms and verify their performance of different platforms. The purpose of this report is to present our results of the npg- and nes-algorithm on the Cartpole Swing Up, the Double Pendulum and the Furuta Pendulum.
+
+\subsection{Algorithms}
+\label{algos}
+------------------------------------------ UNSATISFIED ------------------------------------------
+The npg or natural policy gradient algorithm works on the trajectory space using policy gradients to improve. To increase the convergence the kl-divergence is added as a contraint to regularize the gradients direction. This way the "vanilla" gradient becomes the natural gradient. The explorative policy is improved by these gradients of the policy for each action performed during a trajectory. Each episode a new trajectories are run with the current policy.
+
+In contrast the nes, called natural evolution strategies, utilizes a search distribution over the parametes. Each episode a batch of sample policy is drawn from this distribution. These samples are used to run a trajectorie which is evaluated with a fitness function. The distribution is afterwards updated using the samples weighted by their respective fitness. Due to using a distribution over parameters the policy does not need any exploration itself.
+
+Should be rewritten with more detail and maybe optimization function. Add psudo-code? Add citations!
+
+\subsection{Platforms}
+\label{plats}
+The algorithms are tested on at least three different platforms. All of them are popular platforms from classical control engineering to demonstrate linear and nonlinear controls.
+
+The cartpole consists of two main parts. The first is a sledge sitting on a rail which can move left and right. Connected to the sledge is a rigid rod swinging freely when the sledge moves. There are several variations of the cartpole problem including stabilization or the swing up of one or more rods where the rods are stacked on top of each other. Two variations of the cartpole had to be solved. The first is the single pendulum swing up and the second the double pendulum stabilization.
+
+The furuta pendulum works a bit differently from the cartpole swing up. Instead from a moving cart the pendulum is connected perpendicular to a link which can be rotated in a horizontal plane by a motor. By doing so the pendulum will swing up.
+
+MODELS?
