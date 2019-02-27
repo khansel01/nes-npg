@@ -37,7 +37,7 @@ class Environment:
     def close(self):
         return self.__env.close()
 
-    def seed(self, seed):
+    def seed(self, seed=None):
         return self.__env.seed(seed)
 
     def get_seed(self):
