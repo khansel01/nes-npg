@@ -112,8 +112,8 @@ class Agent:
             self.print(i_episode)
 
             if save:
-                print("{:=^50s}".format(' Save '))
-                pickle_out = open("{}_{}.p".format(self.env.to_string(),
+                print("{:-^50s}".format(' Save '))
+                pickle_out = open("trained_data/{}_{}.p".format(self.env.to_string(),
                                                    self.algorithm.get_name()),
                                   "wb")
                 pickle.dump((self.policy, self.algorithm), pickle_out)

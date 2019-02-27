@@ -160,4 +160,4 @@ class NES:
 
     @staticmethod
     def get_name():
-        return 'NPG'
+        return 'NES'
