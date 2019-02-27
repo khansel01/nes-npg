@@ -97,9 +97,9 @@ class Agent:
         """ save in csv """
         string = 'trained_data/training_data_{}_{}.csv'\
             .format(self.env.to_string(), self.algorithm.get_name())
-        array = np.asarray((r_means, r_stds, t_means, t_stds))
+        array = np.asarray((r_means, r_stds, t_means, t_stds, benchmark))
         np.savetxt(string, array.T, delimiter=',', fmt='%10.5f',
-                   header="r_means, r_stds, t_means, t_sdts")
+                   header="r_means, r_stds, t_means, t_sdts, benchmark")
         return
 
     """ Main Functions """
