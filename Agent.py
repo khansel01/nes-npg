@@ -96,7 +96,8 @@ class Agent:
     """ Main Functions """
     """==============================================================="""
 
-    def train_policy(self, episodes, n_roll_outs: int = 1, save: bool=False):
+    def train_policy(self, episodes, n_roll_outs: int = 1,
+                     save: bool = False):
 
         for i_episode in range(episodes):
 
@@ -112,8 +113,9 @@ class Agent:
             self.print(i_episode)
 
             if save:
-                pickle_out = open("{}_{}.p".format(self.env.to_string(),
-                                                   self.algorithm.get_name()),
+                pickle_out = open("trained_data/{}_{}.p".format(
+                    self.env.to_string(),
+                    self.algorithm.get_name()),
                                   "wb")
                 pickle.dump((self.policy, self.algorithm), pickle_out)
                 pickle_out.close()
@@ -123,11 +125,11 @@ class Agent:
 
     ''' run benchmark test'''
 
-    def run_benchmark(self, episodes=100, render: bool=False):
+    def run_benchmark(self, episodes=100, render: bool = False):
 
         """ Starting Benchmark """
         trajectories = self.env.roll_out(self.policy, n_roll_outs=episodes,
-                                         normalizer=self.algorithm.normalizer,
+                                         normalizer=None,
                                          greedy=True, render=render)
 
         total_rewards = []

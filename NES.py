@@ -12,6 +12,10 @@ class NES:
                  eta_mu=None, population_size=None,
                  sigma_lower_bound=1e-10, sigma_init=1.0):
 
+        self.normalizer = 1
+
+        self.normalizer = None
+
         # pre calculate value fro performance
         log_d = np.log(n_parameters)
 
@@ -160,4 +164,4 @@ class NES:
 
     @staticmethod
     def get_name():
-        return 'NPG'
+        return 'NES'
