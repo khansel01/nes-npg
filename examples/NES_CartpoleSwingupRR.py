@@ -17,7 +17,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
     """ define the environment """
     gym_env = 'CartpoleSwingRR-v0'
-    env = Environment(gym_env, clip=5)
+    env = Environment(gym_env, clip=6)
     print("{:=^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
@@ -46,7 +46,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if benchmark:
         """ check the results """
         print("{:=^50s}".format(' Benchmark '))
-        agent.run_benchmark()
+        agent.run_benchmark(episodes=10)
 
     if render:
         """ render one episode"""
@@ -57,4 +57,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=True, train=True, benchmark=True, save=True, render=True)
+    main(load=True, train=False, benchmark=True, save=False, render=False)

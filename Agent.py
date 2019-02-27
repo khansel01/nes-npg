@@ -91,6 +91,13 @@ class Agent:
         plt.xlabel('Episodes')
         plt.ylabel('Time steps')
         plt.show()
+
+        """ save in csv """
+        string = 'trained_data/training_data_{}_{}.csv'\
+            .format(self.env.to_string(), self.algorithm.get_name())
+        array = np.asarray((r_means, r_stds, t_means, t_stds))
+        np.savetxt(string, array.T, delimiter=',', fmt='%10.5f',
+                   header="r_means, r_stds, t_means, t_sdts")
         return
 
     """ Main Functions """
@@ -129,8 +136,8 @@ class Agent:
 
         """ Starting Benchmark """
         trajectories = self.env.roll_out(self.policy, n_roll_outs=episodes,
-                                         normalizer=None,
-                                         # normalizer=self.algorithm.normalizer,
+                                         # normalizer=None,
+                                         normalizer=self.algorithm.normalizer,
                                          greedy=True, render=render)
 
         total_rewards = []
@@ -138,7 +145,6 @@ class Agent:
             print(i[0] + 1,
                   "Reward reached: ", t["total_reward"])
             total_rewards.append(t["total_reward"])
-
         if render:
             return
 
@@ -180,40 +186,12 @@ class Agent:
         plt.ylabel('Reward')
         plt.show()
 
-        """ 3. Plot: Cumulative reward"""
-        plt.plot(np.arange(trajectories[0]["time_steps"]),
-                 np.cumsum(trajectories[0]["rewards"]),
-                 label='1. Run', color='green')
-        plt.plot(np.arange(trajectories[1]["time_steps"]),
-                 np.cumsum(trajectories[1]["rewards"]),
-                 label='2. Run', color='blue')
-        plt.plot(np.arange(trajectories[2]["time_steps"]),
-                 np.cumsum(trajectories[2]["rewards"]),
-                 label='3. Run', color='red')
-        plt.plot(np.arange(trajectories[3]["time_steps"]),
-                 np.cumsum(trajectories[3]["rewards"]),
-                 label='4. Run', color='orange')
-        plt.plot(np.arange(trajectories[4]["time_steps"]),
-                 np.cumsum(trajectories[4]["rewards"]),
-                 label='5. Run', color='pink')
-        plt.plot(np.arange(trajectories[5]["time_steps"]),
-                 np.cumsum(trajectories[5]["rewards"]),
-                 label='6. Run', color='darkgreen')
-        plt.plot(np.arange(trajectories[6]["time_steps"]),
-                 np.cumsum(trajectories[6]["rewards"]),
-                 label='7. Run', color='brown')
-        plt.plot(np.arange(trajectories[7]["time_steps"]),
-                 np.cumsum(trajectories[7]["rewards"]),
-                 label='8. Run', color='gold')
-        plt.plot(np.arange(trajectories[8]["time_steps"]),
-                 np.cumsum(trajectories[8]["rewards"]),
-                 label='9. Run', color='cyan')
-        plt.plot(np.arange(trajectories[9]["time_steps"]),
-                 np.cumsum(trajectories[9]["rewards"]),
-                 label='10. Run', color='coral')
-        plt.legend()
-        plt.xlabel('Time steps')
-        plt.ylabel('Cumulative reward')
-        plt.show()
+        # """ save in csv """
+        # string = 'trained_data/benchmark_data_{}_{}.csv'\
+        #     .format(self.env.to_string(), self.algorithm.get_name())
+        # print(time_rewards)
+        # print(type(time_rewards))
+        # array = np.asarray(time_rewards)
+        # np.savetxt(string, array.T, delimiter=',', fmt='%10.5f')
         return
 

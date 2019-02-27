@@ -111,7 +111,7 @@ class Environment:
             while step < self.__horizon and done is not True:
 
                 self.__env.render() if render else None
-                action = policy.get_action(observation.reshape(1, -1),
+                action = 1.2*policy.get_action(observation.reshape(1, -1),
                                            greedy=greedy)
 
                 next_observation, reward, done, _ =\

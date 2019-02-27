@@ -42,8 +42,8 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
         normalizer = Normalizer(env)
 
         """ create NPG-algorithm """
-        gamma = 0.999999999999999
-        algorithm = NPG(baseline, 0.05, _gamma=gamma, normalizer=normalizer)
+        gamma = 0.999999999999
+        algorithm = NPG(baseline, 0.005, _gamma=gamma, normalizer=normalizer)
 
     """ create agent """
     agent = Agent(env, policy, algorithm)
