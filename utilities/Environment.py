@@ -37,7 +37,7 @@ class Environment:
     def close(self):
         return self.__env.close()
 
-    def seed(self, seed=None):
+    def seed(self, seed):
         return self.__env.seed(seed)
 
     def get_seed(self):
@@ -111,7 +111,7 @@ class Environment:
             while step < self.__horizon and done is not True:
 
                 self.__env.render() if render else None
-                action = 1.2*policy.get_action(observation.reshape(1, -1),
+                action = policy.get_action(observation.reshape(1, -1),
                                            greedy=greedy)
 
                 next_observation, reward, done, _ =\

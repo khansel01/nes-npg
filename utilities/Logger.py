@@ -14,8 +14,7 @@ class Logger:
 
     """ Main Functions """
     """==============================================================="""
-    def log_data(self, returns, time_steps, roll_outs, policy_parameters,
-                 benchmark_reward):
+    def log_data(self, returns, time_steps, roll_outs, policy_parameters):
 
         """ get rewards """
         r_mean = returns.mean()
@@ -39,7 +38,6 @@ class Logger:
             time_std=np.array(t_std).reshape(-1, 1),
             time_max=np.array(t_max).reshape(-1, 1),
             time_min=np.array(t_min).reshape(-1, 1),
-            benchmark_reward=benchmark_reward,
             policy_parameters=policy_parameters
             )
 

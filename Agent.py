@@ -56,14 +56,13 @@ class Agent:
         r_stds = []
         t_means = []
         t_stds = []
-        benchmark = []
+
         with open(string, 'w') as writerFile:
             for i, e in np.ndenumerate(self.logger.logger):
                 r_means.append(e["reward_mean"])
                 r_stds.append(e["reward_std"])
                 t_means.append(e["time_mean"])
                 t_stds.append(e["time_std"])
-                benchmark.append(e["benchmark_reward"])
 
                 """ write to csv file """
                 writer = csv.writer(writerFile)
@@ -72,7 +71,6 @@ class Agent:
                                 - e["reward_std"].squeeze(),
                                 e["reward_mean"].squeeze()
                                 + e["reward_std"].squeeze(),
-                                e["benchmark_reward"].squeeze(),
                                 e["time_mean"].squeeze(),
                                 e["time_mean"].squeeze()
                                 - e["time_std"].squeeze(),
@@ -84,25 +82,6 @@ class Agent:
         r_stds = np.concatenate(r_stds).squeeze()
         t_means = np.concatenate(t_means).squeeze()
         t_stds = np.concatenate(t_stds).squeeze()
-        benchmark = np.asarray(benchmark).squeeze()
-
-        # r_means = np.concatenate(
-        #     [episode["reward_mean"] for episode in self.logger.logger])\
-        #     .squeeze()
-        # r_stds = np.concatenate(
-        #     [episode["reward_std"] for episode in self.logger.logger])\
-        #     .squeeze()
-        #
-        # t_means = np.concatenate(
-        #     [episode["time_mean"] for episode in self.logger.logger])\
-        #     .squeeze()
-        # t_stds = np.concatenate(
-        #     [episode["time_std"] for episode in self.logger.logger])\
-        #     .squeeze()
-        #
-        # benchmark = np.asarray(
-        #     [episode["benchmark_reward"] for episode in self.logger.logger])\
-        #     .squeeze()
 
         """ get length """
         length = r_stds.size
@@ -118,7 +97,6 @@ class Agent:
                          color='green')
         plt.plot(np.arange(length), r_means, label='mean',
                  color='green')
-        plt.plot(np.arange(length), benchmark, label='benchmark')
         plt.legend()
         plt.xlabel('Episodes')
         plt.ylabel('Total reward')
@@ -146,17 +124,9 @@ class Agent:
             returns, steps = self.algorithm.do(self.env, self.policy,
                                                n_roll_outs)
 
-            """ do greedy run for plot purposes"""
-            self.env.seed(0)
-            b: dict = self.env.roll_out(self.policy,
-                                        normalizer=self.algorithm.normalizer,
-                                        greedy=True)
-            self.env.seed()
-
             """ log data """
             self.logger.log_data(returns, steps, n_roll_outs,
-                                 self.policy.get_parameters(),
-                                 b[0]["total_reward"])
+                                 self.policy.get_parameters())
 
             """ analyze episode """
             self.print(i_episode)
@@ -183,10 +153,12 @@ class Agent:
                                          greedy=True, render=render)
 
         total_rewards = []
+        rewards = []
         for i, t in np.ndenumerate(trajectories):
             print(i[0] + 1,
                   "Reward reached: ", t["total_reward"])
             total_rewards.append(t["total_reward"])
+            rewards.append(t["rewards"])
         if render:
             return
 
@@ -217,23 +189,33 @@ class Agent:
         plt.plot(np.arange(trajectories[2]["time_steps"]),
                  trajectories[2]["rewards"],
                  label='3. Run', color='red')
-        # plt.plot(np.arange(trajectories[3]["time_steps"]),
-        #          trajectories[3]["rewards"],
-        #          label='4. Run', color='orange')
-        # plt.plot(np.arange(trajectories[4]["time_steps"]),
-        #          trajectories[4]["rewards"],
-        #          label='5. Run', color='pink')
-        plt.legend()
+        plt.legend(["All Trials"])
+        plt.xlabel('Time steps')
+        plt.ylabel('Reward')
+        plt.show()
+
+        """ 3. Plot: reward per time step"""
+        for i, r in np.ndenumerate(rewards):
+            plt.plot(np.arange(len(r)), r, linewidth=0.8)
+        plt.legend(["Each Trial"])
+        plt.xlabel('Time steps')
+        plt.ylabel('Reward')
+        plt.show()
+        for i, r in np.ndenumerate(rewards):
+            if i[0] % 5 == 0:
+                plt.plot(np.arange(len(r)), r, linewidth=0.8)
+        plt.legend(["Each 5th Trial"])
+        plt.xlabel('Time steps')
+        plt.ylabel('Reward')
+        plt.show()
+        for i, r in np.ndenumerate(rewards):
+            if i[0] % 10 == 0:
+                plt.plot(np.arange(len(r)), r, linewidth=0.8)
+        plt.legend(["Each 10th Trial"])
         plt.xlabel('Time steps')
         plt.ylabel('Reward')
         plt.show()
 
         # """ save in csv """
-        # string = 'trained_data/benchmark_data_{}_{}.csv'\
-        #     .format(self.env.to_string(), self.algorithm.get_name())
-        # print(time_rewards)
-        # print(type(time_rewards))
-        # array = np.asarray(time_rewards)
-        # np.savetxt(string, array.T, delimiter=',', fmt='%10.5f')
         return
 
