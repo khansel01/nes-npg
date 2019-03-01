@@ -201,20 +201,6 @@ class Agent:
         plt.xlabel('Time steps')
         plt.ylabel('Reward')
         plt.show()
-        for i, r in np.ndenumerate(rewards):
-            if i[0] % 5 == 0:
-                plt.plot(np.arange(len(r)), r, linewidth=0.8)
-        plt.legend(["Each 5th Trial"])
-        plt.xlabel('Time steps')
-        plt.ylabel('Reward')
-        plt.show()
-        for i, r in np.ndenumerate(rewards):
-            if i[0] % 10 == 0:
-                plt.plot(np.arange(len(r)), r, linewidth=0.8)
-        plt.legend(["Each 10th Trial"])
-        plt.xlabel('Time steps')
-        plt.ylabel('Reward')
-        plt.show()
 
         # """ save in csv """
         return
