@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.11.6)  28 FEB 2019 00:00
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.11.6)  1 MAR 2019 14:23
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -220,18 +220,18 @@ Missing character: There is no ¡ in font cmr8!
 Here is how much of TeX's memory you used:
  2210 strings out of 493029
  32977 string characters out of 6136234
- 90604 words of memory out of 5000000
+ 90600 words of memory out of 5000000
  5733 multiletter control sequences out of 15000+600000
  11539 words of font info for 40 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 37i,7n,23p,535b,281s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 37i,7n,23p,558b,281s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsf
 onts/cm/cmbsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
 cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmb
 x9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><
 /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/sha
 re/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb>
-Output written on Report.pdf (3 pages, 82756 bytes).
+Output written on Report.pdf (3 pages, 83155 bytes).
 PDF statistics:
  38 PDF objects out of 1000 (max. 8388607)
  26 compressed objects within 1 object stream

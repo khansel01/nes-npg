@@ -17,13 +17,13 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
     """ define the environment """
     gym_env = 'QubeRR-v0'
-    env = Environment(gym_env)
+    env = Environment(gym_env, clip=4)
     print("{:=^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
         """ load pretrained policy, algorithm from data """
         print("{:=^50s}".format(' Load '))
-        path = "{}_300_[5.]_NPG.p".format(gym_env)
+        path = "trained_data/{}_300_5.0_NES.p".format(gym_env)
 
         pickle_in = open(path, "rb")
 
@@ -41,12 +41,12 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         """ train the policy """
         print("{:=^50s}".format(' Train '))
-        agent.train_policy(episodes=2000, n_roll_outs=10, save=save)
+        agent.train_policy(episodes=15, n_roll_outs=1, save=save)
 
     if benchmark:
         """ check the results """
         print("{:=^50s}".format(' Benchmark '))
-        agent.run_benchmark()
+        agent.run_benchmark(episodes=10)
 
     if render:
         """ render one episode"""
@@ -57,4 +57,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=False, train=False, benchmark=True, save=False, render=True)
+    main(load=True, train=False, benchmark=True, save=True, render=False)

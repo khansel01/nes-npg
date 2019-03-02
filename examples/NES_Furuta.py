@@ -17,7 +17,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
     """ define the environment """
     gym_env = 'Qube-v0'
-    env = Environment(gym_env)
+    env = Environment(gym_env, clip=4)
     print("{:=^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
@@ -57,4 +57,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=False, train=False, benchmark=True, save=False, render=True)
+    main(load=False, train=True, benchmark=True, save=False, render=False)

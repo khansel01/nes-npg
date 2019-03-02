@@ -41,7 +41,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         """ train the policy """
         print("{:*^50s}".format(' Train '))
-        agent.train_policy(episodes=1000, n_roll_outs=1, save=save)
+        agent.train_policy(episodes=50, n_roll_outs=1, save=save)
 
     if benchmark:
         """ check the results """
@@ -57,4 +57,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=True, train=False, benchmark=True, save=False, render=True)
+    main(load=False, train=True, benchmark=True, save=False, render=False)

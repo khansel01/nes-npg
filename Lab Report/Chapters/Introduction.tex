@@ -1,11 +1,11 @@
 \section{Introduction}
 \label{intro}
-The field of Reinforcement Learning is progressing further and further. A lot of algorithm have been published over the past years using various approaches to solve blackbox problems. We have been assigned the task to implement two of those algorithms and verify their performance of different platforms. The purpose of this report is to present our results of the npg- and nes-algorithm on the Cartpole Swing Up, the Double Pendulum and the Furuta Pendulum.
+The field of Reinforcement Learning is progressing further and further. A lot of algorithms have been published over the past years using various approaches to solve blackbox problems. We have been assigned the task to implement two of those algorithms and verify their performance on different platforms. The purpose of this report is to present our results of the Natural Policy Gradient (npg) and Natural Evolution Strategies (nes) algorithm on the cartpole swing up, the Double Pendulum and the Furuta Pendulum.
 
 \subsection{Algorithms}
 \label{algos}
 ------------------------------------------ UNSATISFIED ------------------------------------------
-The npg or natural policy gradient algorithm works on the trajectory space using policy gradients to improve. To increase the convergence the kl-divergence is added as a contraint to regularize the gradients direction. This way the "vanilla" gradient becomes the natural gradient. The explorative policy is improved by these gradients of the policy for each action performed during a trajectory. Each episode a new trajectories are run with the current policy.
+The npg or natural policy gradient algorithm works on the trajectory space using policy gradients to improve. To increase the convergence the KL-divergence is added as a contraint to regularize the gradients direction. This way the "vanilla" gradient becomes the natural gradient. The explorative policy is improved by these gradients of the policy for each action performed during a trajectory. Each episode new trajectories are run with the current policy.
 
 In contrast the nes, called natural evolution strategies, utilizes a search distribution over the parametes. Each episode a batch of sample policy is drawn from this distribution. These samples are used to run a trajectorie which is evaluated with a fitness function. The distribution is afterwards updated using the samples weighted by their respective fitness. Due to using a distribution over parameters the policy does not need any exploration itself.
 
