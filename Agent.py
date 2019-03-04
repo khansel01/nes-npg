@@ -195,8 +195,8 @@ class Agent:
         plt.show()
 
         """ 3. Plot: reward per time step"""
-        for i, r in np.ndenumerate(rewards):
-            plt.plot(np.arange(len(r)), r, linewidth=0.8)
+        # for i, r in np.ndenumerate(rewards):
+        plt.plot(np.arange(len(rewards)), rewards, linewidth=0.8)
         plt.legend(["Each Trial"])
         plt.xlabel('Time steps')
         plt.ylabel('Reward')
