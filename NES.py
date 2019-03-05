@@ -93,7 +93,8 @@ class NES:
         f = np.zeros(samples)
         steps = np.zeros(samples)
 
-        seed = env.get_seed()
+        # seed = env.get_seed()
+        seed = np.random.randint(0, 90000)
 
         for s in range(samples):
             policy.set_parameters(w[s])
