@@ -23,7 +23,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if load:
         """ load pretrained policy, algorithm from data """
         print("{:=^50s}".format(' Load '))
-        path = "{}_300_[5.]_NPG.p".format(gym_env)
+        path = "trained_data/{}_300_5.0_NES.p".format(gym_env)
 
         pickle_in = open(path, "rb")
 
@@ -51,10 +51,10 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if render:
         """ render one episode"""
         print("{:=^50s}".format(' Render '))
-        agent.run_benchmark(episodes=1, render=True)
+        agent.run_benchmark(episodes=5, render=True)
 
     return
 
 
 if __name__ == '__main__':
-    main(load=False, train=True, benchmark=True, save=False, render=False)
+    main(load=True, train=False, benchmark=False, save=False, render=True)
