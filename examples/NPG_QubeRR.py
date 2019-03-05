@@ -21,7 +21,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
     """ define the environment """
     gym_env = 'QubeRR-v0'
-    env = Environment(gym_env, clip=5)
+    env = Environment(gym_env)
     print("{:=^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
@@ -50,7 +50,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         """ train the policy """
         print("{:=^50s}".format(' Train '))
-        agent.train_policy(episodes=100, n_roll_outs=2, save=save)
+        agent.train_policy(episodes=10, n_roll_outs=2, save=save)
 
     if benchmark:
         """ check the results """

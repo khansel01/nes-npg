@@ -3,6 +3,7 @@ from utilities.Environment import Environment
 from models.NN_GaussianPolicy import Policy
 from Agent import Agent
 import pickle
+import os
 
 #######################################
 # Environment
@@ -17,13 +18,13 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
     """ define the environment """
     gym_env = 'CartpoleSwingShort-v0'
-    env = Environment(gym_env, clip=5)
+    env = Environment(gym_env, clip=6)
     print("{:*^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
         """ load pretrained policy, algorithm from data """
         print("{:*^50s}".format(' Load '))
-        path = "trained_data/{}_10000_5.0_NPG.p".format(gym_env)
+        path = os.getcwd() + "/trained_data/{}_NES.p".format(env.to_string())
 
         pickle_in = open(path, "rb")
 
@@ -41,12 +42,12 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         """ train the policy """
         print("{:*^50s}".format(' Train '))
-        agent.train_policy(episodes=1000, n_roll_outs=1, save=save)
+        agent.train_policy(episodes=2000, n_roll_outs=1, save=save)
 
     if benchmark:
         """ check the results """
         print("{:*^50s}".format(' Benchmark '))
-        agent.run_benchmark()
+        agent.run_benchmark(episodes=10)
 
     if render:
         """ render one episode"""
@@ -57,4 +58,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=True, train=False, benchmark=True, save=False, render=True)
+    main(load=False, train=True, benchmark=True, save=False, render=False)
