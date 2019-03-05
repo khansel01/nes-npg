@@ -21,7 +21,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
     """ define the environment """
     gym_env = 'CartpoleSwingShort-v0'
-    env = Environment(gym_env, horizon=2500, clip=5)
+    env = Environment(gym_env, horizon=2000)
     print("{:=^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
@@ -37,12 +37,12 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
         print("{:=^50s}".format(' Init '))
         policy = Policy(env, hidden_dim=(10,))
 
-        baseline = Baseline(env, hidden_dim=(15, 15), epochs=10)
+        baseline = Baseline(env, hidden_dim=(16, 16), epochs=10)
 
         normalizer = Normalizer(env)
 
         """ create NPG-algorithm """
-        gamma = 0.999999999999
+        gamma = 0.999
         algorithm = NPG(baseline, 0.005, _gamma=gamma, normalizer=normalizer)
 
     """ create agent """
@@ -51,7 +51,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         """ train the policy """
         print("{:=^50s}".format(' Train '))
-        agent.train_policy(episodes=500, n_roll_outs=20, save=save)
+        agent.train_policy(episodes=500, n_roll_outs=100, save=save)
 
     if benchmark:
         """ check the results """
