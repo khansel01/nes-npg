@@ -23,7 +23,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if load:
         """ load pretrained policy, algorithm from data """
         print("{:=^50s}".format(' Load '))
-        path = "trained_data/{}_10000_5.0_NES.p".format(gym_env)
+        path = "trained_data/{}_10000_6.0_NES.p".format('CartpoleSwingShort-v0')
 
         pickle_in = open(path, "rb")
 

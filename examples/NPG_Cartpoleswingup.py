@@ -35,14 +35,14 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     else:
         """ create new policy, baseline, Normalizer """
         print("{:=^50s}".format(' Init '))
-        policy = Policy(env, hidden_dim=(10,))
+        policy = Policy(env, hidden_dim=(6, 6))
 
-        baseline = Baseline(env, hidden_dim=(16, 16), epochs=10)
+        baseline = Baseline(env, hidden_dim=(6, 6), epochs=10)
 
         normalizer = Normalizer(env)
 
         """ create NPG-algorithm """
-        gamma = 0.999
+        gamma = 0.9999
         algorithm = NPG(baseline, 0.005, _gamma=gamma, normalizer=normalizer)
 
     """ create agent """
