@@ -103,55 +103,16 @@ class NES:
             trajectories: dict = env.roll_out(policy, n_roll_outs=n_roll_outs,
                                               greedy=True)
 
-            rewards = np.concatenate([t["rewards"]
-                                      for t in trajectories]).reshape(-1, 1)
+            t_steps = []
+            t_reward = []
+            for t in trajectories:
+                t_steps.append(t["time_steps"])
+                t_reward.append(t["total_reward"])
 
-            steps[s] = np.array(
-                [t["time_steps"] for t in trajectories]).sum() / n_roll_outs
-
-            f[s] = rewards.sum() / n_roll_outs
-
-        return f, steps
-
-    """ Utility Functions """
-    """==============================================================="""
-    @staticmethod
-    def f_norm(policy, env, w, n_roll_outs: int = 1):
-
-        samples = np.size(w, 0)
-        f = np.zeros(samples)
-        steps = np.zeros(samples)
-
-        seed = np.random.randint(2**32 - 1)
-
-        for s in range(samples):
-
-            policy.set_parameters(w[s])
-            env.seed(seed)
-
-            NES.roll_out(policy, env, f, steps, s, n_roll_outs)
+            steps[s] = np.sum(t_steps) / n_roll_outs
+            f[s] = np.sum(t_reward) / n_roll_outs
 
         return f, steps
-
-    @staticmethod
-    def roll_out(policy, env, f, steps, s, n_roll_outs):
-
-        rewards = 0
-        t = 0
-
-        for i in range(n_roll_outs):
-
-            done = False
-            obs = env.reset()
-
-            while not done:
-                a = policy.get_action(obs, greedy=True)
-                obs, r, done, _ = env.step(a)
-                rewards += r
-                t += 1
-
-        f[s] = rewards / n_roll_outs
-        steps[s] = t / n_roll_outs
 
     def get_title(self):
         return r"NES $\lambda = {}, "  \
