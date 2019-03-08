@@ -2,19 +2,20 @@ import numpy as np
 import gym
 from gym.spaces.discrete import Discrete
 from gym.spaces.box import Box
-import quanser_robots
 from quanser_robots.common import LabeledBox
 from quanser_robots import GentlyTerminating
 
-#######################################
-# Environment
-#######################################
+""" Wrapper for the gym environment providing useful functions """
 
 
 class Environment:
+    """ Wraps the gym environment to add functionality
+    - action clipping
+    - perform roll-outs
+    necessary because of slight differences between standard gym environments
+    and quanser robot environments.
+    """
 
-    """ Init """
-    """==============================================================="""
     def __init__(self, gym_env, seed: int=0,
                  horizon: int=None, clip: float=None):
         env = GentlyTerminating(gym.make(gym_env))
@@ -89,6 +90,9 @@ class Environment:
     """==============================================================="""
     def roll_out(self, policy, n_roll_outs: int=1, normalizer=None,
                  render: bool=False, greedy: bool=False):
+        """ perform n roll-outs and create a dictionary containing all
+        relevant information for each roll-out
+        """
         trajectories = []
 
         for s in range(n_roll_outs):
@@ -108,6 +112,7 @@ class Environment:
             step = 0
             total_reward = 0
             done = False
+            # run episode until terminal state or defined horizon
             while step < self.__horizon and done is not True:
 
                 self.__env.render() if render else None
@@ -133,6 +138,7 @@ class Environment:
                 if done:
                     break
 
+            # Save data as dictionary
             trajectory = dict(
                 observations=np.array(observations),
                 actions=np.array(actions),

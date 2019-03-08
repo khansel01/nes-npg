@@ -1,28 +1,29 @@
 import numpy as np
 
-#######################################
-# Log data
-#######################################
+""" Contains Logger class for documenting episodic data """
 
 
 class Logger:
+    """ The logger is used to document each episode for later evaluation,
+    such as plotting and creating csv files
+    """
 
-    """ Init """
-    """==============================================================="""
     def __init__(self):
         self.logger = []
 
-    """ Main Functions """
-    """==============================================================="""
+    # Main Function
+    # ===============================================================
     def log_data(self, returns, time_steps, roll_outs, policy_parameters):
+        """ Extracts relevant data from episodic returns, time steps etc. and
+        saves them in a dictionary for later use """
 
-        """ get rewards """
+        # get rewards
         r_mean = returns.mean()
         r_std = returns.std()
         r_max = returns.max()
         r_min = returns.min()
 
-        """ get time steps """
+        # get time steps
         t_mean = time_steps.mean()
         t_std = time_steps.std()
         t_max = time_steps.max()

@@ -1,36 +1,37 @@
 import numpy as np
 import torch as tr
 
-#######################################
-# NES
-#######################################
+""" Main Class for the NES-algorithm """
 
 
 # TODO comments
 class NES:
+
     def __init__(self, n_parameters, eta_sigma=None,
                  eta_mu=None, population_size=None,
                  sigma_lower_bound=1e-10, sigma_init=1.0):
-
-        self.normalizer = 1
 
         self.normalizer = None
 
         # pre calculate value fro performance
         log_d = np.log(n_parameters)
 
+        # Calculate population size if not specified
         if population_size is not None:
             self.__population_size = population_size
         else:
             self.__population_size = 4 + int(3 * log_d)
 
+        # Calculate eta_sigma if not specified
         if eta_sigma is not None:
             self.__eta_sigma = eta_sigma
         else:
             self.__eta_sigma = (3 + log_d) / np.sqrt(n_parameters) / 5
 
+        # set eta_mu
         self.__eta_mu = eta_mu if eta_mu is not None else 1
 
+        # define lower bound for sigma to avoid artifacts in calculations
         self.__sigma_lower_bound = sigma_lower_bound
 
         # utility is always equal hence we can pre compute it here
@@ -41,6 +42,7 @@ class NES:
 
         self.__mu = np.zeros(n_parameters)
 
+        # define sigma
         if sigma_init <= self.__sigma_lower_bound:
             sigma_init = self.__sigma_lower_bound
 
@@ -54,20 +56,21 @@ class NES:
         self.__u_eta_sigma_half = 0.5 * self.__eta_sigma * self.__u
         self.__u_eta_mu = self.__eta_mu * self.__u
 
-    """ Main Functions """
-    """==============================================================="""
+    # Main Functions
+    # ===============================================================
     def do(self, env, policy, n_roll_outs):
+        """ runs a single training step """
 
         self.__mu = policy.get_parameters()
 
-        # draw samples
+        # draw samples from search distribution
         s = self.__sampler.normal(0, 1, (self.__population_size,
                                          len(self.__mu)))
 
         z = self.__mu + self.__sigma * s
 
         # evaluate fitness
-        fitness, steps = self.f(policy, env, z, n_roll_outs)
+        fitness, steps = self.fitness(policy, env, z, n_roll_outs)
 
         # sort samples according to fitness
         s_sorted = s[np.argsort(fitness, kind="mergesort")[::-1]]
@@ -85,17 +88,23 @@ class NES:
 
         return fitness, steps
 
-    """ fitness functions """
-    """==============================================================="""
-    def f(self, policy, env, w, n_roll_outs: int = 1):
+    # Utility Functions
+    # ===============================================================
+    @staticmethod
+    def fitness(policy, env, w, n_roll_outs: int = 1):
+        """ evaluates a set of samples using roll outs of the environment """
 
         samples = np.size(w, 0)
         f = np.zeros(samples)
         steps = np.zeros(samples)
 
-        seed = env.get_seed()
+        # define seed to be the same for each sample
+        # numpy is used to get deterministic outcomes during testing
+        # seed = env.get_seed()
+        seed = np.random.randint(0, 90000)
 
         for s in range(samples):
+            # set sample as policy parameters
             policy.set_parameters(w[s])
 
             env.seed(seed)
@@ -115,6 +124,7 @@ class NES:
         return f, steps
 
     def get_title(self):
+        """ generates algorithm specific title for plotting results """
         return r"NES $\lambda = {}, "  \
                r"\sigma_0 = {}, " \
                r"\eta_\sigma = {:.4f}, " \
@@ -125,4 +135,5 @@ class NES:
 
     @staticmethod
     def get_name():
+        """ returns algorithm name """
         return 'NES'

@@ -21,13 +21,13 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
     """ define the environment """
     gym_env = 'Qube-v0'
-    env = Environment(gym_env, clip=5)
+    env = Environment(gym_env)
     print("{:-^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
         """ load pretrained policy, baseline, Normalizer from data """
         print("{:-^50s}".format(' Load '))
-        path = "trained_data/{}_300_4.5_NPG.p".format(gym_env)
+        path = "trained_data/{}_300_5.0_NPG.p".format(gym_env)
         pickle_in = open(path, "rb")
 
         policy, algorithm = pickle.load(pickle_in)
@@ -65,4 +65,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=True, train=False, benchmark=True, save=True, render=True)
+    main(load=True, train=False, benchmark=True, save=True, render=False)
