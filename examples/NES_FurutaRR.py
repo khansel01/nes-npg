@@ -17,13 +17,13 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
     """ define the environment """
     gym_env = 'QubeRR-v0'
-    env = Environment(gym_env, clip=4)
+    env = Environment(gym_env)
     print("{:=^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
         """ load pretrained policy, algorithm from data """
         print("{:=^50s}".format(' Load '))
-        path = "trained_data/{}_300_5.0_NES.p".format(gym_env)
+        path = "trained_data/{}_300_5.0_NES.p".format('Qube-v0')
 
         pickle_in = open(path, "rb")
 
@@ -57,4 +57,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=True, train=False, benchmark=True, save=True, render=False)
+    main(load=True, train=False, benchmark=True, save=False, render=False)
