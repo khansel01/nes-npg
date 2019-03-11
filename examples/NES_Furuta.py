@@ -1,9 +1,11 @@
+import pickle
+import torch as tr
+
 from nes import *
 from utilities.environment import Environment
 from models.nn_policy import Policy
 from agent import Agent
-import pickle
-import torch as tr
+
 
 #######################################
 # Environment

@@ -252,7 +252,7 @@ class Network(nn.Module):
                                   nn.Linear(curr_dim,
                                             next_dim))
             self.__net.add_module('activation' + i.__str__(),
-                                  activation())
+                                  activation)
             curr_dim = next_dim
         self.__net.add_module('linear' + (i + 1).__str__(),
                               nn.Linear(curr_dim, output_dim))

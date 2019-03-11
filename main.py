@@ -10,6 +10,8 @@
 
 import torch as tr
 import numpy as np
+import pickle
+
 from agent import Agent
 from npg import NPG
 from nes import NES
@@ -17,7 +19,6 @@ from models.nn_policy import Policy
 from utilities.environment import Environment
 from models.baseline import Baseline
 from utilities.normalizer import Normalizer
-import pickle
 
 
 def main(load: bool = False, train: bool = False, benchmark: bool = False,
