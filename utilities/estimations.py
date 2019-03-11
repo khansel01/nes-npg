@@ -65,8 +65,8 @@ def estimate_advantage(trajectories, baseline, _gamma=0.98, _lambda=0.95):
     """
 
     for t in trajectories:
-        values = baseline.predict(t)
-        rewards = t["rewards"]
+        values = baseline.predict(t).reshape(-1, 1)
+        rewards = t["rewards"].reshape(-1, 1)
         advantage = np.zeros_like(rewards)
         delta = np.zeros_like(rewards)
         delta[:-1] = rewards[:-1] - values[:-1] + _gamma * values[1:]

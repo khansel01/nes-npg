@@ -140,13 +140,13 @@ class NPG:
         estimate_advantage(trajectories,
                            self.__baseline, self.__gamma, self.__lambda)
 
-        # TODO do in one loop
+        # TODO do in one loop and check reshape
         observations = np.concatenate([t["observations"]
                                        for t in trajectories])
         actions = np.concatenate([t["actions"]
-                                  for t in trajectories]).reshape(-1, 1)
+                                  for t in trajectories])
         advantages = np.concatenate([t["advantages"]
-                                    for t in trajectories]).reshape(-1, 1)
+                                    for t in trajectories])
 
         # vanilla gradient
         with tr.no_grad():
