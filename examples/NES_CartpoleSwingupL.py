@@ -1,5 +1,5 @@
 from nes import *
-from utilities.Environment import Environment
+from utilities.environment import Environment
 from agent import Agent
 from models.SquaredFeaturePolicy import PolicySquare
 from models.NN_GaussianPolicy import Policy

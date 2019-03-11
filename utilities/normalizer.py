@@ -1,4 +1,12 @@
-"""Contains the Normalizer class"""
+"""Contains the Normalizer class
+
+:Date: 2019-03-11
+:Version: 1
+:Authors:
+    - Cedric Derstroff
+    - Janosch Moos
+    - Kay Hansel
+"""
 
 import numpy as np
 

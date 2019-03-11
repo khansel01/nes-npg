@@ -14,7 +14,7 @@ import numpy as np
 import torch as tr
 import copy
 from utilities.conjugate_gradient import conjugate_gradient as cg
-from utilities.Estimations import *
+from utilities.estimations import *
 
 
 class NPG:

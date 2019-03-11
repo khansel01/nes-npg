@@ -1,4 +1,12 @@
-"""Module containing Logger class for documenting episodic data"""
+"""Module containing Logger class for documenting episodic data
+
+:Date: 2019-03-11
+:Version: 1
+:Authors:
+    - Cedric Derstroff
+    - Janosch Moos
+    - Kay Hansel
+"""
 
 import numpy as np
 

@@ -1,6 +1,13 @@
 """Module containing the conjugate gradient method. This code is based
 on https://github.com/aravindr93/mjrl/blob/master/mjrl/utils/cg_solve.py
 written by Aravind Rajeswaran on May 6, 2018.
+
+:Date: 2019-03-11
+:Version: 1
+:Authors:
+    - Cedric Derstroff
+    - Janosch Moos
+    - Kay Hansel
 """
 
 import numpy as np

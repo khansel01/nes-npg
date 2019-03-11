@@ -3,9 +3,9 @@ import numpy as np
 from NPG import NPG
 from Agent import Agent
 from models.NN_GaussianPolicy import Policy
-from utilities.Environment import Environment
+from utilities.environment import Environment
 from models.Baseline import Baseline
-from utilities.Normalizer import Normalizer
+from utilities.normalizer import Normalizer
 import pickle
 import os
 

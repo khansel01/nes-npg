@@ -1,13 +1,13 @@
 import torch as tr
 import numpy as np
 from agent import Agent
-from Npg import NPG
+from npg import NPG
 from nes import NES
 from models.nn_policy import Policy
-from utilities.Environment import Environment
+from utilities.environment import Environment
 from utilities import Helper
 from models.baseline import Baseline
-from utilities.Normalizer import Normalizer
+from utilities.normalizer import Normalizer
 import pickle
 
 # TODO Delete me!!

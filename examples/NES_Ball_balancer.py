@@ -3,7 +3,7 @@ import numpy as np
 from agent import Agent
 from nes import NES
 from models.nn_policy import Policy
-from utilities.Environment import Environment
+from utilities.environment import Environment
 import pickle
 import os
 

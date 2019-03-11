@@ -9,7 +9,7 @@
 """
 
 import matplotlib.pyplot as plt
-from utilities.Logger import Logger
+from utilities.logger import Logger
 import numpy as np
 import pickle
 import csv

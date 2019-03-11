@@ -1,5 +1,5 @@
 from nes import *
-from utilities.Environment import Environment
+from utilities.environment import Environment
 from agent import Agent
 import pickle
 from models.nn_policy import Policy
