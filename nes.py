@@ -1,11 +1,14 @@
+"""Module containing the core class of the Natural Evolution Strategies
+"""
+
 import numpy as np
-import torch as tr
-
-""" Main Class for the NES-algorithm """
 
 
-# TODO comments
 class NES:
+    """Core class of the NES algorithm. Contains all relevant Parameters except
+    for the policy. Important functions are "do" to run a single training step
+    as well as "fitness" for evaluating samples during training.
+    """
 
     def __init__(self, n_parameters, eta_sigma=None,
                  eta_mu=None, population_size=None,
@@ -13,16 +16,16 @@ class NES:
 
         self.normalizer = None
 
-        # pre calculate value fro performance
+        # pre calculate value for performance
         log_d = np.log(n_parameters)
 
-        # Calculate population size if not specified
+        # calculate population size if not specified
         if population_size is not None:
             self.__population_size = population_size
         else:
             self.__population_size = 4 + int(3 * log_d)
 
-        # Calculate eta_sigma if not specified
+        # calculate eta_sigma if not specified
         if eta_sigma is not None:
             self.__eta_sigma = eta_sigma
         else:
@@ -59,7 +62,12 @@ class NES:
     # Main Functions
     # ===============================================================
     def do(self, env, policy, n_roll_outs):
-        """ runs a single training step """
+        """Runs a single training step:
+        1. draw a set of parameter samples
+        2. Gets an evaluation (fitness) for all samples using n simulations
+        (roll-outs) for each sample on the environment
+        3. Updates parameters based on samples sorted by their fitness
+        """
 
         self.__mu = policy.get_parameters()
 
@@ -92,7 +100,10 @@ class NES:
     # ===============================================================
     @staticmethod
     def fitness(policy, env, w, n_roll_outs: int = 1):
-        """ evaluates a set of samples using roll outs of the environment """
+        """ Evaluates the fitness of each sample in a set of samples. This is
+        done by running a simulation on the environment using the same seed
+        for all trials.
+        """
 
         samples = np.size(w, 0)
         f = np.zeros(samples)
@@ -122,46 +133,11 @@ class NES:
 
         return f, steps
 
-    # @staticmethod
-    # def f_norm(policy, env, w, n_roll_outs: int = 1):
-    #
-    #     samples = np.size(w, 0)
-    #     f = np.zeros(samples)
-    #     steps = np.zeros(samples)
-    #
-    #     seed = np.random.randint(2**32 - 1)
-    #
-    #     for s in range(samples):
-    #
-    #         policy.set_parameters(w[s])
-    #         env.seed(seed)
-    #
-    #         NES.roll_out(policy, env, f, steps, s, n_roll_outs)
-    #
-    #     return f, steps
-    #
-    # @staticmethod
-    # def roll_out(policy, env, f, steps, s, n_roll_outs):
-    #
-    #     rewards = 0
-    #     t = 0
-    #
-    #     for i in range(n_roll_outs):
-    #
-    #         done = False
-    #         obs = env.reset()
-    #
-    #         while not done:
-    #             a = policy.get_action(obs, greedy=True)
-    #             obs, r, done, _ = env.step(a)
-    #             rewards += r
-    #             t += 1
-    #
-    #     f[s] = rewards / n_roll_outs
-    #     steps[s] = t / n_roll_outs
-
     def get_title(self):
-        """ generates algorithm specific title for plotting results """
+        """Generates a title for plotting results containing all relevant
+        parameters and the algorithm name
+        """
+
         return r"NES $\lambda = {}, "  \
                r"\sigma_0 = {}, " \
                r"\eta_\sigma = {:.4f}, " \
@@ -172,5 +148,6 @@ class NES:
 
     @staticmethod
     def get_name():
-        """ returns algorithm name """
+        """returns algorithm name"""
+
         return 'NES'

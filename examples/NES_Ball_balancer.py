@@ -1,8 +1,8 @@
 import torch as tr
 import numpy as np
-from Agent import Agent
-from NES import NES
-from models.NN_GaussianPolicy import Policy
+from agent import Agent
+from nes import NES
+from models.nn_policy import Policy
 from utilities.Environment import Environment
 import pickle
 
@@ -44,7 +44,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         """ train the policy """
         print("{:=^50s}".format(' Train '))
-        agent.train_policy(episodes=500, n_roll_outs=1, save=True)
+        agent.train_policy(episodes=500, n_roll_outs=1, save=save)
 
     if benchmark:
         """ check the results """

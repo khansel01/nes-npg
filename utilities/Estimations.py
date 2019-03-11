@@ -1,14 +1,14 @@
 import numpy as np
 
-""" Estimators to compute:
+""" Module containing estimators:
 - empirical return to update Baseline
-- generalized advantage
-
+- generalized advantage for npg
 """
 
 
 def estimate_value(trajectories, _gamma):
-    """ calculates the state-value function based on monte-carlo returns """
+    """Calculates the state-value function based on monte-carlo returns"""
+
     for t in trajectories:
         rewards = t["rewards"]
         values = np.zeros_like(rewards)
@@ -20,9 +20,13 @@ def estimate_value(trajectories, _gamma):
 
 
 def estimate_advantage(trajectories, baseline, _gamma=0.98, _lambda=0.95):
-    """ calculates the advantage function for each state as general advantage
-    estimator
+    """Calculates the advantage function for each state as generalized
+    advantage estimator
+    John Schulman, Philipp Moritz, Sergey Levine, Michael I. Jordan and Pieter
+    Abbeel, High-Dimensional Continuous Control Using Generalized Advantage
+    Estimation, International Conference on Learning Representations, 2016
     """
+
     for t in trajectories:
         values = baseline.predict(t)
         rewards = t["rewards"]

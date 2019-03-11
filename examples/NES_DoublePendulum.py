@@ -1,8 +1,8 @@
-from NES import *
+from nes import *
 from utilities.Environment import Environment
-from models.SquaredFeaturePolicy import PolicySquare
-from Agent import Agent
+from agent import Agent
 import pickle
+from models.nn_policy import Policy
 
 #######################################
 # Environment
@@ -17,7 +17,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
     """ define the environment """
     gym_env = 'DoublePendulum-v0'
-    env = Environment(gym_env, clip=10)
+    env = Environment(gym_env)
     print("{:=^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
@@ -31,7 +31,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     else:
         """ create policy, algorithm """
         print("{:=^50s}".format(' Init '))
-        policy = PolicySquare(env)
+        policy = Policy(env, hidden_dim=(10,))
 
         algorithm = NES(policy.length, sigma_init=1.0)
 
@@ -41,7 +41,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         """ train the policy """
         print("{:=^50s}".format(' Train '))
-        agent.train_policy(episodes=1000, n_roll_outs=1, save=save)
+        agent.train_policy(episodes=400, n_roll_outs=1, save=save)
 
     if benchmark:
         """ check the results """
@@ -57,4 +57,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=False, train=False, benchmark=True, save=False, render=True)
+    main(load=False, train=True, benchmark=True, save=True, render=True)

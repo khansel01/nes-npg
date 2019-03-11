@@ -1,7 +1,6 @@
-from NES import *
+from nes import *
 from utilities.Environment import Environment
-from models.SquaredFeaturePolicy import PolicySquare
-from Agent import Agent
+from agent import Agent
 import pickle
 
 #######################################

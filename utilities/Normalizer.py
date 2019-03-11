@@ -1,29 +1,29 @@
 import numpy as np
 
-#######################################
-# Normalize the observations
-#######################################
+"""Contains the Normalizer class"""
 
 
 class Normalizer:
+    """Normalizer class used for normalizing observations with zero mean"""
 
-    """ Init """
-    """==============================================================="""
     def __init__(self, environment, clip=None):
         self.__N = 1
         self.__mean = np.zeros(environment.obs_dim())
         self.__std = np.ones(environment.obs_dim())
         self.__clip = clip
 
-    """ Main Functions """
-    """==============================================================="""
+    # Main Functions
+    # ===============================================================
     def update(self, trajectories):
+        """Updates the normalizer with new trajectory data to adjust to new
+        mean and std
+        """
 
-        """ get observations"""
+        # get observations
         obs = np.concatenate([t["observations"]
                               for t in trajectories])
 
-        """ update mean and std """
+        # update mean and std
         old_mean = self.__mean
 
         self.__mean = self.__N * self.__mean + obs.shape[0] * obs.mean(axis=0)
@@ -46,8 +46,8 @@ class Normalizer:
         self.__N += obs.shape[0]
         return
 
-    """ normalize current observations """
     def transform(self, observation):
+        """normalize current observations"""
         obs = (observation - self.__mean)/(self.__std + 1e-10)
         np.clip(obs, -self.__clip, self.__clip) if self.__clip is not None \
             else None

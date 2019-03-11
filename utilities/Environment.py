@@ -5,19 +5,21 @@ from gym.spaces.box import Box
 from quanser_robots.common import LabeledBox
 from quanser_robots import GentlyTerminating
 
-""" Wrapper for the gym environment providing useful functions """
+"""Module containing a wrapper for the gym environment providing useful 
+functions
+"""
 
 
 class Environment:
-    """ Wraps the gym environment to add functionality
+    """Wraps around the gym environment to add functionality
     - action clipping
     - perform roll-outs
     necessary because of slight differences between standard gym environments
     and quanser robot environments.
     """
 
-    def __init__(self, gym_env, seed: int=0,
-                 horizon: int=None, clip: float=None):
+    def __init__(self, gym_env, seed: int = 0,
+                 horizon: int = None, clip: float = None):
         env = GentlyTerminating(gym.make(gym_env))
         self.__env = env
         self.__horizon = self.__env.spec.timestep_limit if horizon is None\
@@ -33,8 +35,8 @@ class Environment:
     def __del__(self):
         self.__env.close()
 
-    """ Utility Functions """
-    """==============================================================="""
+    # Utility Functions
+    # ===============================================================
     def close(self):
         return self.__env.close()
 
@@ -55,6 +57,10 @@ class Environment:
         return self.__env.step(a)
 
     def obs_dim(self):
+        """Function to check which instance of observation dimensions are given
+        since standard gym and quanser environment are slightly different
+        """
+
         if isinstance(self.__env.observation_space, (LabeledBox, Box)):
             out = self.__env.observation_space.shape[0]
         elif isinstance(self.__env.observation_space, Discrete):
@@ -66,6 +72,10 @@ class Environment:
         return out
 
     def act_dim(self):
+        """Function to check which instance of action dimensions are given
+        since standard gym and quanser environment are slightly different
+        """
+
         if isinstance(self.__env.action_space, (LabeledBox, Box)):
             out = self.__env.action_space.shape[0]
         elif isinstance(self.__env.action_space, Discrete):
@@ -86,13 +96,16 @@ class Environment:
     def __act_clip(self, action):
         return np.clip(action, self.act_low, self.act_high)
 
-    """ Main Functions """
-    """==============================================================="""
-    def roll_out(self, policy, n_roll_outs: int=1, normalizer=None,
-                 render: bool=False, greedy: bool=False):
-        """ perform n roll-outs and create a dictionary containing all
-        relevant information for each roll-out
+    # Main Functions
+    # ===============================================================
+    def roll_out(self, policy, n_roll_outs: int = 1, normalizer=None,
+                 render: bool = False, greedy: bool = False):
+        """Performs n roll-outs (simulations) on the environment and creates a
+        dictionary containing all relevant information for each roll-out such
+        as reward, time steps run as well as actions, observations and done
+        flag for each time step.
         """
+
         trajectories = []
 
         for s in range(n_roll_outs):
