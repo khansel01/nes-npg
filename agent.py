@@ -198,22 +198,20 @@ class Agent:
         rewards = []
         time_steps = []
         for i, t in np.ndenumerate(trajectories):
-            print(i[0] + 1,
-                  "Reward reached: ", t["total_reward"])
+            print("{} Reward reached: {}".format(i[0] + 1, t["total_reward"]))
             total_rewards.append(t["total_reward"])
             rewards.append(t["rewards"])
             time_steps.append(t["time_steps"])
-        if render:
-            return
 
-        print("-------------------")
-        print("Average reward: ", np.mean(total_rewards))
-        print("Min reward:", np.min(total_rewards))
-        print("Max reward:", np.max(total_rewards))
+        if not render:
+            print("-------------------")
+            print("Average reward: ", np.mean(total_rewards))
+            print("Min reward:", np.min(total_rewards))
+            print("Max reward:", np.max(total_rewards))
 
-        if self.plot:
-            self.__plot_benchmark(total_rewards, rewards, time_steps,
-                                  trajectories)
+            if self.plot:
+                self.__plot_benchmark(total_rewards, rewards, time_steps,
+                                      trajectories)
 
     def __plot_benchmark(self, total_rewards, rewards, time_steps,
                          trajectories):

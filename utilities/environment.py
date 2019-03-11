@@ -211,16 +211,17 @@ class Environment:
             if isinstance(observation, tuple):
                 observation = np.asarray(observation)
 
-            observation = normalizer.transform(observation) \
-                if normalizer is not None else observation
+            if normalizer is not None:
+                observation = normalizer.transform(observation)
 
             step = 0
             total_reward = 0
             done = False
             # run episode until terminal state or defined horizon
-            while step < self.__horizon and done is not True:
+            while step < self.__horizon and not done:
 
-                self.__env.render() if render else None
+                if render:
+                    self.__env.render()
                 action = policy.get_action(observation.reshape(1, -1),
                                            greedy=greedy)
 
@@ -231,17 +232,20 @@ class Environment:
                 actions.append(action)
                 rewards.append(reward)
                 total_reward += reward
-                flag.append(0) if done else flag.append(1)
+
+                if done:
+                    flag.append(0)
+                else:
+                    flag.append(1)
 
                 observation = next_observation
                 if isinstance(observation, tuple):
                     observation = np.asarray(observation)
-                observation = normalizer.transform(observation) \
-                    if normalizer is not None else observation
+
+                if normalizer is not None:
+                    observation = normalizer.transform(observation)
 
                 step += 1
-                if done:
-                    break
 
             # Save data as dictionary
             trajectory = dict(

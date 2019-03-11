@@ -87,7 +87,7 @@ class NPG:
         self.__lambda = _lambda
         self.__gamma = _gamma
         self.__baseline = baseline
-        self.__normalizer = normalizer
+        self.normalizer = normalizer
 
     # Utility Functions
     # ===============================================================
@@ -135,11 +135,12 @@ class NPG:
         trajectories = env.roll_out(policy,
                                     n_roll_outs=n_roll_outs,
                                     render=False,
-                                    normalizer=self.__normalizer)
+                                    normalizer=self.normalizer)
 
         estimate_advantage(trajectories,
                            self.__baseline, self.__gamma, self.__lambda)
 
+        # TODO do in one loop
         observations = np.concatenate([t["observations"]
                                        for t in trajectories])
         actions = np.concatenate([t["actions"]
@@ -196,8 +197,8 @@ class NPG:
         self.__baseline.train(trajectories)
 
         # update normalizer
-        if self.__normalizer is not None:
-            self.__normalizer.update(trajectories)
+        if self.normalizer is not None:
+            self.normalizer.update(trajectories)
 
         # calculate return values
         returns = np.asarray([np.sum(t["rewards"]) for t in trajectories])
@@ -209,10 +210,13 @@ class NPG:
     def get_title(self):
         """Generates a title containing all relevant parameters for
         plotting purposes.
+
+        :return: the title for the plots
+        :rtype str
         """
 
-        return "NPG \u03B3 = {}, \u03BB = {}, \u03B4 = {} \n" \
-               "Baseline: {} with {} epochs"\
+        return r"NPG $\gamma = {}, \lambda = {}, \delta = {} $" \
+               "\nBaseline: {} with {} epochs"\
                .format(self.__gamma,
                        self.__lambda,
                        self.__delta/2,
@@ -221,6 +225,9 @@ class NPG:
 
     @staticmethod
     def get_name():
-        """Returns the algorithms' name"""
+        """Returns the algorithms' name
 
+        :return: 'NPG'
+        :rtype str
+        """
         return 'NPG'
