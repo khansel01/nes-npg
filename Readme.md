@@ -1,15 +1,18 @@
 # Reinforcement Learning
-This project implements Natural Policy Gradients and Natural Evolution Strategies algorithm for gym environments as well
-as quanser robot environments. Various examples are provided applying these algorithms to different platforms. However
-not all of them are solved yet. Using the main module you can apply the algorithm to different platforms and adjust the
+This project implements Natural Policy Gradients and Natural Evolution
+Strategies algorithm for gym environments as well as quanser robot
+environments. Various examples are provided applying these algorithms to
+different platforms. However not all of them are solved yet. Using the main
+module you can apply the algorithm to different platforms and adjust the
 parameters to try to solve these platforms.
 
 ## Getting Started
 ### Prerequisites
-This project is compatible with python3.6 and 
-[conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/ "Install miniconda"). Further the 
-[quanser package](https://git.ias.informatik.tu-darmstadt.de/quanser/clients/tree/master "Install quanser package") is 
-needed.
+This project is compatible with python3.6 and
+[conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/ "Install miniconda")
+. Further the
+[quanser package](https://git.ias.informatik.tu-darmstadt.de/quanser/clients/tree/master "Install quanser package")
+is needed.
 
 ##### Install python 3.6:
 ```bash
@@ -26,16 +29,18 @@ $ conda env create -f group14.yml
 ```
 
 ##### Install quanser pkg to environment
-Move to quanser package *.../clients/*
+Navigate to quanser package *.../clients/*
 ```bash
 $ source activate group14
 $ pip3 install -e .
 ```
 
 ## Usage
-To run any of the given examples please simply execute the respective file. The examples are set to run a benchmark test
-on a already trained policy. Alternatively adjust the main.py to run the code on any platforms with continuous action
-spaces. The algorithms are not implemented for discrete action spaces. 
+To run any of the given examples please simply execute the respective file.
+The examples are set to run a benchmark test on a already trained policy.
+Alternatively adjust the main.py to run the code on any platforms with
+continuous action spaces. The algorithms are not implemented for discrete
+action spaces.
 
 ##### A short example
 ```python
@@ -50,6 +55,34 @@ algorithm = NES(policy.length)
 agent = Agent(env, policy, algorithm)
 agent.train_policy(episodes=200)
 agent.run_benchmark()
+```
+
+## Project Structure
+```sh
+reinf/
+    agent.py
+    main.py
+    nes.py
+    npg.py
+    __init__.py
+    Readme.md
+    models/
+        __init__.py
+        Readme.md
+        baseline.py
+        nn_policy.py
+    utilities/
+        __init__.py
+        Readme.md
+        conjugate_gradient.py
+        environment.py
+        estimations.py
+        logger.py
+        normalizer.py
+    examples/
+        ...
+        trained_data/
+            ...
 ```
 
 ## Developers
