@@ -50,7 +50,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         """ train the policy """
         print("{:=^50s}".format(' Train '))
-        agent.train_policy(episodes=10, n_roll_outs=2, save=save)
+        agent.train_policy(episodes=10, n_roll_outs=5, save=save)
 
     if benchmark:
         """ check the results """

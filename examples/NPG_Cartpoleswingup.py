@@ -27,7 +27,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if load:
         """ load pretrained policy, baseline, Normalizer from data """
         print("{:=^50s}".format(' Load '))
-        path = "trained_data/{}_2500_5.0_NPG.p".format(gym_env)
+        path = "trained_data/{}_2000_24.0_NPG.p".format(gym_env)
 
         pickle_in = open(path, "rb")
 
@@ -35,15 +35,15 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     else:
         """ create new policy, baseline, Normalizer """
         print("{:=^50s}".format(' Init '))
-        policy = Policy(env, hidden_dim=(6, 6))
+        policy = Policy(env, hidden_dim=(6, 6), log_std=1)
 
         baseline = Baseline(env, hidden_dim=(6, 6), epochs=10)
 
         normalizer = Normalizer(env)
 
         """ create NPG-algorithm """
-        gamma = 0.9999
-        algorithm = NPG(baseline, 0.005, _gamma=gamma, normalizer=normalizer)
+        gamma = 0.999999
+        algorithm = NPG(baseline, 0.01, _gamma=gamma, normalizer=normalizer)
 
     """ create agent """
     agent = Agent(env, policy, algorithm)
@@ -51,7 +51,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         """ train the policy """
         print("{:=^50s}".format(' Train '))
-        agent.train_policy(episodes=500, n_roll_outs=100, save=save)
+        agent.train_policy(episodes=1000, n_roll_outs=50, save=save)
 
     if benchmark:
         """ check the results """

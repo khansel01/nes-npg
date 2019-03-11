@@ -28,6 +28,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
         """ load pretrained policy, baseline, Normalizer from data """
         print("{:-^50s}".format(' Load '))
         path = "trained_data/{}_300_5.0_NPG.p".format(gym_env)
+        # path = "trained_data/{}_npg.p".format(gym_env)
         pickle_in = open(path, "rb")
 
         policy, algorithm = pickle.load(pickle_in)
@@ -54,7 +55,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if benchmark:
         """ check the results """
         print("{:-^50s}".format(' Benchmark '))
-        agent.run_benchmark(episodes=10)
+        agent.run_benchmark(episodes=5)
 
     if render:
         """ render one episode """
@@ -65,4 +66,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=True, train=False, benchmark=True, save=True, render=False)
+    main(load=True, train=False, benchmark=True, save=False, render=False)
