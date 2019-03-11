@@ -91,7 +91,7 @@ class NPG:
 
     # Utility Functions
     # ===============================================================
-    def ____line_search(self, old_policy, new_policy, observations):
+    def __line_search(self, old_policy, new_policy, observations):
         obs = tr.from_numpy(observations).float()
         old_mean, old_log_std = old_policy.network(obs)
         old_std = tr.exp(old_log_std)

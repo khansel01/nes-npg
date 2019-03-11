@@ -143,7 +143,7 @@ class Baseline:
 
         data, values = self.__get_data(trajectories)
 
-        for e in range(self.epochs):
+        for e in range(self.__epochs):
             permuted_idx = np.random.permutation(len(values))
             for batch in range(int(len(values)/self.__batch_size)-1):
                 idx = tr.LongTensor(permuted_idx[batch*64:(batch+1)*64])
