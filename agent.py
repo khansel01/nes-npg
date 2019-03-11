@@ -110,7 +110,7 @@ class Agent:
         plt.subplot(2, 1, 1)
         plt.title(self.env.get_name() + "\n"
                   + self.algorithm.get_title()
-                  + ", Policy: {}".format(self.policy.hidden_dim))
+                  + ", Policy: {}".format(self.policy.get_hidden_dim()))
         plt.fill_between(np.arange(length),
                          r_means - r_stds, r_means + r_stds,
                          alpha=0.3, label='standard deviation',
@@ -230,7 +230,7 @@ class Agent:
         plt.ylabel('Total reward')
         plt.title("Benchmark Result for " + self.env.get_name() + "\n"
                   + "with " + self.algorithm.get_title()
-                  + ", Policy: {}".format(self.policy.hidden_dim))
+                  + ", Policy: {}".format(self.policy.get_hidden_dim()))
         plt.show()
 
         # 2. Plot: reward per time step for only first 3 runs
@@ -249,7 +249,7 @@ class Agent:
         plt.title("Reward per time step during benchmark of "
                   + self.env.get_name() + "\n"
                   + "with " + self.algorithm.get_title()
-                  + ", Policy: {}".format(self.policy.hidden_dim))
+                  + ", Policy: {}".format(self.policy.get_hidden_dim()))
         plt.show()
 
         # 3. Plot: reward per time step for all runs
@@ -261,7 +261,7 @@ class Agent:
         plt.title("Reward per time step during benchmark of "
                   + self.env.get_name() + "\n"
                   + "with " + self.algorithm.get_title()
-                  + ", Policy: {}".format(self.policy.hidden_dim))
+                  + ", Policy: {}".format(self.policy.get_hidden_dim()))
         plt.show()
 
         # save in csv
