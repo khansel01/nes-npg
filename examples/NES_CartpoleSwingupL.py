@@ -1,8 +1,8 @@
-from NES import *
+from nes import *
 from utilities.Environment import Environment
+from agent import Agent
 from models.SquaredFeaturePolicy import PolicySquare
 from models.NN_GaussianPolicy import Policy
-from Agent import Agent
 import pickle
 import os
 

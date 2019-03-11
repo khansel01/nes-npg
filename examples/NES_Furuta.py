@@ -1,8 +1,9 @@
-from NES import *
+from nes import *
 from utilities.Environment import Environment
-from models.NN_GaussianPolicy import Policy
-from Agent import Agent
+from models.nn_policy import Policy
+from agent import Agent
 import pickle
+import torch as tr
 
 #######################################
 # Environment
@@ -23,7 +24,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if load:
         """ load pretrained policy, algorithm from data """
         print("{:=^50s}".format(' Load '))
-        path = "trained_data/{}_300_5.0_NES.p".format(gym_env)
+        path = "trained_data/{}_300_5.0_NES_5R.p".format(gym_env)
 
         pickle_in = open(path, "rb")
 
@@ -41,7 +42,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         """ train the policy """
         print("{:=^50s}".format(' Train '))
-        agent.train_policy(episodes=1000, n_roll_outs=15, save=save)
+        agent.train_policy(episodes=600, n_roll_outs=15, save=save)
 
     if benchmark:
         """ check the results """
@@ -57,4 +58,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=True, train=False, benchmark=False, save=False, render=True)
+    main(load=False, train=True, benchmark=True, save=True, render=True)

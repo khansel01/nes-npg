@@ -26,10 +26,6 @@ class NPG:
 
     """ Utility Functions """
     """==============================================================="""
-    @staticmethod
-    def get_name():
-        return 'NPG'
-
     def line_search(self, old_policy, new_policy, observations):
         obs = tr.from_numpy(observations).float()
         old_mean, old_log_std = old_policy.network(obs)
@@ -130,8 +126,6 @@ class NPG:
                                                      self.baseline.hidden_dim,
                                                      self.baseline.epochs)
 
-
-
-
-
-
+    @staticmethod
+    def get_name():
+        return 'NPG'

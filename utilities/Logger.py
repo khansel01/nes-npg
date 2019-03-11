@@ -1,11 +1,11 @@
 import numpy as np
 
-""" Contains Logger class for documenting episodic data """
+"""Module containing Logger class for documenting episodic data"""
 
 
 class Logger:
-    """ The logger is used to document each episode for later evaluation,
-    such as plotting and creating csv files
+    """ The logger is used to document each episode for later evaluation
+    (e.g. plotting)
     """
 
     def __init__(self):
@@ -14,8 +14,9 @@ class Logger:
     # Main Function
     # ===============================================================
     def log_data(self, returns, time_steps, roll_outs, policy_parameters):
-        """ Extracts relevant data from episodic returns, time steps etc. and
-        saves them in a dictionary for later use """
+        """Extracts relevant data from episodic returns, time steps etc. and
+        saves them in a dictionary for later use
+        """
 
         # get rewards
         r_mean = returns.mean()

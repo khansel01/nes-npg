@@ -2,15 +2,14 @@ import torch as tr
 import numpy as np
 from agent import Agent
 from Npg import NPG
+from nes import NES
 from models.nn_policy import Policy
 from utilities.Environment import Environment
 from models.baseline import Baseline
 from utilities.Normalizer import Normalizer
 import pickle
 
-"""Module containing an example set up using NPG on the Double Pendulum
-Platform
-"""
+"""Main module for running the algorithms"""
 
 
 def main(load: bool = False, train: bool = False, benchmark: bool = False,
@@ -32,7 +31,16 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     tr.manual_seed(0)
 
     # define the environment
-    gym_env = 'DoublePendulum-v0'
+    gym_env = 'Pendulum-v0'
+    # gym_env = 'Qube-v0'
+    # gym_env = 'Levitation-v0'
+    # gym_env = 'Walker2d-v2'
+    # gym_env = 'DoublePendulum-v0'
+    # gym_env = 'Cartpole-v0'
+    # gym_env = 'CartpoleSwingShort-v0'
+    # gym_env = 'CartpoleSwingLong-v0'
+
+    # create environment using Environment wrapper
     env = Environment(gym_env)
     print("{:=^50s}".format(' Start {} '.format(gym_env)))
 
@@ -47,15 +55,18 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     else:
         # create new policy, baseline, Normalizer as necessary
         print("{:=^50s}".format(' Init '))
-        policy = Policy(env, hidden_dim=(10, 10))
-
-        baseline = Baseline(env, hidden_dim=(10, 10), epochs=20)
-
-        normalizer = Normalizer(env)
+        policy = Policy(env, hidden_dim=(10,))
 
         # create NPG-algorithm, baseline and normalizer
         # NPG needs a baseline, however normalizer can be used at own will
-        algorithm = NPG(baseline, 0.005, _gamma=0.9999, _lambda=0.2, normalizer=normalizer)
+        baseline = Baseline(env, hidden_dim=(10, 10), epochs=10)
+        normalizer = Normalizer(env)
+        algorithm = NPG(baseline, 0.05, _gamma=0.999999, normalizer=normalizer)
+
+        # create NES-algorithm
+        # NES does not use a baseline or normalizer as such they do not need to
+        # be defined in for this case
+        # algorithm = NES(policy.length, sigma_init=1.0)
 
     # create agent for controlling the training and benchmark process
     agent = Agent(env, policy, algorithm)
@@ -63,7 +74,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         # train the policy
         print("{:=^50s}".format(' Train '))
-        agent.train_policy(episodes=1000, n_roll_outs=10, save=save)
+        agent.train_policy(episodes=500, n_roll_outs=1, save=save)
 
     if benchmark:
         # check the results in a benchmark test
@@ -81,5 +92,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=False, train=True, benchmark=True, save=False, render=True)
-
+    main(load=False, train=True, benchmark=True, save=True, render=True)

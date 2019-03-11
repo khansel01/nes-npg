@@ -1,7 +1,7 @@
-from NES import *
+from nes import *
 from utilities.Environment import Environment
-from models.NN_GaussianPolicy import Policy
-from Agent import Agent
+from models.nn_policy import Policy
+from agent import Agent
 import pickle
 import os
 
@@ -18,13 +18,13 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
     """ define the environment """
     gym_env = 'CartpoleSwingShort-v0'
-    env = Environment(gym_env, clip=6)
+    env = Environment(gym_env)
     print("{:*^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
         """ load pretrained policy, algorithm from data """
         print("{:*^50s}".format(' Load '))
-        path = os.getcwd() + "/trained_data/{}_NES.p".format(env.to_string())
+        path = "trained_data/{}_NES.p".format(env.to_string())
 
         pickle_in = open(path, "rb")
 
@@ -42,7 +42,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         """ train the policy """
         print("{:*^50s}".format(' Train '))
-        agent.train_policy(episodes=2000, n_roll_outs=1, save=save)
+        agent.train_policy(episodes=800, n_roll_outs=1, save=save)
 
     if benchmark:
         """ check the results """

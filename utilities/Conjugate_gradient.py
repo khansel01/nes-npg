@@ -1,9 +1,9 @@
 import numpy as np
 
-#######################################
-# CG_solve copied from
-# https://github.com/aravindr93/mjrl/blob/master/mjrl/utils/cg_solve.py
-#######################################
+""" Module for calculating the conjugate gradient
+CG_solve copied from
+https://github.com/aravindr93/mjrl/blob/master/mjrl/utils/cg_solve.py
+"""
 
 
 def conjugate_gradient(f_Ax, b, cg_iters=10, residual_tol=1e-10):
