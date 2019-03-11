@@ -1,5 +1,15 @@
-"""
+"""Module contains two classes:
+    Policy: Uses a neural network to represent a gaussian policy.
+    Network: Implement a neural network with PyTorch
+Together these classes are a neural network based gaussian policy for
+mapping the environment states to actions.
 
+:Date: 2019-03-11
+:Version: 1
+:Authors:
+    - Cedric Derstroff
+    - Janosch Moos
+    - Kay Hansel
 """
 
 import numpy as np
@@ -8,23 +18,66 @@ import torch.nn as nn
 
 
 class Policy:
+    """The policy class implements a neural network based on PyTorch to
+    represent a gaussian distribution. Hence the output of the NN is the
+    mean and logarithmic standard deviation of the distribution.
+    The policy can be used explorative as well as greedy. In the greedy
+    case the standard deviation is not used.
 
-    # Init
-    # ===============================================================
-    def __init__(self, env, hidden_dim: tuple=(64, 64),
-                 activation: nn=nn.Tanh, log_std=None):
+    Attributes
+    ----------
+    log_std
+        Logarithm of standard deviation used for exploration
 
-        """ init """
-        self.input_dim = env.obs_dim()
-        self.output_dim = env.act_dim()
-        self.hidden_dim = hidden_dim
-        self.act = activation
+    Methods
+    -------
+    get_parameters()
+        Returns the current policy network parameters
+
+    set_parameters(new_params)
+        Overrides the network parameters
+
+    get_hidden_dim()
+        Returns the dimensions of the hidden layers
+
+    get_action(state, greedy=False)
+        Determines the action to take at a certain state
+
+    get_log_prob(states, actions)
+        Calculates the logarithmic probabilities of given actions in
+        corresponding states
+
+    get_kl(states)
+        Calculates the KL-divergence between the new and old policy
+    """
+
+    def __init__(self, env, hidden_dim: tuple = (64, 64),
+                 activation: nn = nn.Tanh, log_std=None):
+        """
+        :param env: Contains the gym environment the simulations are
+            performed on
+        :type env: Environment
+
+        :param hidden_dim: Dimensions for each hidden layer in the
+            neural network
+        :type hidden_dim: tuple
+
+        :param activation: Activation function for each node in the
+            neural network
+        :type activation: function
+
+        :param log_std: Log of standard deviation used for exploration
+        :type log_std: float
+        """
+
+        self.__output_dim = env.act_dim()
+        self.__hidden_dim = hidden_dim
         self.log_std = tr.from_numpy(np.log(env.act_high/2)).float()\
             if log_std is None else log_std
 
         # create nn
-        self.network = Network(self.input_dim, self.output_dim,
-                               self.hidden_dim, self.act, self.log_std)
+        self.network = Network(env.obs_dim(), self.__output_dim,
+                               self.__hidden_dim, activation(), self.log_std)
 
         # get net shape and size
         self.net_shapes = [p.data.numpy().shape
@@ -39,11 +92,24 @@ class Policy:
     # Utility Functions
     # ===============================================================
     def get_parameters(self):
+        """Returns the current network parameters (weights).
+
+        :return: Copy of the network parameters
+        :rtype: array_like
+        """
         params = np.concatenate([p.contiguous().view(-1).data.numpy()
                                 for p in self.network.parameters()])
         return params.copy()
 
     def set_parameters(self, new_param):
+        """Overrides the network parameters (weights) with a new set of
+        parameters.
+
+        :param new_param: A new set of parameters. Needs to be of
+            correct size for the neural networks dimensions.
+        :type new_param: array_like
+        """
+
         current_idx = 0
         for idx, param in enumerate(self.network.parameters()):
             temp_param = \
@@ -52,14 +118,34 @@ class Policy:
             param.data = tr.from_numpy(temp_param).float()
             current_idx += self.net_sizes[idx]
 
+    def get_hidden_dim(self):
+        """Returns the dimensions for the hidden layers of the neural
+        network.
+
+        :return: Dimensions of hidden layers
+        :rtype: tuple
+        """
+
+        return self.__hidden_dim
+
     # Main Functions
     # ===============================================================
     def get_action(self, state, greedy=False):
-        """
+        """Evaluates the state input and calculates the best possible
+        action. For greedy set to false the returned action will be
+        sampled from a gaussian distribution with greedy action as mean
+        and the exponential of log_std as standard deviation.
 
-        :param state:
-        :param greedy:
-        :return:
+        :param state: Represents the current observation from the
+            environment
+        :type state: array_like
+
+        :param greedy: Determines whether the action will be evaluated
+            greedy or explorative
+        :type greedy: bool
+
+        :return: Action to take
+        :rtype: array_like
         """
         mean, log_std = self.network.forward(
             tr.from_numpy(state.reshape(1, -1)).float())
@@ -67,30 +153,48 @@ class Policy:
             return mean.detach().numpy().squeeze()
         else:
             std = tr.exp(log_std).detach().numpy().squeeze()
-            noise = std * np.random.randn(self.output_dim)
+            noise = std * np.random.randn(self.__output_dim)
             return mean.detach().numpy().squeeze() + noise
 
     def get_log_prob(self, states, actions):
+        """Calculates the logarithmic probability of an action after
+        a gaussian distribution with greedy action as mean and the
+        exponential of log_std as standard deviation. The mean is
+        calculated using the given state.
+
+        :param states: Represents the observations from the
+            environment (can be multiple states)
+        :type states: array_like
+
+        :param actions: Chosen actions the logarithmic probability
+            should be calculated for (can be multiple actions)
+        :type actions: array_like
+
+        :return: Logarithmic probabilities of the given actions
+        :rtype: array_like
         """
 
-        :param states:
-        :param actions:
-        :return:
-        """
         mean, log_std = self.network.forward(tr.from_numpy(states).float())
 
         actions = tr.from_numpy(actions).float()
         log_prob = - (actions - mean) ** 2
         log_prob /= (2.0 * tr.exp(log_std) ** 2 + 1e-10)
-        log_prob -= log_std + 0.5 * self.output_dim * np.log(2 * np.pi)
+        log_prob -= log_std + 0.5 * self.__output_dim * np.log(2 * np.pi)
         return log_prob.sum(1, keepdim=True)
 
     def get_kl(self, states):
+        """Calculates the Kullback-Leibler divergence between the old
+        and new policy in order to fulfill the constraint of the natural
+        gradient optimization problem.
+
+        :param states: Represents the observations from the
+            environment (can be multiple states)
+        :type states: array_like
+
+        :return: KL-divergence
+        :rtype: array_like
         """
 
-        :param states:
-        :return:
-        """
         mean, log_std = self.network.forward(tr.from_numpy(states).float())
         std = tr.exp(log_std)
 

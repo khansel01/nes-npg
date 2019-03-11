@@ -38,6 +38,7 @@ class Agent:
             be plotted
         :type plot: bool
         """
+
         self.policy = policy
         self.env = env
         self.algorithm = algorithm

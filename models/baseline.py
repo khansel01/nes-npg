@@ -1,6 +1,13 @@
 """Module containing the baseline class used in the natural policy 
 gradient for increased performance as well as a neural network class 
 realising a PyTorch network as estimator for the baseline.
+
+:Date: 2019-03-11
+:Version: 1
+:Authors:
+    - Cedric Derstroff
+    - Janosch Moos
+    - Kay Hansel
 """
 
 import numpy as np
@@ -23,7 +30,7 @@ class Baseline:
     used.
     
     Methods
-    -----------
+    -------
     train(trajectories)
         Updates the network parameters based on new trajectory data
 
@@ -98,6 +105,25 @@ class Baseline:
                 val = np.zeros_like(rew).reshape(-1, 1)
 
         return obs, val
+
+    def get_hidden_dim(self):
+        """Returns the dimensions for the hidden layers of the neural
+        network.
+
+        :return: Dimensions of hidden layers
+        :rtype: tuple
+        """
+
+        return self.__hidden_dim
+
+    def get_epochs(self):
+        """Returns the number of epochs run during each update.
+
+        :return: Number of epochs
+        :rtype: int
+        """
+
+        return self.__epochs
 
     # Main Functions
     # ===============================================================
