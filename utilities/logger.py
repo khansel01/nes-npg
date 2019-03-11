@@ -31,7 +31,7 @@ class Logger:
 
     # Main Function
     # ===============================================================
-    def log_data(self, returns, time_steps, roll_outs, policy_parameters):
+    def log_data(self, returns, time_steps, roll_outs):
         """This function extracts relevant data from episodic returns,
         time steps etc. and saves them in a dictionary for later use
 
@@ -71,8 +71,7 @@ class Logger:
             time_mean=np.array(t_mean).reshape(-1, 1),
             time_std=np.array(t_std).reshape(-1, 1),
             time_max=np.array(t_max).reshape(-1, 1),
-            time_min=np.array(t_min).reshape(-1, 1),
-            policy_parameters=policy_parameters
+            time_min=np.array(t_min).reshape(-1, 1)
             )
 
         self.logger.append(episode)

@@ -157,8 +157,7 @@ class Agent:
                                                n_roll_outs)
 
             # log data
-            self.logger.log_data(returns, steps, n_roll_outs,
-                                 self.policy.get_parameters())
+            self.logger.log_data(returns, steps, n_roll_outs)
 
             # analyze episode
             self.__print(i_episode)
@@ -218,6 +217,9 @@ class Agent:
 
     def __plot_benchmark(self, total_rewards, rewards, time_steps,
                          trajectories):
+        """Generates plots after the benchmark process containing the
+        relevant information.
+        """
 
         # 1. Plot: Total reward
         plt.plot(np.arange(len(total_rewards)), total_rewards,
