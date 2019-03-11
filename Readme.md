@@ -37,6 +37,21 @@ To run any of the given examples please simply execute the respective file. The 
 on a already trained policy. Alternatively adjust the main.py to run the code on any platforms with continuous action
 spaces. The algorithms are not implemented for discrete action spaces. 
 
+#####A short example
+```python
+from nes import NES
+from utilities.environment import Environment
+from models.nn_policy import Policy
+from agent import Agent
+
+env = Environment('CartpoleStabShort-v0')
+policy = Policy(env, hidden_dim=(8,))
+algorithm = NES(policy.length)
+agent = Agent(env, policy, algorithm)
+agent.train_policy(episodes=200)
+agent.run_benchmark()
+```
+
 ##Developers
 - Janosch Moos
 - Kay Hansel
