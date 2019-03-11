@@ -54,10 +54,10 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     tr.manual_seed(0)
 
     # define the environment
-    gym_env = 'BallBalancerSim-v0'
+    gym_env = 'CartpoleSwingShort-v0'
 
     # create environment using Environment wrapper
-    env = Environment(gym_env)
+    env = Environment(gym_env, horizon=2000)
     print("{:-^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
@@ -69,16 +69,17 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
         policy, algorithm = pickle.load(pickle_in)
     else:
-        # create new policy, baseline, Normalizer as necessary
+        # create new policy
         print("{:-^50s}".format(' Init '))
-        policy = Policy(env, hidden_dim=(8, 8), log_std=0)
+        policy = Policy(env, hidden_dim=(6, 6), log_std=1)
 
         # create NPG-algorithm, baseline and normalizer
         # NPG needs a baseline, however normalizer can be used at own
         # will
-        baseline = Baseline(env, hidden_dim=(8, 8))
+        baseline = Baseline(env, hidden_dim=(6, 6), epochs=10)
         normalizer = Normalizer(env)
-        algorithm = NPG(baseline, 0.005, _gamma=0.99999, normalizer=normalizer)
+        gamma = 0.999999
+        algorithm = NPG(baseline, 0.01, _gamma=gamma, normalizer=normalizer)
 
     # create agent for controlling the training and benchmark process
     agent = Agent(env, policy, algorithm)
@@ -86,7 +87,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         # train the policy
         print("{:-^50s}".format(' Train '))
-        agent.train_policy(episodes=200, n_roll_outs=10, save=save)
+        agent.train_policy(episodes=1000, n_roll_outs=50, save=save)
 
     if benchmark:
         # check the results in a benchmark test
@@ -94,13 +95,13 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
         # plotted for
         # evaluation
         print("{:-^50s}".format(' Benchmark '))
-        agent.run_benchmark(episodes=25)
+        agent.run_benchmark()
 
     if render:
         # Runs a single rendered trial for visual performance check
         print("{:-^50s}".format(' Render '))
-        agent.run_benchmark(episodes=2, render=True)
+        agent.run_benchmark(episodes=1, render=True)
 
 
 if __name__ == '__main__':
-    main(load=True, train=True, benchmark=True, save=True, render=False)
+    main(load=False, train=True, benchmark=True, save=True, render=True)

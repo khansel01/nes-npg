@@ -11,9 +11,10 @@
 import torch as tr
 import numpy as np
 import pickle
+import os
 
-from agent import Agent
 from npg import NPG
+from agent import Agent
 from models.nn_policy import Policy
 from utilities.environment import Environment
 from models.baseline import Baseline
@@ -53,32 +54,31 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     tr.manual_seed(0)
 
     # define the environment
-    gym_env = 'CartpoleSwingShort-v0'
-    
+    gym_env = 'BallBalancerSim-v0'
+
     # create environment using Environment wrapper
-    env = Environment(gym_env, horizon=2000)
+    env = Environment(gym_env)
     print("{:-^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
         # load pre trained policy and algorithm from data
         print("{:-^50s}".format(' Load '))
-        path = "trained_data/{}_2000_24.0_NPG.p".format(gym_env)
+        path = os.getcwd() + "/trained_data/{}_NPG.p".format(env.to_string())
 
         pickle_in = open(path, "rb")
 
         policy, algorithm = pickle.load(pickle_in)
     else:
-        # create new policy, baseline, Normalizer as necessary
+        # create new policy
         print("{:-^50s}".format(' Init '))
-        policy = Policy(env, hidden_dim=(6, 6), log_std=1)
+        policy = Policy(env, hidden_dim=(8, 8), log_std=0)
 
         # create NPG-algorithm, baseline and normalizer
         # NPG needs a baseline, however normalizer can be used at own
         # will
-        baseline = Baseline(env, hidden_dim=(6, 6), epochs=10)
+        baseline = Baseline(env, hidden_dim=(8, 8))
         normalizer = Normalizer(env)
-        gamma = 0.999999
-        algorithm = NPG(baseline, 0.01, _gamma=gamma, normalizer=normalizer)
+        algorithm = NPG(baseline, 0.005, _gamma=0.99999, normalizer=normalizer)
 
     # create agent for controlling the training and benchmark process
     agent = Agent(env, policy, algorithm)
@@ -86,7 +86,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         # train the policy
         print("{:-^50s}".format(' Train '))
-        agent.train_policy(episodes=1000, n_roll_outs=50, save=save)
+        agent.train_policy(episodes=200, n_roll_outs=10, save=save)
 
     if benchmark:
         # check the results in a benchmark test
@@ -94,13 +94,13 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
         # plotted for
         # evaluation
         print("{:-^50s}".format(' Benchmark '))
-        agent.run_benchmark()
+        agent.run_benchmark(episodes=25)
 
     if render:
         # Runs a single rendered trial for visual performance check
         print("{:-^50s}".format(' Render '))
-        agent.run_benchmark(episodes=1, render=True)
+        agent.run_benchmark(episodes=2, render=True)
 
 
 if __name__ == '__main__':
-    main(load=False, train=True, benchmark=True, save=True, render=True)
+    main(load=True, train=True, benchmark=True, save=True, render=False)
