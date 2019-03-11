@@ -3,6 +3,7 @@ from utilities.Environment import Environment
 from models.nn_policy import Policy
 from agent import Agent
 import pickle
+import os
 
 #######################################
 # Environment
@@ -23,7 +24,8 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if load:
         """ load pretrained policy, algorithm from data """
         print("{:=^50s}".format(' Load '))
-        path = "trained_data/{}_10000_6.0_NES.p".format('CartpoleSwingShort-v0')
+        # path = "trained_data/CartpoleSwingShort-v0_10000_6.0_NES.p"
+        path = os.getcwd() + "/trained_data/{}_NES.p".format(env.to_string())
 
         pickle_in = open(path, "rb")
 
@@ -41,7 +43,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         """ train the policy """
         print("{:=^50s}".format(' Train '))
-        agent.train_policy(episodes=25, n_roll_outs=1, save=save)
+        agent.train_policy(episodes=30, n_roll_outs=1, save=save)
 
     if benchmark:
         """ check the results """
@@ -57,4 +59,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=True, train=False, benchmark=True, save=False, render=False)
+    main(load=True, train=True, benchmark=True, save=True, render=False)

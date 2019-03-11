@@ -58,4 +58,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=False, train=True, benchmark=True, save=True, render=False)
+    main(load=True, train=False, benchmark=True, save=False, render=False)
