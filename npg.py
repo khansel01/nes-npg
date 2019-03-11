@@ -56,32 +56,32 @@ class NPG:
     get_name()
         Returns the algorithms' name
     """
-    
+
     def __init__(self, baseline, _delta=0.05, damping=1e-4,
                  _lambda=0.95, _gamma=0.98, normalizer=None):
         """
         :param baseline: The baseline represents an estimator for
             estimating the state-value function
         :type baseline: Baseline
-        
+
         :param _delta: Learning rate
         :type _delta: float
-        
+
         :param damping: Damping factor to increase stability of the
             conjugate gradient
         :type damping: float
-        
+
         :param _lambda: Controls the bias and variance trade-off
         :type _lambda: float
-        
+
         :param _gamma: Determines the scale of the value function
         :type _gamma: float
-        
+
         :param normalizer: Normalizer for zero mean normalization of the
             observations
         :type normalizer: Normalizer
         """
-        
+
         self.__delta = 2 * _delta
         self.__damping = damping
         self.__lambda = _lambda
@@ -213,11 +213,11 @@ class NPG:
 
         return "NPG \u03B3 = {}, \u03BB = {}, \u03B4 = {} \n" \
                "Baseline: {} with {} epochs"\
-                .format(self.__gamma,
-                        self.__lambda,
-                        self.__delta/2,
-                        self.__baseline.get_hidden_dim(),
-                        self.__baseline.get_epochs())
+               .format(self.__gamma,
+                       self.__lambda,
+                       self.__delta/2,
+                       self.__baseline.get_hidden_dim(),
+                       self.__baseline.get_epochs())
 
     @staticmethod
     def get_name():

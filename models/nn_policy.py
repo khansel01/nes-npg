@@ -7,9 +7,9 @@ mapping the environment states to actions.
 :Date: 2019-03-11
 :Version: 1
 :Authors:
-    - Cedric Derstroff
     - Janosch Moos
     - Kay Hansel
+    - Cedric Derstroff
 """
 
 import numpy as np

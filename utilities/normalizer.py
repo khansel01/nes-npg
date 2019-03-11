@@ -79,4 +79,3 @@ class Normalizer:
         np.clip(obs, -self.__clip, self.__clip) if self.__clip is not None \
             else None
         return obs
-

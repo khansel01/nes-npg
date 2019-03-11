@@ -76,4 +76,3 @@ class Logger:
             )
 
         self.logger.append(episode)
-

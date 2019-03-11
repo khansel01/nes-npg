@@ -7,9 +7,9 @@ strategies to evaluate the samples' fitness.
 :Date: 2019-03-11
 :Version: 1
 :Authors:
+    - Kay Hansel
     - Cedric Derstroff
     - Janosch Moos
-    - Kay Hansel
 """
 
 import numpy as np

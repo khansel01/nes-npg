@@ -1,13 +1,13 @@
-"""Module containing the baseline class used in the natural policy 
-gradient for increased performance as well as a neural network class 
+"""Module containing the baseline class used in the natural policy
+gradient for increased performance as well as a neural network class
 realising a PyTorch network as estimator for the baseline.
 
 :Date: 2019-03-11
 :Version: 1
 :Authors:
-    - Cedric Derstroff
     - Janosch Moos
     - Kay Hansel
+    - Cedric Derstroff
 """
 
 import numpy as np
@@ -16,19 +16,19 @@ import torch.nn as nn
 
 
 class Baseline:
-    """The baseline class represents an estimator for estimating the 
+    """The baseline class represents an estimator for estimating the
     value function in order to improve the algorithm performance by
     reducing the variance of the gradient estimator.
 
     Jan Peters and Stefan Schaal, Reinforcement learning of motor skills
-    with policy gradients, Journal of the International Neural Network 
-    Society, European Neural Network Society & Japanese Neural Network 
+    with policy gradients, Journal of the International Neural Network
+    Society, European Neural Network Society & Japanese Neural Network
     Society, 21, 682-697 (2008)
 
-    The baseline is realized by a neural network of variable size. To 
-    improve convergence of the neural network a batch normalization is 
+    The baseline is realized by a neural network of variable size. To
+    improve convergence of the neural network a batch normalization is
     used.
-    
+
     Methods
     -------
     train(trajectories)
@@ -213,14 +213,14 @@ class Network(nn.Module):
         i = 0
         for i, next_dim in enumerate(hidden_dim):
             self.__net.add_module('linear' + i.__str__(),
-                                nn.Linear(curr_dim,
-                                          next_dim))
+                                  nn.Linear(curr_dim,
+                                            next_dim))
             self.__net.add_module('Batch' + i.__str__(),
-                                nn.BatchNorm1d(next_dim))
+                                  nn.BatchNorm1d(next_dim))
             self.__net.add_module('activation' + i.__str__(), activation())
             curr_dim = next_dim
         self.__net.add_module('linear' + (i + 1).__str__(),
-                            nn.Linear(curr_dim, output_dim))
+                              nn.Linear(curr_dim, output_dim))
 
         # set weights and bias in last layer small for fast convergence
         for p in list(self.__net.parameters())[-2:]:
