@@ -1,43 +1,52 @@
+"""This module contains the agent class
+
+:Date: 2019-03-11
+:Version: 1
+:Authors:
+    - Janosch Moos
+    - Kay Hansel
+    - Cedric Derstroff
+"""
+
 import matplotlib.pyplot as plt
 from utilities.Logger import Logger
 import numpy as np
 import pickle
 import csv
 
-""" Agent Class Module """
-
 
 class Agent:
-    """ Agent Class
-    It wraps around environment, policy and algorithm. The class basically
-    controls the training process, benchmarks and documentation of results.
+    """Agent Class
+    It wraps around environment, policy and algorithm. The class
+    basically controls the training process, benchmarks and
+    documentation of results.
     """
 
-    def __init__(self, env, policy, algorithm, render=False, plot=True):
+    def __init__(self, env, policy, algorithm, plot=True):
+        """
+        :param env: Contains the gym environment the simulations are
+            performed on
+        :type env: Environment
+
+        :param policy: The policy to improve
+        :type policy: Policy
+
+        :param algorithm: The learning algorithm
+        :type algorithm: NES or NPG
+
+        :param plot: If True the results of Training and Benchmark will
+            be plotted
+        :type plot: bool
+        """
         self.policy = policy
         self.env = env
         self.algorithm = algorithm
-        self.render = render
         self.plot = plot
         self.logger = Logger()
 
     # Utility Functions
     # ===============================================================
-    def set_best_policy(self):
-        """This function can be used to set the policy to the best logged
-        policy that was encountered during the training process
-        """
-
-        rewards = np.concatenate(
-            [episode["reward_mean"] for episode in self.logger.logger])\
-            .squeeze()
-
-        episode = self.logger.logger[rewards.argmax()]
-
-        self.policy.set_parameters(episode["policy_parameters"])
-        return
-
-    def print(self, i_episode):
+    def __print(self, i_episode):
         """Prints results for a given episode of the logged episodes"""
 
         episode = self.logger.logger[i_episode]
@@ -50,11 +59,11 @@ class Agent:
                       episode["time_mean"].squeeze(),
                       episode["reward_mean"].squeeze()))
 
-    def plot_results(self):
-        """Generates plots after the training process containing the relevant
-        information such as reward and time steps of each episode. In case more
-        than one simulation was performed each episode, the mean and standard
-        deviation for each are plotted.
+    def __plot_results(self):
+        """Generates plots after the training process containing the
+        relevant information such as reward and time steps of each
+        episode. In case more than one simulation was performed each
+        episode, the mean and standard deviation for each are plotted.
         """
 
         # string for csv file
@@ -120,14 +129,23 @@ class Agent:
         plt.xlabel('Episodes')
         plt.ylabel('Time steps')
         plt.show()
-        return
 
     # Main Functions
     # ===============================================================
     def train_policy(self, episodes, n_roll_outs: int = 1,
                      save: bool = False):
-        """ Basic overlay for training the algorithms. It controls the amount
-        of episodes, logging and saving of policies and data.
+        """Basic overlay for training the algorithms. It controls the
+        amount of episodes, logging and saving of policies and data.
+
+        :param episodes: Number of episodes to Train
+        :type episodes: int
+
+        :param n_roll_outs: Number of roll outs
+        :type n_roll_outs: int
+
+        :param save: If True the policy is saved after every learning
+            step
+        :type save: bool
         """
 
         for i_episode in range(episodes):
@@ -141,7 +159,7 @@ class Agent:
                                  self.policy.get_parameters())
 
             # analyze episode
-            self.print(i_episode)
+            self.__print(i_episode)
 
             if save:
                 print("{:-^50s}".format(' Save '))
@@ -152,17 +170,23 @@ class Agent:
                 pickle_out.close()
 
         if self.plot:
-            self.plot_results()
+            self.__plot_results()
 
     def run_benchmark(self, episodes=100, render: bool = False):
-        """Runs a benchmark test with a set amount of simulations (episodes)
-         and plots results. There are three plots generated:
+        """Runs a benchmark test with a set amount of simulations
+        (episodes) and plots results. There are three plots generated:
          1. Reward per episode
          2. Reward per time step of the first three episodes
          3. Reward per time step for all episodes
-         The second and third plot do not take the mean but rather plot a curve
-         for each episode.
-         """
+         The second and third plot do not take the mean but rather plot
+         a curve for each episode.
+
+        :param episodes: Number of episodes for the benchmark
+        :type episodes: int
+
+        :param render: If True the episodes will be rendered
+        :type render: bool
+        """
 
         # perform simulations
         trajectories = self.env.roll_out(self.policy, n_roll_outs=episodes,
@@ -185,6 +209,13 @@ class Agent:
         print("Average reward: ", np.mean(total_rewards))
         print("Min reward:", np.min(total_rewards))
         print("Max reward:", np.max(total_rewards))
+
+        if self.plot:
+            self.__plot_benchmark(total_rewards, rewards, time_steps,
+                                  trajectories)
+
+    def __plot_benchmark(self, total_rewards, rewards, time_steps,
+                         trajectories):
 
         # 1. Plot: Total reward
         plt.plot(np.arange(len(total_rewards)), total_rewards,
@@ -242,10 +273,8 @@ class Agent:
                 for r in rewards:
                     try:
                         step_rewards.append(r[step])
-                    except:
+                    except IndexError:
                         step_rewards.append(None)
                 writer = csv.writer(writerFile)
                 writer.writerow(step_rewards)
             writerFile.close()
-        return
-
