@@ -1,11 +1,21 @@
-import numpy as np
-
 """Module containing Logger class for documenting episodic data"""
+
+import numpy as np
 
 
 class Logger:
     """ The logger is used to document each episode for later evaluation
     (e.g. plotting)
+
+    Attributes
+    -----------
+    logger
+       list of episodic dictionaries
+
+    Methods
+    -----------
+    log_data(returns, time_steps, roll_outs, policy_parameters)
+        Adds information about the episodes as dictionary to the logger
     """
 
     def __init__(self):
@@ -14,8 +24,22 @@ class Logger:
     # Main Function
     # ===============================================================
     def log_data(self, returns, time_steps, roll_outs, policy_parameters):
-        """Extracts relevant data from episodic returns, time steps etc. and
-        saves them in a dictionary for later use
+        """This function extracts relevant data from episodic returns,
+        time steps etc. and saves them in a dictionary for later use
+
+        :param returns: Contains the return of each roll out
+        :type returns: array_like
+
+        :param time_steps: Contains the number of time steps of each
+            roll out
+        :type time_steps: array_like
+
+        :param roll_outs: The number of roll outs
+        :type roll_outs: int
+
+        :param policy_parameters: The parameters of the policy which
+            has taken the decisions during this episode
+        :type policy_parameters: array_like
         """
 
         # get rewards
@@ -44,5 +68,4 @@ class Logger:
             )
 
         self.logger.append(episode)
-        return
 

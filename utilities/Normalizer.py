@@ -1,10 +1,20 @@
-import numpy as np
-
 """Contains the Normalizer class"""
+
+import numpy as np
 
 
 class Normalizer:
-    """Normalizer class used for normalizing observations with zero mean"""
+    """Normalizer class used for normalizing observations with zero mean
+
+    Methods
+    -----------
+    update(trajectories)
+        Update mean and standard deviation with the observations of the
+        trajectories
+
+    transform(observation)
+        Normalize the observations
+    """
 
     def __init__(self, environment, clip=None):
         self.__N = 1
@@ -15,8 +25,13 @@ class Normalizer:
     # Main Functions
     # ===============================================================
     def update(self, trajectories):
-        """Updates the normalizer with new trajectory data to adjust to new
-        mean and std
+        """This function updates the normalizer with new trajectory data
+        to adjust to new mean and std
+
+        :param trajectories: Contains a set of trajectories each being a
+        dictionary with information about every transition performed in
+        the trajectory simulation
+        :type trajectories: list of dictionaries
         """
 
         # get observations
@@ -36,18 +51,22 @@ class Normalizer:
         self.__std += obs.shape[0] * (
                 obs.std(axis=0) ** 2 + (obs.mean(axis=0) - self.__mean) ** 2)
 
-        # self.__std -= old_std ** 2 + obs.std(axis=0) ** 2
-        # self.__std /= self.__N + obs.shape[0] - 1.0
-
         self.__std /= self.__N + obs.shape[0]
 
         self.__std = np.sqrt(self.__std)
 
         self.__N += obs.shape[0]
-        return
 
     def transform(self, observation):
-        """normalize current observations"""
+        """This function normalizes current observations
+
+        :param observation: Unnormalized observations of the environment
+        :type   observation: array_like
+
+        :return: Normalized observations with zero mean
+        :rtype: array_like
+        """
+
         obs = (observation - self.__mean)/(self.__std + 1e-10)
         np.clip(obs, -self.__clip, self.__clip) if self.__clip is not None \
             else None
