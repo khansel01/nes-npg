@@ -1,4 +1,3 @@
-import time
 import matplotlib.pyplot as plt
 from utilities.Logger import Logger
 import numpy as np
@@ -10,9 +9,10 @@ import csv
 
 class Agent:
     """ Agent Class
-    It wraps around environment, policy and algorithm. The class basically controls
-    the training process, benchmarks and documentation of results.
+    It wraps around environment, policy and algorithm. The class basically
+    controls the training process, benchmarks and documentation of results.
     """
+
     def __init__(self, env, policy, algorithm, render=False, plot=True):
         self.policy = policy
         self.env = env
@@ -24,6 +24,9 @@ class Agent:
     # Utility Functions
     # ===============================================================
     def set_best_policy(self):
+        """This function can be used to set the policy to the best logged
+        policy that was encountered during the training process
+        """
 
         rewards = np.concatenate(
             [episode["reward_mean"] for episode in self.logger.logger])\
@@ -35,6 +38,7 @@ class Agent:
         return
 
     def print(self, i_episode):
+        """Prints results for a given episode of the logged episodes"""
 
         episode = self.logger.logger[i_episode]
 
@@ -47,7 +51,11 @@ class Agent:
                       episode["reward_mean"].squeeze()))
 
     def plot_results(self):
-        """ Plotting function for documentation of the training process """
+        """Generates plots after the training process containing the relevant
+        information such as reward and time steps of each episode. In case more
+        than one simulation was performed each episode, the mean and standard
+        deviation for each are plotted.
+        """
 
         # string for csv file
         string = 'trained_data/training_data_{}_{}.csv'\
@@ -147,9 +155,16 @@ class Agent:
             self.plot_results()
 
     def run_benchmark(self, episodes=100, render: bool = False):
-        """ run benchmark with set amount of roll-outs and plot results """
+        """Runs a benchmark test with a set amount of simulations (episodes)
+         and plots results. There are three plots generated:
+         1. Reward per episode
+         2. Reward per time step of the first three episodes
+         3. Reward per time step for all episodes
+         The second and third plot do not take the mean but rather plot a curve
+         for each episode.
+         """
 
-        # Starting Benchmark
+        # perform simulations
         trajectories = self.env.roll_out(self.policy, n_roll_outs=episodes,
                                          normalizer=self.algorithm.normalizer,
                                          greedy=True, render=render)
@@ -205,7 +220,7 @@ class Agent:
                   + ", Policy: {}".format(self.policy.hidden_dim))
         plt.show()
 
-        # 3. Plot: reward per time step
+        # 3. Plot: reward per time step for all runs
         for r in rewards:
             plt.plot(np.arange(len(r)), r, linewidth=1)
         plt.legend(["Each Trial"])

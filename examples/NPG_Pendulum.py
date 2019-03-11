@@ -1,10 +1,10 @@
 import torch as tr
 import numpy as np
-from Agent import Agent
-from NPG import NPG
-from models.NN_GaussianPolicy import Policy
+from agent import Agent
+from Npg import NPG
+from models.nn_policy import Policy
 from utilities.Environment import Environment
-from models.Baseline import Baseline
+from models.baseline import Baseline
 from utilities.Normalizer import Normalizer
 import pickle
 
