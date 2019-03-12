@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 import csv
+import os
 
 from utilities.logger import Logger
 
@@ -69,7 +70,7 @@ class Agent:
         """
 
         # string for csv file
-        string = 'trained_data/training_data_{}_{}.csv'\
+        string = './trained_data/training_data_{}_{}.csv'\
             .format(self.env.to_string(), self.algorithm.get_name())
 
         # get data out of logger
@@ -78,6 +79,7 @@ class Agent:
         t_means = []
         t_stds = []
 
+        os.makedirs(os.path.dirname(string), exist_ok=True)
         with open(string, 'w') as writerFile:
             for i, e in np.ndenumerate(self.logger.logger):
                 r_means.append(e["reward_mean"])
@@ -135,7 +137,7 @@ class Agent:
     # Main Functions
     # ===============================================================
     def train_policy(self, episodes, n_roll_outs: int = 1,
-                     save: bool = False):
+                     save: bool = False, path: str = "./trained_data/"):
         """Basic overlay for training the algorithms. It controls the
         amount of episodes, logging and saving of policies and data.
 
@@ -148,6 +150,10 @@ class Agent:
         :param save: If True the policy is saved after every learning
             step
         :type save: bool
+
+        :param path: The path to the folder where the policy shall be
+            stored
+        :type path: str
         """
 
         for i_episode in range(episodes):
@@ -164,9 +170,12 @@ class Agent:
 
             if save:
                 print("{:-^50s}".format(' Save '))
-                pickle_out = open("trained_data/{}_{}.p"
-                                  .format(self.env.to_string(),
-                                          self.algorithm.get_name()), "wb")
+                file_name = "{}/{}_{}.p".format(path,self.env.to_string(),
+                                                self.algorithm.get_name())
+
+                pickle_out = open(file_name, "wb")
+
+                os.makedirs(os.path.dirname(file_name), exist_ok=True)
                 pickle.dump((self.policy, self.algorithm), pickle_out)
                 pickle_out.close()
 
@@ -266,9 +275,10 @@ class Agent:
         plt.show()
 
         # save in csv
-        string = 'trained_data/benchmark_data_{}_{}.csv' \
+        string = './trained_data/benchmark_data_{}_{}.csv' \
             .format(self.env.to_string(), self.algorithm.get_name())
 
+        os.makedirs(os.path.dirname(string), exist_ok=True)
         with open(string, 'w') as writerFile:
             for step in range(max(time_steps)):
                 step_rewards = [step]

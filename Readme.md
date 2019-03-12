@@ -25,14 +25,20 @@ $ sudo apt-get install python3.6
 ##### Install virtual environment:
 You can also change the environment name as necessary.
 ```bash
-$ conda env create -f Skateboard_in_space.yaml
+$ conda env create -f nes-npg.yaml
 ```
 
 ##### Install quanser pkg to environment
 Navigate to quanser package *.../clients/*
 ```bash
-$ source activate Skateboard_in_space
-$ pip3 install -e .
+$ source activate nes-npg
+$ pip install -e .
+```
+
+##### Install the this project to environment
+Navigate to this package *.../reinf/* and call
+```bash
+$ pip install -e .
 ```
 
 ## Usage
