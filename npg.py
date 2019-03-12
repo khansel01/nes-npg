@@ -41,6 +41,11 @@ class NPG:
     and Pieter Abbeel, Trust Region Policy Optimization, CoRR, 1502
     (2015)
 
+    Attributes
+    -----------
+    normalizer
+        The normalizer to normalize the inputs to zero mean
+
     Methods
     -------
     do(env, policy, n_roll_outs)
