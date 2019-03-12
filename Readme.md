@@ -25,13 +25,13 @@ $ sudo apt-get install python3.6
 ##### Install virtual environment:
 You can also change the environment name as necessary.
 ```bash
-$ conda env create -f group14.yml
+$ conda env create -f Skateboard_in_space.yaml
 ```
 
 ##### Install quanser pkg to environment
 Navigate to quanser package *.../clients/*
 ```bash
-$ source activate group14
+$ source activate Skateboard_in_space
 $ pip3 install -e .
 ```
 

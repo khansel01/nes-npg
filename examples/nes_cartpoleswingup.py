@@ -55,7 +55,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     gym_env = 'CartpoleSwingShort-v0'
 
     # create environment using Environment wrapper
-    env = Environment(gym_env)
+    env = Environment(gym_env, clip=6)
     print("{:-^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
@@ -88,7 +88,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
         # plotted for
         # evaluation
         print("{:-^50s}".format(' Benchmark '))
-        agent.run_benchmark(episodes=10)
+        agent.run_benchmark(episodes=100)
 
     if render:
         # Runs a single rendered trial for visual performance check
@@ -97,4 +97,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=True, train=False, benchmark=True, save=False, render=False)
+    main(load=False, train=True, benchmark=True, save=True, render=True)
