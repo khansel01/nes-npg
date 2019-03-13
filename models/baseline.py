@@ -29,11 +29,6 @@ class Baseline:
     improve convergence of the neural network a batch normalization is
     used.
 
-    Attributes
-    ----------
-    network
-        The neural network
-
     Methods
     -------
     train(trajectories)
@@ -44,7 +39,7 @@ class Baseline:
     """
 
     def __init__(self, env, hidden_dim: tuple = (128, 128),
-                 activation: nn = nn.Tanh(), batch_size: int = 64,
+                 activation: nn.Module = nn.Tanh(), batch_size: int = 64,
                  epochs: int = 10, lr: float = 1e-3):
         """
         :param env: Contains the gym environment the simulations are
@@ -149,7 +144,7 @@ class Baseline:
         :param trajectories: Contains a set of trajectories each being a
         dictionary with information about every transition performed in
         the trajectory simulation
-        :type trajectories: list of dictionaries
+        :type trajectories: list of dict
         """
 
         data, values = self.__get_data(trajectories)
@@ -177,7 +172,7 @@ class Baseline:
         :param trajectories: Contains a set of trajectories each being a
         dictionary with information about every transition performed in
         the trajectory simulation
-        :type trajectories: list of dictionaries
+        :type trajectories: list of dict
 
         :return: Predictions
         :rtype: array of float
@@ -198,7 +193,8 @@ class Network(nn.Module):
     """
 
     def __init__(self, input_dim: int = 1, output_dim: int = 1,
-                 hidden_dim: tuple = (128, 128), activation: nn = nn.Tanh()):
+                 hidden_dim: tuple = (128, 128),
+                 activation: nn.Module = nn.Tanh()):
         """
         :param input_dim: Input dimension of the neural network
         :type input_dim: int

@@ -10,7 +10,6 @@ towards the Trust Region Policy Optimization algorithm.
     - Kay Hansel
 """
 
-import numpy as np
 import torch as tr
 import copy
 from utilities.conjugate_gradient import conjugate_gradient as cg
@@ -49,9 +48,6 @@ class NPG:
     normalizer
         The normalizer to normalize the inputs to zero mean
 
-    title
-        Generates a title containing all relevant parameters
-
     Methods
     -------
     do(env, policy, n_roll_outs)
@@ -59,14 +55,10 @@ class NPG:
         1. draw a set of parameter samples
         2. Calculates policy gradients using weighted samples
         3. Updates parameters
-
-
-    get_name()
-        Returns the algorithms' name
     """
 
-    def __init__(self, baseline, _delta=0.05, damping=1e-4,
-                 _lambda=0.95, _gamma=0.98, normalizer=None):
+    def __init__(self, baseline, _delta: float = 0.05, damping: float = 1e-4,
+                 _lambda: float = 0.95, _gamma: float = 0.98, normalizer=None):
         """
         :param baseline: The baseline represents an estimator for
             estimating the state-value function
@@ -114,7 +106,7 @@ class NPG:
 
     # Main Functions
     # ===============================================================
-    def do(self, env, policy, n_roll_outs):
+    def do(self, env, policy, n_roll_outs: int):
         """Performs a single update step of the algorithm by first
         simulating n roll outs on the given environment. Afterwards the
         vanilla and natural gradient of the policy are calculated and
@@ -237,8 +229,8 @@ class NPG:
                        self.__baseline.hidden_dim,
                        self.__baseline.epochs)
 
-    @staticmethod
-    def get_name():
+    @property
+    def name(self):
         """Returns the algorithms' name
 
         :return: 'NPG'

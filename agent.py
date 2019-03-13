@@ -22,9 +22,28 @@ class Agent:
     It wraps around environment, policy and algorithm. The class
     basically controls the training process, benchmarks and
     documentation of results.
+
+    Attributes
+    ---------
+    policy
+        The decision making policy (maps states to actions)
+
+    env: Environment
+        Contains the gym environment the simulations are
+        performed on
+
+    algorithm: NPG or NES
+        The learning algorithm
+
+    plot: bool
+        If True the results of Training and Benchmark will
+        be plotted
+
+    logger: Logger
+        Logger to log the training data
     """
 
-    def __init__(self, env, policy, algorithm, plot=True):
+    def __init__(self, env, policy, algorithm, plot: bool = True):
         """
         :param env: Contains the gym environment the simulations are
             performed on
@@ -49,7 +68,7 @@ class Agent:
 
     # Utility Functions
     # ===============================================================
-    def __print(self, i_episode):
+    def __print(self, i_episode: int):
         """Prints results for a given episode of the logged episodes"""
 
         episode = self.logger.logger[i_episode]
@@ -71,7 +90,7 @@ class Agent:
 
         # string for csv file
         string = './trained_data/training_data_{}_{}.csv'\
-            .format(self.env.to_string(), self.algorithm.get_name())
+            .format(self.env.to_string(), self.algorithm.name)
 
         # get data out of logger
         r_means = []
@@ -111,9 +130,9 @@ class Agent:
 
         # plot
         plt.subplot(2, 1, 1)
-        plt.title(self.env.get_name() + "\n"
+        plt.title(self.env.name + "\n"
                   + self.algorithm.title
-                  + ", Policy: {}".format(self.policy.get_hidden_dim()))
+                  + ", Policy: {}".format(self.policy.hidden_dim))
         plt.fill_between(np.arange(length),
                          r_means - r_stds, r_means + r_stds,
                          alpha=0.3, label='standard deviation',
@@ -136,7 +155,7 @@ class Agent:
 
     # Main Functions
     # ===============================================================
-    def train_policy(self, episodes, n_roll_outs: int = 1,
+    def train_policy(self, episodes: int, n_roll_outs: int = 1,
                      save: bool = False, path: str = "./trained_data/"):
         """Basic overlay for training the algorithms. It controls the
         amount of episodes, logging and saving of policies and data.
@@ -171,7 +190,7 @@ class Agent:
             if save:
                 print("{:-^50s}".format(' Save '))
                 file_name = "{}/{}_{}.p".format(path, self.env.to_string(),
-                                                self.algorithm.get_name())
+                                                self.algorithm.name)
 
                 pickle_out = open(file_name, "wb")
 
@@ -182,7 +201,7 @@ class Agent:
         if self.plot:
             self.__plot_results()
 
-    def run_benchmark(self, episodes=100, render: bool = False):
+    def run_benchmark(self, episodes: int = 100, render: bool = False):
         """Runs a benchmark test with a set amount of simulations
         (episodes) and plots results. There are three plots generated:
          1. Reward per episode
@@ -238,9 +257,9 @@ class Agent:
         plt.xlabel('Trial')
         plt.ylim(bottom=0)
         plt.ylabel('Total reward')
-        plt.title("Benchmark Result for " + self.env.get_name() + "\n"
+        plt.title("Benchmark Result for " + self.env.name + "\n"
                   + "with " + self.algorithm.title
-                  + ", Policy: {}".format(self.policy.get_hidden_dim()))
+                  + ", Policy: {}".format(self.policy.hidden_dim))
         plt.show()
 
         # 2. Plot: reward per time step for only first 3 runs
@@ -257,9 +276,9 @@ class Agent:
         plt.xlabel('Time steps')
         plt.ylabel('Reward')
         plt.title("Reward per time step during benchmark of "
-                  + self.env.get_name() + "\n"
+                  + self.env.name + "\n"
                   + "with " + self.algorithm.title
-                  + ", Policy: {}".format(self.policy.get_hidden_dim()))
+                  + ", Policy: {}".format(self.policy.hidden_dim))
         plt.show()
 
         # 3. Plot: reward per time step for all runs
@@ -269,14 +288,14 @@ class Agent:
         plt.xlabel('Time steps')
         plt.ylabel('Reward')
         plt.title("Reward per time step during benchmark of "
-                  + self.env.get_name() + "\n"
+                  + self.env.name + "\n"
                   + "with " + self.algorithm.title
-                  + ", Policy: {}".format(self.policy.get_hidden_dim()))
+                  + ", Policy: {}".format(self.policy.hidden_dim))
         plt.show()
 
         # save in csv
         string = './trained_data/benchmark_data_{}_{}.csv' \
-            .format(self.env.to_string(), self.algorithm.get_name())
+            .format(self.env.to_string(), self.algorithm.name)
 
         os.makedirs(os.path.dirname(string), exist_ok=True)
         with open(string, 'w') as writerFile:

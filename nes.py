@@ -8,7 +8,6 @@
     - Kay Hansel
 """
 
-import numpy as np
 from utilities.estimations import *
 
 
@@ -27,7 +26,7 @@ class NES:
 
     Attributes
     -----------
-    normalizer
+    normalizer: Normalizer
         None
 
     Methods
@@ -38,18 +37,11 @@ class NES:
         2. Gets an evaluation (fitness) for all samples using n
         simulations (roll-outs) for each sample on the environment
         3. Updates parameters based on samples sorted by their fitness
-
-    get_title()
-        Generates a title for plotting results containing all relevant
-        parameters and the algorithm name
-
-     get_name()
-        Returns algorithm name
     """
 
-    def __init__(self, n_parameters, eta_sigma=None,
-                 eta_mu=None, population_size=None,
-                 sigma_lower_bound=1e-10, sigma_init=1.0):
+    def __init__(self, n_parameters: int, eta_sigma: float = None,
+                 eta_mu: float = None, population_size: int = None,
+                 sigma_lower_bound: float = 1e-10, sigma_init: float = 1.0):
         """
         :param n_parameters: Number of parameters of the policy which
             will be trained
@@ -186,8 +178,8 @@ class NES:
                                         self.__eta_sigma,
                                         self.__eta_mu)
 
-    @staticmethod
-    def get_name():
+    @property
+    def name(self):
         """Returns algorithm name
 
         :return: 'NES'
