@@ -170,7 +170,7 @@ class Agent:
 
             if save:
                 print("{:-^50s}".format(' Save '))
-                file_name = "{}/{}_{}.p".format(path,self.env.to_string(),
+                file_name = "{}/{}_{}.p".format(path, self.env.to_string(),
                                                 self.algorithm.get_name())
 
                 pickle_out = open(file_name, "wb")

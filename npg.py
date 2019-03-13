@@ -30,16 +30,19 @@ class NPG:
     such as neural networks [3].
 
 
-    [1] Aravind Rajeswaran, Kendall Lowrey, Emanuel Todorov and
-    Sham Kakade, Towards Generalization and Simplicity in Continuous
-    Control, CoRR, 1703 (2017)
+    [1] Rajeswaran, A., Lowrey, K., Todorov, E., Kakade, S.: Towards
+    Generalization and Sim-plicity  in  Continuous  Control  (Nips)
+    (2017). DOI  10.1016/j.acra.2014.04.006.
+    URL http://arxiv.org/abs/1703.02660
 
-    [2] Sham Kakade, A Natural Policy Gradient, NIPS, 01, 1531-1538
-    (2001)
+    [2] Kakade, S.: A Natural Policy Gradient. In: NIPS’01 Proceedings
+    of the 14th InternationalConference on Neural Information
+    Processing Systems: Natural and Synthetic, pp. 1531–1538 (2001)
 
-    [3] John Schulman, Sergey Levine, Philipp Moritz, Michael I. Jordan
-    and Pieter Abbeel, Trust Region Policy Optimization, CoRR, 1502
-    (2015)
+    [3] Schulman, J., Levine, S., Moritz, P., Jordan, M.I.,
+    Abbeel, P.: Trust Region Policy Optimization.
+    CoRR abs/1502.0(2015). URL http://arxiv.org/abs/1502.0547711.
+
 
     Attributes
     -----------

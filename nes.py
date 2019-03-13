@@ -20,9 +20,10 @@ class NES:
 
     This class implements the Separable NES (SNES).
 
-    Daan Wierstra, Tom Schaul, Tobias Glasmachers, Yi Sun, Jan Peters
-    and Jürgen Schmidhuber, Natural Evolution Strategies, Journal of
-    Machine Learning Research, 15, 949-980 (2014)
+    Wierstra, D., Schaul, T., Glasmachers, T., Sun, Y., Peters, J.,
+    Schmidhuber, J.: NaturalEvolution Strategies.  Journal of
+    Machine Learning Research 15, 949–980 (2014).
+    URL http://jmlr.org/papers/v15/wierstra14a.html
 
     Attributes
     -----------
