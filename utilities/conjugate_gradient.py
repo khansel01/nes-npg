@@ -13,7 +13,7 @@ written by Aravind Rajeswaran on May 6, 2018.
 import numpy as np
 
 
-def conjugate_gradient(ax, b, cg_iter=10, residual_tol=1e-10):
+def conjugate_gradient(ax, b, cg_iter: int = 10, residual_tol: float = 1e-10):
     """ This conjugate gradient method solves the system of linear
     equations Ax=b for the vector x without inverting the matrix A
     directly

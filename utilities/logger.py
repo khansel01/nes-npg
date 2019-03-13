@@ -31,7 +31,7 @@ class Logger:
 
     # Main Function
     # ===============================================================
-    def log_data(self, returns, time_steps, roll_outs):
+    def log_data(self, returns, time_steps, roll_outs: int):
         """This function extracts relevant data from episodic returns,
         time steps etc. and saves them in a dictionary for later use
 
@@ -44,10 +44,6 @@ class Logger:
 
         :param roll_outs: The number of roll outs
         :type roll_outs: int
-
-        :param policy_parameters: The parameters of the policy which
-            has taken the decisions during this episode
-        :type policy_parameters: array_like
         """
 
         # get rewards

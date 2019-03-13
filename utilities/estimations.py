@@ -15,7 +15,7 @@ strategies to evaluate the samples' fitness.
 import numpy as np
 
 
-def estimate_value(trajectories, _gamma):
+def estimate_value(trajectories, _gamma: float):
     """ Calculates the state-value function based on empirical
     monte-carlo returns
 
@@ -39,7 +39,8 @@ def estimate_value(trajectories, _gamma):
         t["values"] = values
 
 
-def estimate_advantage(trajectories, baseline, _gamma=0.98, _lambda=0.95):
+def estimate_advantage(trajectories, baseline, _gamma: float = 0.98,
+                       _lambda: float = 0.95):
     """This function calculates the advantage function for each state as
     generalized advantage estimator, GAE.
 
@@ -51,11 +52,11 @@ def estimate_advantage(trajectories, baseline, _gamma=0.98, _lambda=0.95):
     :param trajectories: Contains a set of trajectories each being a
         dictionary with information about every transition performed in
         the trajectory simulation
-    :type trajectories: list of dictionaries
+    :type trajectories: list of dict
 
     :param baseline: The baseline represents an estimator for estimating
         the value function
-    :type baseline: baseline
+    :type baseline: Baseline
 
     :param _gamma: Determines the scale of the value function
     :type _gamma: float

@@ -24,14 +24,6 @@ class Policy:
     The policy can be used explorative as well as greedy. In the greedy
     case the standard deviation is not used.
 
-    Attributes
-    ----------
-    length
-        Number of parameters in the neural network
-
-    network
-        The neural network
-
     Methods
     -------
     get_parameters()
@@ -55,7 +47,7 @@ class Policy:
     """
 
     def __init__(self, env, hidden_dim: tuple = (64, 64),
-                 activation: nn = nn.Tanh(), log_std=None):
+                 activation: nn.Module = nn.Tanh(), log_std=None):
         """
         :param env: Contains the gym environment the simulations are
             performed on
@@ -70,7 +62,7 @@ class Policy:
         :type activation: nn.Module
 
         :param log_std: Log of standard deviation used for exploration
-        :type log_std: float
+        :type log_std: array_like
         """
 
         self.__output_dim = env.act_dim()
@@ -96,12 +88,20 @@ class Policy:
     # getter only properties
     @property
     def length(self):
-        """:rtype: int"""
+        """Returns the number of parameters in the policy network.
+
+        :return: the number of policy parameters
+        :rtype: int
+        """
         return self.__length
 
     @property
     def network(self):
-        """:rtype: Network"""
+        """Returns the policy network.
+
+        :return: the policy network
+        :rtype: Network
+        """
         return self.__network
 
     # Utility Functions
@@ -133,7 +133,8 @@ class Policy:
             param.data = tr.from_numpy(temp_param).float()
             current_idx += self.__net_sizes[idx]
 
-    def get_hidden_dim(self):
+    @property
+    def hidden_dim(self):
         """Returns the dimensions for the hidden layers of the neural
         network.
 
@@ -239,8 +240,8 @@ class Network(nn.Module):
     """
 
     def __init__(self, input_dim: int = 1, output_dim: int = 1,
-                 hidden_dim: tuple = (128, 128), activation: nn = nn.Tanh(),
-                 log_std=0):
+                 hidden_dim: tuple = (128, 128),
+                 activation: nn.Module = nn.Tanh(), log_std=0):
         """
         :param input_dim: Input dimension of the neural network
         :type input_dim: int
@@ -258,7 +259,7 @@ class Network(nn.Module):
         :type activation: nn.Module
 
         :param log_std: Log of standard deviation used for exploration
-        :type log_std: float
+        :type log_std: array_like
         """
 
         super(Network, self).__init__()
@@ -286,6 +287,11 @@ class Network(nn.Module):
 
     @property
     def log_std(self):
+        """Returns the logarithm of the standard deviation which is used for
+        the exploration
+
+        :return: the log of standard deviation used for exploration
+        """
         return self.__log_std
 
     def forward(self, x):

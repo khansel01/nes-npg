@@ -149,8 +149,9 @@ class Environment:
             out = None
         return out
 
-    def get_name(self):
-        """Returns the name of the environemnt
+    @property
+    def name(self):
+        """Returns the name of the environment
 
         :return: the name of the gym environment
         :rtype: str
@@ -195,7 +196,7 @@ class Environment:
         :type greedy: bool
 
         :return: the trajectories of the roll outs
-        :rtype: list of dictionaries
+        :rtype: list of dict
         """
 
         trajectories = []

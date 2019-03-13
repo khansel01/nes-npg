@@ -39,7 +39,7 @@ class Normalizer:
         :param trajectories: Contains a set of trajectories each being a
         dictionary with information about every transition performed in
         the trajectory simulation
-        :type trajectories: list of dictionaries
+        :type trajectories: list of dict
         """
 
         # get observations
