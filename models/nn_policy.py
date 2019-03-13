@@ -26,8 +26,11 @@ class Policy:
 
     Attributes
     ----------
-    log_std
-        Logarithm of standard deviation used for exploration
+    length
+        Number of parameters in the neural network
+
+    network
+        The neural network
 
     Methods
     -------
@@ -52,7 +55,7 @@ class Policy:
     """
 
     def __init__(self, env, hidden_dim: tuple = (64, 64),
-                 activation: nn = nn.Tanh, log_std=None):
+                 activation: nn = nn.Tanh(), log_std=None):
         """
         :param env: Contains the gym environment the simulations are
             performed on
@@ -64,7 +67,7 @@ class Policy:
 
         :param activation: Activation function for each node in the
             neural network
-        :type activation: function
+        :type activation: nn.Module
 
         :param log_std: Log of standard deviation used for exploration
         :type log_std: float
@@ -72,22 +75,34 @@ class Policy:
 
         self.__output_dim = env.act_dim()
         self.__hidden_dim = hidden_dim
-        self.log_std = tr.from_numpy(np.log(env.act_high/2)).float()\
-            if log_std is None else log_std
+
+        if log_std is None:
+            log_std = tr.from_numpy(np.log(env.act_high/2)).float()
 
         # create nn
-        self.network = Network(env.obs_dim(), self.__output_dim,
-                               self.__hidden_dim, activation(), self.log_std)
+        self.__network = Network(env.obs_dim(), self.__output_dim,
+                                 self.__hidden_dim, activation, log_std)
 
         # get net shape and size
-        self.net_shapes = [p.data.numpy().shape
-                           for p in self.network.parameters()]
-        self.net_sizes = [p.data.numpy().size
-                          for p in self.network.parameters()]
+        self.__net_shapes = [p.data.numpy().shape
+                             for p in self.__network.parameters()]
+        self.__net_sizes = [p.data.numpy().size
+                            for p in self.__network.parameters()]
 
-        self.length = \
+        self.__length = \
             len(np.concatenate([p.contiguous().view(-1).data.numpy()
-                                for p in self.network.parameters()]))
+                                for p in self.__network.parameters()]))
+
+    # getter only properties
+    @property
+    def length(self):
+        """:rtype: int"""
+        return self.__length
+
+    @property
+    def network(self):
+        """:rtype: Network"""
+        return self.__network
 
     # Utility Functions
     # ===============================================================
@@ -98,7 +113,7 @@ class Policy:
         :rtype: array_like
         """
         params = np.concatenate([p.contiguous().view(-1).data.numpy()
-                                for p in self.network.parameters()])
+                                 for p in self.__network.parameters()])
         return params.copy()
 
     def set_parameters(self, new_param):
@@ -111,12 +126,12 @@ class Policy:
         """
 
         current_idx = 0
-        for idx, param in enumerate(self.network.parameters()):
+        for idx, param in enumerate(self.__network.parameters()):
             temp_param = \
-                new_param[current_idx:current_idx + self.net_sizes[idx]]
-            temp_param = temp_param.reshape(self.net_shapes[idx])
+                new_param[current_idx:current_idx + self.__net_sizes[idx]]
+            temp_param = temp_param.reshape(self.__net_shapes[idx])
             param.data = tr.from_numpy(temp_param).float()
-            current_idx += self.net_sizes[idx]
+            current_idx += self.__net_sizes[idx]
 
     def get_hidden_dim(self):
         """Returns the dimensions for the hidden layers of the neural
@@ -147,7 +162,7 @@ class Policy:
         :return: Action to take
         :rtype: array_like
         """
-        mean, log_std = self.network.forward(
+        mean, log_std = self.__network.forward(
             tr.from_numpy(state.reshape(1, -1)).float())
         if greedy:
             return mean.detach().numpy().squeeze()
@@ -174,7 +189,7 @@ class Policy:
         :rtype: array_like
         """
 
-        mean, log_std = self.network.forward(tr.from_numpy(states).float())
+        mean, log_std = self.__network.forward(tr.from_numpy(states).float())
 
         actions = tr.from_numpy(actions).float()
         log_prob = - (actions - mean) ** 2
@@ -195,7 +210,7 @@ class Policy:
         :rtype: array_like
         """
 
-        mean, log_std = self.network.forward(tr.from_numpy(states).float())
+        mean, log_std = self.__network.forward(tr.from_numpy(states).float())
         std = tr.exp(log_std)
 
         fixed_mean = mean.detach()
@@ -212,6 +227,11 @@ class Network(nn.Module):
     """Neural Network class realising the neural network for the
     baseline.
 
+     Attributes
+    ----------
+    log_std
+        Log of standard deviation used for exploration
+
     Methods
     ---------
     forward(x)
@@ -219,7 +239,7 @@ class Network(nn.Module):
     """
 
     def __init__(self, input_dim: int = 1, output_dim: int = 1,
-                 hidden_dim: tuple = (128, 128), activation: nn = nn.Tanh,
+                 hidden_dim: tuple = (128, 128), activation: nn = nn.Tanh(),
                  log_std=0):
         """
         :param input_dim: Input dimension of the neural network
@@ -235,7 +255,7 @@ class Network(nn.Module):
 
         :param activation: Activation function for each node in the
             neural network
-        :type activation: function
+        :type activation: nn.Module
 
         :param log_std: Log of standard deviation used for exploration
         :type log_std: float
@@ -262,7 +282,11 @@ class Network(nn.Module):
             p.data *= 1e-2
 
         # set log_std
-        self.log_std = nn.Parameter(tr.ones(1, output_dim) * log_std)
+        self.__log_std = nn.Parameter(tr.ones(1, output_dim) * log_std)
+
+    @property
+    def log_std(self):
+        return self.__log_std
 
     def forward(self, x):
         """Function returning the neural network output for a given
@@ -277,5 +301,5 @@ class Network(nn.Module):
         """
 
         mean = self.__net(x)
-        log_std = self.log_std.expand_as(mean)
+        log_std = self.__log_std.expand_as(mean)
         return mean, log_std

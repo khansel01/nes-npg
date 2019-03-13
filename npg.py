@@ -46,6 +46,9 @@ class NPG:
     normalizer
         The normalizer to normalize the inputs to zero mean
 
+    title
+        Generates a title containing all relevant parameters
+
     Methods
     -------
     do(env, policy, n_roll_outs)
@@ -54,9 +57,6 @@ class NPG:
         2. Calculates policy gradients using weighted samples
         3. Updates parameters
 
-
-    get_title()
-        Generates a title containing all relevant parameters
 
     get_name()
         Returns the algorithms' name
@@ -216,7 +216,9 @@ class NPG:
 
         return returns, time_steps
 
-    def get_title(self):
+    # getter only properties
+    @property
+    def title(self):
         """Generates a title containing all relevant parameters for
         plotting purposes.
 
@@ -229,8 +231,8 @@ class NPG:
                .format(self.__gamma,
                        self.__lambda,
                        self.__delta/2,
-                       self.__baseline.get_hidden_dim(),
-                       self.__baseline.get_epochs())
+                       self.__baseline.hidden_dim,
+                       self.__baseline.epochs)
 
     @staticmethod
     def get_name():

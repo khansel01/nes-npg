@@ -29,6 +29,11 @@ class Baseline:
     improve convergence of the neural network a batch normalization is
     used.
 
+    Attributes
+    ----------
+    network
+        The neural network
+
     Methods
     -------
     train(trajectories)
@@ -36,16 +41,10 @@ class Baseline:
 
     predict(trajectories)
         Predicts a return value for each transition in the trajectory
-
-    get_hidden_dim()
-        Returns the dimensions of the hidden layers
-
-    get_epochs()
-        Returns the set epochs
     """
 
     def __init__(self, env, hidden_dim: tuple = (128, 128),
-                 activation: nn = nn.Tanh, batch_size: int = 64,
+                 activation: nn = nn.Tanh(), batch_size: int = 64,
                  epochs: int = 10, lr: float = 1e-3):
         """
         :param env: Contains the gym environment the simulations are
@@ -58,7 +57,7 @@ class Baseline:
 
         :param activation: Activation function for each node in the
             neural network
-        :type activation: function
+        :type activation: nn.Module
 
         :param batch_size: Size of batches used for batch normalization
         :type batch_size: int
@@ -75,12 +74,43 @@ class Baseline:
         self.__epochs = epochs
 
         # create nn
-        self.network = Network(env.obs_dim(), 1,
-                               self.__hidden_dim, activation)
+        self.__network = Network(env.obs_dim(), 1,
+                                 self.__hidden_dim, activation)
 
         # Create Loss function and Adam Optimizer
-        self.loss_fct = nn.MSELoss()
-        self.optimizer = tr.optim.Adam(self.network.parameters(), lr=lr)
+        self.__loss_fct = nn.MSELoss()
+        self.__optimizer = tr.optim.Adam(self.network.parameters(), lr=lr)
+
+    # getter only properties
+    @property
+    def network(self):
+        """Returns the policy network.
+
+        :return the neural network
+        :rtype: Network
+        """
+        return self.__network
+
+    @property
+    def hidden_dim(self):
+        """Returns the dimensions for the hidden layers of the neural
+        network.
+
+        :return: Dimensions of hidden layers
+        :rtype: tuple
+        """
+
+        return self.__hidden_dim
+
+    @property
+    def epochs(self):
+        """Returns the number of epochs run during each update.
+
+        :return: Number of epochs
+        :rtype: int
+        """
+
+        return self.__epochs
 
     # Utility Functions
     # ===============================================================
@@ -105,25 +135,6 @@ class Baseline:
                 val = np.zeros_like(rew).reshape(-1, 1)
 
         return obs, val
-
-    def get_hidden_dim(self):
-        """Returns the dimensions for the hidden layers of the neural
-        network.
-
-        :return: Dimensions of hidden layers
-        :rtype: tuple
-        """
-
-        return self.__hidden_dim
-
-    def get_epochs(self):
-        """Returns the number of epochs run during each update.
-
-        :return: Number of epochs
-        :rtype: int
-        """
-
-        return self.__epochs
 
     # Main Functions
     # ===============================================================
@@ -150,15 +161,15 @@ class Baseline:
                 inputs = tr.from_numpy(data).float()[idx]
                 labels = tr.from_numpy(values).float()[idx]
 
-                self.optimizer.zero_grad()
+                self.__optimizer.zero_grad()
                 predicted = self.network(inputs)
-                loss = self.loss_fct(predicted, labels)
+                loss = self.__loss_fct(predicted, labels)
 
                 # back propagation
                 loss.backward()
 
                 # update parameters
-                self.optimizer.step()
+                self.__optimizer.step()
 
     def predict(self, trajectories):
         """Predicts a return value for each transition in the trajectory
@@ -187,7 +198,7 @@ class Network(nn.Module):
     """
 
     def __init__(self, input_dim: int = 1, output_dim: int = 1,
-                 hidden_dim: tuple = (128, 128), activation: nn = nn.Tanh):
+                 hidden_dim: tuple = (128, 128), activation: nn = nn.Tanh()):
         """
         :param input_dim: Input dimension of the neural network
         :type input_dim: int
@@ -202,7 +213,7 @@ class Network(nn.Module):
 
         :param activation: Activation function for each node in the
             neural network
-        :type activation: function
+        :type activation: nn.Module
         """
 
         super(Network, self).__init__()
@@ -217,7 +228,7 @@ class Network(nn.Module):
                                             next_dim))
             self.__net.add_module('Batch' + i.__str__(),
                                   nn.BatchNorm1d(next_dim))
-            self.__net.add_module('activation' + i.__str__(), activation())
+            self.__net.add_module('activation' + i.__str__(), activation)
             curr_dim = next_dim
         self.__net.add_module('linear' + (i + 1).__str__(),
                               nn.Linear(curr_dim, output_dim))

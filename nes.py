@@ -167,9 +167,9 @@ class NES:
 
         return fitness, steps
 
-    # Utility Functions
-    # ===============================================================
-    def get_title(self):
+    # getter only properties
+    @property
+    def title(self):
         """Generates a title for plotting results containing all
         relevant parameters and the algorithm name
 

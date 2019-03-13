@@ -112,7 +112,7 @@ class Agent:
         # plot
         plt.subplot(2, 1, 1)
         plt.title(self.env.get_name() + "\n"
-                  + self.algorithm.get_title()
+                  + self.algorithm.title
                   + ", Policy: {}".format(self.policy.get_hidden_dim()))
         plt.fill_between(np.arange(length),
                          r_means - r_stds, r_means + r_stds,
@@ -239,7 +239,7 @@ class Agent:
         plt.ylim(bottom=0)
         plt.ylabel('Total reward')
         plt.title("Benchmark Result for " + self.env.get_name() + "\n"
-                  + "with " + self.algorithm.get_title()
+                  + "with " + self.algorithm.title
                   + ", Policy: {}".format(self.policy.get_hidden_dim()))
         plt.show()
 
@@ -258,7 +258,7 @@ class Agent:
         plt.ylabel('Reward')
         plt.title("Reward per time step during benchmark of "
                   + self.env.get_name() + "\n"
-                  + "with " + self.algorithm.get_title()
+                  + "with " + self.algorithm.title
                   + ", Policy: {}".format(self.policy.get_hidden_dim()))
         plt.show()
 
@@ -270,7 +270,7 @@ class Agent:
         plt.ylabel('Reward')
         plt.title("Reward per time step during benchmark of "
                   + self.env.get_name() + "\n"
-                  + "with " + self.algorithm.get_title()
+                  + "with " + self.algorithm.title
                   + ", Policy: {}".format(self.policy.get_hidden_dim()))
         plt.show()
 
