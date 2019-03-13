@@ -21,10 +21,10 @@ class NPG:
     """This class implements the natural policy gradient method TRPO.
     Compared to the traditional NPG algorithm as suggested by
     Rajeswara, Lowrey, Todorov and Kakade [1, 2] the TRPO has faster
-    convergernce and a stronger constrain by adding a line search
-    rechecking whether the KL-divergence constrain is satisfied. If the
-    constrain is not satisfied, the line search reduces the update step
-    to satisfy the constrain. Further TRPO introduces importance
+    convergernce and a stronger constraint by adding a line search
+    rechecking whether the KL-divergence constraint is satisfied. If the
+    constraint is not satisfied, the line search reduces the update step
+    to satisfy the constraint. Further TRPO introduces importance
     sampling to replace the sum over all actions.
     As such the TRPO is effective in optimizing large nonlinear policies
     such as neural networks [3].
@@ -115,10 +115,10 @@ class NPG:
         """Performs a single update step of the algorithm by first
         simulating n roll outs on the given environment. Afterwards the
         vanilla and natural gradient of the policy are calculated and
-        applied under the constrained of the KL-divergence. In case the
-        constrain is violated, a line search is performed to satisfy
-        the constrain. For rare cases, where the line search is unable
-        to satisfy the constrain in a set amount of iterations, the old
+        applied under the constraint of the KL-divergence. In case the
+        constraint is violated, a line search is performed to satisfy
+        the constraint. For rare cases, where the line search is unable
+        to satisfy the constraint in a set amount of iterations, the old
         policy is kept.
 
         :param env: The environment the simulations are run on

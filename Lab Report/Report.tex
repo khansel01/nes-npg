@@ -46,6 +46,11 @@ grestore
 \smartqed  % flush right qed marks, e.g. at end of proof
 %
 \usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\usepackage{caption}
 %
 % \usepackage{mathptmx}      % use Times fonts if available on your TeX system
 %
@@ -76,12 +81,11 @@ grestore
 
 %\authorrunning{Short form of author list} % if too long for running head
 
-\institute{C. Derstroff \at
-          \email{cedric.derstroff@stud.tu-darmstadt.de}           %  \\
-%             \emph{Present address:} of F. Author  %  if needed
-           \and
-           J. Moos \at
+\institute{J. Moos \at
            \email{janosch.moos@stud.tu-darmstadt.de}
+           \and
+           C. Derstroff \at
+           \email{cedric.derstroff@stud.tu-darmstadt.de}
            \and
            K. Hansel \at
            \email{kay.hansel@stud.tu-darmstadt.de}
@@ -93,100 +97,23 @@ grestore
 
 \maketitle
 
-\begin{abstract}
-Insert your abstract here. Include keywords, PACS and mathematical
-subject classification numbers as needed.
+% \begin{abstract}
+% Insert your abstract here. Include keywords, PACS and mathematical
+% subject classification numbers as needed.
 \keywords{Furuta Pendulum \and Cartpole \and Inverted Pendulum \and Ball Balancer \and Classical Control \and Artificial Intelligence \and Reinforcement Learning \and NPG \and NES}
 % \PACS{PACS code1 \and PACS code2 \and more}
 % \subclass{MSC code1 \and MSC code2 \and more}
-\end{abstract}
+% \end{abstract}
 
 \input{Chapters/Introduction}
 \input{Chapters/Results}
 
-% \paragraph{Paragraph headings} Use paragraph headings as needed.
-% \begin{equation}
-% a^2+b^2=c^2
-% \end{equation}
-
-% % For one-column wide figures use
-% \begin{figure}
-% % Use the relevant command to insert your figure file.
-% % For example, with the graphicx package use
-%   \includegraphics{example.eps}
-% % figure caption is below the figure
-% \caption{Please write your figure caption here}
-% \label{fig:1}       % Give a unique label
-% \end{figure}
-% %
-% % For two-column wide figures use
-% \begin{figure*}
-% % Use the relevant command to insert your figure file.
-% % For example, with the graphicx package use
-%   \includegraphics[width=0.75\textwidth]{example.eps}
-% % figure caption is below the figure
-% \caption{Please write your figure caption here}
-% \label{fig:2}       % Give a unique label
-% \end{figure*}
-% %
-% % For tables use
-% \begin{table}
-% % table caption is above the table
-% \caption{Please write your table caption here}
-% \label{tab:1}       % Give a unique label
-% % For LaTeX tables use
-% \begin{tabular}{lll}
-% \hline\noalign{\smallskip}
-% first & second & third  \\
-% \noalign{\smallskip}\hline\noalign{\smallskip}
-% number & number & number \\
-% number & number & number \\
-% \noalign{\smallskip}\hline
-% \end{tabular}
-% \end{table}
-
-
-%\begin{acknowledgements}
-%If you'd like to thank anyone, place your comments here
-%and remove the percent signs.
-%\end{acknowledgements}
 
 % BibTeX users please use one of
 %\bibliographystyle{spbasic}      % basic style, author-year citations
-%\bibliographystyle{spmpsci}      % mathematics and physical sciences
+\bibliographystyle{spmpsci}      % mathematics and physical sciences
 %\bibliographystyle{spphys}       % APS-like style for physics
-%\bibliography{}   % name your BibTeX data base
-
-% Non-BibTeX users please use
-\begin{thebibliography}{}
-%
-% and use \bibitem to create references. Consult the Instructions
-% for authors for reference list style.
-%
-\bibitem{Furuta91}
-Katsuhisa Furuta, Masaki Yamakita, Seiichi Kobayashi, Swing Up Control of Inverted Pendulum, IEEE, 1991
-\bibitem{Furuta92}
-Katsuhisa Furuta, Masaki Yamakita, Seiichi Kobayashi, Swing-Up Control of Inverted Pendulum using Pseudo-State Feedback, Journal of Systems and Control Engineering, 206, 263-269, 1992
-\bibitem{MIT}
-Andrew Careaga Houck, Robert Kevin Katzschmann, Joao Luiz Almeida Souza Ramos, Furuta Pendulum, MIT, 2013
-\bibitem{Lund}
-Magnus Gäfvert, Modelling the Furuta Pendulum, Lund Institute of Technology, 1998
-\bibitem{PredictiveC}
-Pavol Seman, Boris Rohal'-Ilkiv, Martin Juhás, Michal Salaj, Swinging up the Furuta Pendulum and its stabilization via model predictive control, Journal of Electrical Engineering, Vol. 64, 152-158, 2013
-\bibitem{OnTheDynamics}
-Benjamin Seth Cazzolato and Zebb Prime, On the Dynamics of the Furuta Pendulum, Journal of Control Science and Engineering, Vol. 2011, , 2011
-\bibitem{NES}
-Wierstra et. al., Natural Evolution Strategies, Journal of Machine Learning Research, Vol. 15, 949-980, 2014
-
-
-% \bibitem{RefJ}
-% Format for Journal Reference
-% Author, Article title, Journal, Volume, page numbers (year)
-% Format for books
-% \bibitem{RefB}
-% Author, Book title, page numbers. Publisher, place (year)
-% etc
-\end{thebibliography}
+\bibliography{Report}   % name your BibTeX data base
 
 \end{document}
 % end of file template.tex

@@ -61,7 +61,8 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if load:
         # load pre trained policy and algorithm from data
         print("{:-^50s}".format(' Load '))
-        path = os.getcwd() + "/trained_data/{}_NES.p".format(env.to_string())
+        path = os.getcwd() + "/trained_data/{}_NES.p"\
+                             .format(env.to_string())
 
         pickle_in = open(path, "rb")
 
@@ -88,7 +89,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
         # plotted for
         # evaluation
         print("{:-^50s}".format(' Benchmark '))
-        agent.run_benchmark(episodes=100)
+        agent.run_benchmark(episodes=10)
 
     if render:
         # Runs a single rendered trial for visual performance check
@@ -97,4 +98,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=False, train=True, benchmark=True, save=True, render=True)
+    main(load=True, train=False, benchmark=True, save=False, render=True)

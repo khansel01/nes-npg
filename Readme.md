@@ -2,9 +2,9 @@
 This project implements Natural Policy Gradients and Natural Evolution
 Strategies algorithm for gym environments as well as quanser robot
 environments. Various examples are provided applying these algorithms to
-different platforms. However not all of them are solved yet. Using the main
-module you can apply the algorithm to different platforms and adjust the
-parameters to try to solve these platforms.
+different platforms, however, not all of them are solved yet. Using the main
+module you can apply these algorithms to different platforms and adjust the
+parameters to try to solve the platforms.
 
 ## Getting Started
 ### Prerequisites
@@ -35,7 +35,7 @@ $ source activate nes-npg
 $ pip install -e .
 ```
 
-##### Install the this project to environment
+##### Install this project to environment
 Navigate to this package *.../reinf/* and call
 ```bash
 $ pip install -e .

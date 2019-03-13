@@ -62,7 +62,8 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
         # load pre trained policy and algorithm from data
         print("{:-^50s}".format(' Load '))
         # path = "trained_data/CartpoleSwingShort-v0_10000_6.0_NES.p"
-        path = os.getcwd() + "/trained_data/{}_NES.p".format(env.to_string())
+        path = os.getcwd() + "/trained_data/{}_10000_6.0_NES.p"\
+                             .format("CartpoleSwingShort-v0")
 
         pickle_in = open(path, "rb")
 
@@ -97,4 +98,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=True, train=True, benchmark=True, save=True, render=False)
+    main(load=True, train=False, benchmark=True, save=False, render=False)
