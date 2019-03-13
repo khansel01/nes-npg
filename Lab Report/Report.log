@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.11.6)  13 MAR 2019 10:06
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.11.6)  13 MAR 2019 11:03
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -437,14 +437,14 @@ Underfull \hbox (badness 10000) in paragraph at lines 47--48
 
  []
 
-<plots/Cartpole_model.png, id=87, 439.6425pt x 296.10625pt>
+<plots/Cartpole_model.png, id=90, 439.6425pt x 296.10625pt>
 File: plots/Cartpole_model.png Graphic file (type png)
 
 <use plots/Cartpole_model.png>
 Package pdftex.def Info: plots/Cartpole_model.png used on input line 53.
 (pdftex.def)             Requested size: 131.89375pt x 88.83255pt.
 
-<plots/Furuta_model.png, id=93, 306.14375pt x 294.09875pt>
+<plots/Furuta_model.png, id=96, 306.14375pt x 294.09875pt>
 File: plots/Furuta_model.png Graphic file (type png)
 
 <use plots/Furuta_model.png>
@@ -456,8 +456,8 @@ Overfull \hbox (1.88892pt too wide) in paragraph at lines 51--63
  []
 
 ) (./Chapters/Results.tex
-<plots/benchmark_Qube_NES_plattforms_working.pdf, id=98, 558.6822pt x 261.88141
-pt>
+<plots/benchmark_Qube_NES_plattforms_working.pdf, id=101, 558.6822pt x 261.8814
+1pt>
 File: plots/benchmark_Qube_NES_plattforms_working.pdf Graphic file (type pdf)
  <use plots/benchmark_Qube_NES_plattforms_working.pdf>
 Package pdftex.def Info: plots/benchmark_Qube_NES_plattforms_working.pdf used o
@@ -492,7 +492,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 25--27
 Underfull \vbox (badness 1721) has occurred while \output is active []
 
  [4 <./plots/benchmark_Qube_NES_plattforms_working.pdf>]
-<plots/learned_benchmarked_NPG.pdf, id=158, 832.33763pt x 521.65286pt>
+<plots/learned_benchmarked_NPG.pdf, id=161, 832.33763pt x 521.65286pt>
 File: plots/learned_benchmarked_NPG.pdf Graphic file (type pdf)
 
 <use plots/learned_benchmarked_NPG.pdf>
@@ -526,7 +526,7 @@ Package pdftex.def Info: plots/benchmark_Qube_NES_plattforms_working.pdf used o
 n input line 68.
 (pdftex.def)             Requested size: 335.2119pt x 157.13005pt.
 
-<plots/benchmark_Qube_NPG_plattforms_working.pdf, id=207, 558.6822pt x 261.8814
+<plots/benchmark_Qube_NPG_plattforms_working.pdf, id=210, 558.6822pt x 261.8814
 1pt>
 File: plots/benchmark_Qube_NPG_plattforms_working.pdf Graphic file (type pdf)
  <use plots/benchmark_Qube_NPG_plattforms_working.pdf>
@@ -557,10 +557,10 @@ Package rerunfilecheck Info: File `Report.out' has not changed.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 118.
  ) 
 Here is how much of TeX's memory you used:
- 8023 strings out of 493029
- 121657 string characters out of 6136234
- 210613 words of memory out of 5000000
- 11413 multiletter control sequences out of 15000+600000
+ 8025 strings out of 493029
+ 121688 string characters out of 6136234
+ 210648 words of memory out of 5000000
+ 11414 multiletter control sequences out of 15000+600000
  15861 words of font info for 60 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  36i,10n,42p,976b,468s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -583,10 +583,10 @@ st/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/font
 s/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1
 /public/amsfonts/cm/cmtt8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
 /amsfonts/symbols/msbm7.pfb>
-Output written on Report.pdf (9 pages, 753462 bytes).
+Output written on Report.pdf (9 pages, 754228 bytes).
 PDF statistics:
- 325 PDF objects out of 1000 (max. 8388607)
- 254 compressed objects within 3 object streams
- 50 named destinations out of 1000 (max. 500000)
+ 329 PDF objects out of 1000 (max. 8388607)
+ 257 compressed objects within 3 object streams
+ 51 named destinations out of 1000 (max. 500000)
  42 words of extra memory for PDF output out of 10000 (max. 10000000)
 

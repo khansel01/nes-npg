@@ -177,7 +177,9 @@ class NPG:
 
         # product inv(fisher) times vanilla gradient via conjugate grad
         # Inspired by:
-        #
+        # Ankur Mohan: Efficiently Computing the Fisher Vector Product
+        # in TRPO (2018). URL http://www.telesens.co/2018/06/09/
+        # efficiently-computing-the-fisher-vector-product-in-trpo/
         def get_npg(v):
             damping = self.__damping
             kl = tr.mean(policy.get_kl(observations))

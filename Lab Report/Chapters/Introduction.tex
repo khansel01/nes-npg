@@ -8,7 +8,7 @@ Reinforcement Learning can be defined by various different optimization problems
 \begin{align}
   J(\pi) = \int_{\mathbb{T}} p^{\pi}(\tau) r(\tau) d\tau
 \end{align}
-By formulating the derivatives and applying the logarithm likelihood trick we can derive the "vanilla gradient" or REINFORCE algorithm
+By formulating the derivatives and applying the logarithm likelihood trick we can derive the "vanilla gradient" or REINFORCE algorithm \cite{Williams1992}
 \begin{align}
   \nabla_{\theta} J(\pi) = \int_{\mathbb{T}} p^{\pi}(\tau) \nabla_{\theta} \log p^{\pi}(\tau) r(\tau) d\tau \approx \frac{1}{N} \sum_{i=1}^{N} \nabla_{\theta} \log p^{\pi}(\tau_i) r(\tau_i)
 \end{align}
