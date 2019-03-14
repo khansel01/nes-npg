@@ -119,7 +119,7 @@ class Agent:
         #                         e["time_mean"].squeeze()
         #                         + e["time_std"].squeeze()])
         #     writerFile.close()
-        
+
         for i, e in np.ndenumerate(self.logger.logger):
             r_means.append(e["reward_mean"])
             r_stds.append(e["reward_std"])
