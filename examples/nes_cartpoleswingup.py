@@ -55,7 +55,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     gym_env = 'CartpoleSwingShort-v0'
 
     # create environment using Environment wrapper
-    env = Environment(gym_env, clip=6)
+    env = Environment(gym_env)
     print("{:-^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
@@ -81,7 +81,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         # train the policy
         print("{:-^50s}".format(' Train '))
-        agent.train_policy(episodes=800, n_roll_outs=1, save=save)
+        agent.train_policy(episodes=800, n_roll_outs=2, save=save)
 
     if benchmark:
         # check the results in a benchmark test
