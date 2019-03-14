@@ -71,15 +71,15 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     else:
         # create new policy
         print("{:-^50s}".format(' Init '))
-        policy = Policy(env, hidden_dim=(10, 10))
+        policy = Policy(env, hidden_dim=(5, 5))
 
-        baseline = Baseline(env, hidden_dim=(10, 10), epochs=20)
+        baseline = Baseline(env, hidden_dim=(5, 5), epochs=20)
 
         normalizer = Normalizer(env)
 
         # create NPG-algorithm, baseline and normalizer
         # NPG needs a baseline, however normalizer can be used at own will
-        algorithm = NPG(baseline, 0.005, _gamma=0.9999, _lambda=0.2,
+        algorithm = NPG(baseline, .05, _gamma=.9999, _lambda=.999,
                         normalizer=normalizer)
 
     # create agent for controlling the training and benchmark process
@@ -88,7 +88,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         # train the policy
         print("{:-^50s}".format(' Train '))
-        agent.train_policy(episodes=1000, n_roll_outs=10, save=save)
+        agent.train_policy(episodes=100, n_roll_outs=50, save=save)
 
     if benchmark:
         # check the results in a benchmark test
@@ -104,4 +104,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=False, train=True, benchmark=True, save=False, render=True)
+    main(load=False, train=True, benchmark=True, save=True, render=True)

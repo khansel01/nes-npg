@@ -98,27 +98,33 @@ class Agent:
         t_means = []
         t_stds = []
 
-        os.makedirs(os.path.dirname(string), exist_ok=True)
-        with open(string, 'w') as writerFile:
-            for i, e in np.ndenumerate(self.logger.logger):
-                r_means.append(e["reward_mean"])
-                r_stds.append(e["reward_std"])
-                t_means.append(e["time_mean"])
-                t_stds.append(e["time_std"])
-
-                """ write to csv file """
-                writer = csv.writer(writerFile)
-                writer.writerow([i[0], e["reward_mean"].squeeze(),
-                                e["reward_mean"].squeeze()
-                                - e["reward_std"].squeeze(),
-                                e["reward_mean"].squeeze()
-                                + e["reward_std"].squeeze(),
-                                e["time_mean"].squeeze(),
-                                e["time_mean"].squeeze()
-                                - e["time_std"].squeeze(),
-                                e["time_mean"].squeeze()
-                                + e["time_std"].squeeze()])
-            writerFile.close()
+        # os.makedirs(os.path.dirname(string), exist_ok=True)
+        # with open(string, 'w') as writerFile:
+        #     for i, e in np.ndenumerate(self.logger.logger):
+        #         r_means.append(e["reward_mean"])
+        #         r_stds.append(e["reward_std"])
+        #         t_means.append(e["time_mean"])
+        #         t_stds.append(e["time_std"])
+        #
+        #         """ write to csv file """
+        #         writer = csv.writer(writerFile)
+        #         writer.writerow([i[0], e["reward_mean"].squeeze(),
+        #                         e["reward_mean"].squeeze()
+        #                         - e["reward_std"].squeeze(),
+        #                         e["reward_mean"].squeeze()
+        #                         + e["reward_std"].squeeze(),
+        #                         e["time_mean"].squeeze(),
+        #                         e["time_mean"].squeeze()
+        #                         - e["time_std"].squeeze(),
+        #                         e["time_mean"].squeeze()
+        #                         + e["time_std"].squeeze()])
+        #     writerFile.close()
+        
+        for i, e in np.ndenumerate(self.logger.logger):
+            r_means.append(e["reward_mean"])
+            r_stds.append(e["reward_std"])
+            t_means.append(e["time_mean"])
+            t_stds.append(e["time_std"])
 
         r_means = np.concatenate(r_means).squeeze()
         r_stds = np.concatenate(r_stds).squeeze()
@@ -294,18 +300,18 @@ class Agent:
         plt.show()
 
         # save in csv
-        string = './trained_data/benchmark_data_{}_{}.csv' \
-            .format(self.env.to_string(), self.algorithm.name)
-
-        os.makedirs(os.path.dirname(string), exist_ok=True)
-        with open(string, 'w') as writerFile:
-            for step in range(max(time_steps)):
-                step_rewards = [step]
-                for r in rewards:
-                    try:
-                        step_rewards.append(r[step])
-                    except IndexError:
-                        step_rewards.append(None)
-                writer = csv.writer(writerFile)
-                writer.writerow(step_rewards)
-            writerFile.close()
+        # string = './trained_data/benchmark_data_{}_{}.csv' \
+        #     .format(self.env.to_string(), self.algorithm.name)
+        #
+        # os.makedirs(os.path.dirname(string), exist_ok=True)
+        # with open(string, 'w') as writerFile:
+        #     for step in range(max(time_steps)):
+        #         step_rewards = [step]
+        #         for r in rewards:
+        #             try:
+        #                 step_rewards.append(r[step])
+        #             except IndexError:
+        #                 step_rewards.append(None)
+        #         writer = csv.writer(writerFile)
+        #         writer.writerow(step_rewards)
+        #     writerFile.close()

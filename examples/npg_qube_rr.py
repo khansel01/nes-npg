@@ -63,9 +63,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if load:
         # load pre trained policy and algorithm from data
         print("{:-^50s}".format(' Load '))
-        path = os.getcwd() + "/trained_data/{}_300_5.0_NPG.p"\
-            .format('Qube-v0')
-        # path = os.getcwd() + "/trained_data/{}_NPG.p".format(env.to_string())
+        path = os.getcwd() + "/trained_data/{}_NPG.p".format(env.to_string())
 
         pickle_in = open(path, "rb")
 
@@ -105,4 +103,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=True, train=True, benchmark=True, save=True, render=False)
+    main(load=True, train=False, benchmark=True, save=False, render=False)

@@ -61,8 +61,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if load:
         # load pre trained policy and algorithm from data
         print("{:-^50s}".format(' Load '))
-        path = os.getcwd() + "/trained_data/{}_NES.p"\
-                             .format(env.to_string())
+        path = os.getcwd() + "/trained_data/{}_NES.p".format(env.to_string())
 
         pickle_in = open(path, "rb")
 

@@ -73,6 +73,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
         print("{:-^50s}".format(' Init '))
         policy = Policy(env, hidden_dim=(6, 6))
 
+        print(policy.get_parameters())
         # create NPG-algorithm, baseline and normalizer
         # NPG needs a baseline, however normalizer can be used at own
         # will
@@ -94,7 +95,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
         # plotted for
         # evaluation
         print("{:-^50s}".format(' Benchmark '))
-        agent.run_benchmark(episodes=5)
+        agent.run_benchmark(episodes=10)
 
     if render:
         # Runs a single rendered trial for visual performance check
@@ -103,4 +104,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=False, train=True, benchmark=True, save=True, render=True)
+    main(load=True, train=False, benchmark=True, save=False, render=True)

@@ -130,8 +130,6 @@ class NPG:
         :rtype: array of float, array of float
         """
 
-        print("log_std:", policy.network.log_std)
-
         trajectories = env.roll_out(policy,
                                     n_roll_outs=n_roll_outs,
                                     render=False,
