@@ -9,8 +9,7 @@ parameters to try to solve the platforms.
 ## Getting Started
 ### Prerequisites
 This project is compatible with Python 3.6 and
-[conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/ "Install miniconda")
-. Further the
+[conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/ "Install miniconda"). Further the
 [quanser_robots package](https://git.ias.informatik.tu-darmstadt.de/quanser/clients/tree/master "Install quanser package")
 is required.
 
