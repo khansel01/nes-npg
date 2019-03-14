@@ -2,19 +2,19 @@
 This project implements Natural Policy Gradients and Natural Evolution
 Strategies algorithm for gym environments as well as quanser robot
 environments. Various examples are provided applying these algorithms to
-different platforms, however, not all of them are solved yet. Using the main
+different platforms, however, not all of them have been solved yet. Using the main
 module you can apply these algorithms to different platforms and adjust the
 parameters to try to solve the platforms.
 
 ## Getting Started
 ### Prerequisites
-This project is compatible with python3.6 and
+This project is compatible with Python 3.6 and
 [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/ "Install miniconda")
 . Further the
-[quanser package](https://git.ias.informatik.tu-darmstadt.de/quanser/clients/tree/master "Install quanser package")
-is needed.
+[quanser_robots package](https://git.ias.informatik.tu-darmstadt.de/quanser/clients/tree/master "Install quanser package")
+is required.
 
-##### Install python 3.6:
+##### Install Python 3.6:
 ```bash
 $ sudo add-apt-repository ppa:deadsnakes/ppa
 $ sudo apt-get update
@@ -23,13 +23,13 @@ $ sudo apt-get install python3.6
 
 ### Install
 ##### Install virtual environment:
-You can also change the environment name as necessary.
+You can also change the environment name if necessary.
 ```bash
-$ conda env create -f nes-npg.yaml
+$ conda env create -f nes-npg.yml
 ```
 
-##### Install quanser pkg to environment
-Navigate to quanser package *.../clients/*
+##### Install the quanser_robots package to environment
+Navigate to quanser-robots package *.../clients/*
 ```bash
 $ source activate nes-npg
 $ pip install -e .
@@ -43,8 +43,8 @@ $ pip install -e .
 
 ## Usage
 To run any of the given examples please simply execute the respective file.
-The examples are set to run a benchmark test on a already trained policy.
-Alternatively adjust the main.py to run the code on any platforms with
+The examples are set to run a benchmark test on an already trained policy.
+Alternatively, adjust the [main.py](./main.py) to run the code on any platforms with
 continuous action spaces. The algorithms are not implemented for discrete
 action spaces.
 
@@ -69,22 +69,23 @@ reinf/
     agent.py
     main.py
     nes.py
+    nes-npg.yml
     npg.py
-    __init__.py
     Readme.md
+    setup.py
     models/
         __init__.py
-        Readme.md
         baseline.py
         nn_policy.py
+        Readme.md
     utilities/
         __init__.py
-        Readme.md
         conjugate_gradient.py
         environment.py
         estimations.py
         logger.py
         normalizer.py
+        Readme.md
     examples/
         ...
         trained_data/
@@ -111,7 +112,7 @@ reinf/
     CoRR abs/1502.0(2015). URL http://arxiv.org/abs/1502.0547711.
 
 [4] Wierstra, D., Schaul, T., Glasmachers, T., Sun, Y., Peters, J.,
-    Schmidhuber, J.: NaturalEvolution Strategies.  Journal of
+    Schmidhuber, J.: Natural Evolution Strategies.  Journal of
     Machine Learning Research 15, 949–980 (2014).
     URL http://jmlr.org/papers/v15/wierstra14a.html
 
