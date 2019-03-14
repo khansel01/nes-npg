@@ -80,7 +80,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         # train the policy
         print("{:-^50s}".format(' Train '))
-        agent.train_policy(episodes=500, n_roll_outs=1, save=save)
+        agent.train_policy(episodes=1000, n_roll_outs=1, save=save)
 
     if benchmark:
         # check the results in a benchmark test
@@ -88,13 +88,13 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
         # plotted for
         # evaluation
         print("{:-^50s}".format(' Benchmark '))
-        agent.run_benchmark(episodes=100)
+        agent.run_benchmark(episodes=10)
 
     if render:
         # Runs a single rendered trial for visual performance check
         print("{:-^50s}".format(' Render '))
-        agent.run_benchmark(episodes=2, render=True)
+        agent.run_benchmark(episodes=1, render=True)
 
 
 if __name__ == '__main__':
-    main(load=True, train=False, benchmark=True, save=True, render=False)
+    main(load=True, train=False, benchmark=True, save=False, render=True)

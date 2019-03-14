@@ -71,15 +71,17 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     else:
         # create new policy
         print("{:-^50s}".format(' Init '))
-        policy = Policy(env, hidden_dim=(6, 6), log_std=1)
+        policy = Policy(env, hidden_dim=(5, 5), log_std=1)
 
         # create NPG-algorithm, baseline and normalizer
         # NPG needs a baseline, however normalizer can be used at own
         # will
-        baseline = Baseline(env, hidden_dim=(6, 6), epochs=10)
+        baseline = Baseline(env, hidden_dim=(5, 5), epochs=10)
         normalizer = Normalizer(env)
-        gamma = 0.999999
-        algorithm = NPG(baseline, 0.01, _gamma=gamma, normalizer=normalizer)
+        gamma = 0.9999
+        _lambda = 0.999
+        algorithm = NPG(baseline, 0.01, _gamma=gamma, _lambda=_lambda,
+                        normalizer=normalizer)
 
     # create agent for controlling the training and benchmark process
     agent = Agent(env, policy, algorithm)
@@ -87,7 +89,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         # train the policy
         print("{:-^50s}".format(' Train '))
-        agent.train_policy(episodes=1000, n_roll_outs=50, save=save)
+        agent.train_policy(episodes=500, n_roll_outs=50, save=save)
 
     if benchmark:
         # check the results in a benchmark test
@@ -95,7 +97,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
         # plotted for
         # evaluation
         print("{:-^50s}".format(' Benchmark '))
-        agent.run_benchmark()
+        agent.run_benchmark(episodes=10)
 
     if render:
         # Runs a single rendered trial for visual performance check
@@ -104,4 +106,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=False, train=True, benchmark=True, save=True, render=True)
+    main(load=True, train=False, benchmark=True, save=False, render=True)

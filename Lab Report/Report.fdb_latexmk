@@ -1,13 +1,13 @@
 # Fdb version 3
-["bibtex Report"] 1552598286 "Report.aux" "Report.bbl" "Report" 1552606935
+["bibtex Report"] 1552598286 "Report.aux" "Report.bbl" "Report" 1552607229
   "./spmpsci.bst" 1552332673 30130 0182c69465c28ddbb1f8698b9c5c1559 ""
-  "Report.aux" 1552606934 4575 24e978531a0b4db3c263368b6c646a01 ""
+  "Report.aux" 1552607228 4575 24e978531a0b4db3c263368b6c646a01 ""
   "Report.bcf" 1552470856 91617 d21e72ba3c278ccd8b262b006e027634 ""
   "Report.bib" 1552577665 10749 08e734a47001728a29967b029ed71192 ""
   (generated)
   "Report.blg"
   "Report.bbl"
-["pdflatex"] 1552606933 "Report.tex" "Report.pdf" "Report" 1552606935
+["pdflatex"] 1552607228 "Report.tex" "Report.pdf" "Report" 1552607229
   "/etc/texmf/web2c/texmf.cnf" 1541495943 1101 af7716885e081ab43982cab7b4672c1a ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1272929888 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm" 1246382020 1120 1e8878807317373affa7f7bba4cf2f6a ""
@@ -109,11 +109,11 @@
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1524865380 1864329 0c126ee99d5dc8252f2676092bec3067 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1541496035 3870875 4281b2ff6d3d0033510bb24460d4ee39 ""
   "Chapters/Introduction.tex" 1552606150 6005 2ea5af77242623cba5e23f58587d9214 ""
-  "Chapters/Results.tex" 1552606933 12457 700d5a989bc0620babb519a153bc1e88 ""
-  "Report.aux" 1552606934 4575 24e978531a0b4db3c263368b6c646a01 ""
+  "Chapters/Results.tex" 1552607227 12582 04d2ba0504c5d3e9ab5a0235b6716da5 ""
+  "Report.aux" 1552607228 4575 24e978531a0b4db3c263368b6c646a01 ""
   "Report.bbl" 1552598286 3207 4d655f27ae26f01ee73253b3eaea75cb "bibtex Report"
-  "Report.out" 1552606934 89 5acd8c8a18fe0a8702bf3939580dff86 ""
-  "Report.tex" 1552604193 3721 d0baa471d4a53d5360464c104de449ff ""
+  "Report.out" 1552607228 89 5acd8c8a18fe0a8702bf3939580dff86 ""
+  "Report.tex" 1552607091 3721 d0baa471d4a53d5360464c104de449ff ""
   "example.eps" 1552332673 286 240e01e547b56ebd62e19ba1e85adf80 ""
   "plots/learned_benchmarked_NES.pdf" 1552606150 526348 dd811a5dab13b0e5cf2c6af755938395 ""
   "plots/learned_benchmarked_NPG.pdf" 1552572998 167252 851db9eb9182c08495e88e8001587344 ""
@@ -124,9 +124,9 @@
   "svglov3.clo" 1552332673 3809 f8e29af71acd1bd1b2a58b6166058c66 ""
   "svjour3.cls" 1552332673 47679 993de5be39389e8a2c40c32e48f0687c ""
   (generated)
-  "Report.out"
   "Report.bcf"
-  "Report.log"
+  "Report.aux"
+  "Report.out"
   "Report.pdf"
   "Report.run.xml"
-  "Report.aux"
+  "Report.log"
