@@ -35,7 +35,7 @@ The most important parameters are:
 \label{fig:NPG_final}
 \end{figure*}
 
-\autoref{fig:NPG_final} shows our final results on the given tasks using the NPG. Unfortunately, we were only able to solve the Qube with the NPG, but due to the fact that we managed to solve it, we assume that the algorithm has been implemented correctly. Because of limited time and parameter sensitivity we could not find suitable settings for solving the other tasks. \\
+\autoref{fig:NPG_final} shows our final results on the given tasks using the NPG. We recognized that the most important parameters are $\gamma$ and $\lambda$ of the advantage function. We have had a lot of trouble finding suitable parameters for the given tasks and, unfortunately, have not managed to solve the Cartpole swing up. \\
 Another important insight is provided by the benchmark plots, which are shown in the lower row of \autoref{fig:NPG_final}. Each plot illustrates ten of the 100 runs of the benchmark test. It is important, depending on the environment, to perform a representative amount of runs, because the starting position can vary, which might lead to false positive results as pictured in the bottom left plot in \autoref{fig:NPG_final}. During one of the runs the simulation was terminated early because the robot hit the restriction in the movement space and did not manage to perform the swing up. To ensure the best performance the exploration was set to zero for the benchmarks. \\
 In the produced experiments we have even encountered policies whose exploration converged to almost zero and thus the total reward of the last training episodes was close to the benchmark performance. This is the desired behavior of gaussian policies, which should converge to an optimal policy without further exploration after sufficient training with suitable hyperparameters (see \autoref{fig:NES_final} Double Pendulum). \\
 
@@ -46,7 +46,7 @@ In the produced experiments we have even encountered policies whose exploration 
 \label{fig:NES_final}
 \end{figure*}
 
-As already mentioned in \autoref{intro} with the Canonical NES we had similar problems as with the first version of the NPG. Inverting the FIM often resulted in singular matrices, but in addition, both were very slow. In the case of the NES, we decided to switch to the SNES, which turned out to be a huge success. \autoref{fig:NES_final} illustrates our final results with the NES on all tasks. We managed to solve all platforms due to the fact that the SNES compared to the NPG has fewer hyperparameters that need to be adjusted. The only ones being:
+As already mentioned in \autoref{intro} with the Canonical NES we had similar problems as with the first version of the NPG. Inverting the FIM often resulted in singular matrices, but in addition, both were very slow. In the case of the NES, we decided to switch to the SNES, which turned out to be a huge success. \autoref{fig:NES_final} illustrates our final results with the SNES on all tasks. We managed to solve all platforms due to the fact that the SNES compared to the NPG has fewer hyperparameters that need to be adjusted. The only ones being:
 \begin{itemize}
   \item Population size $\lambda$: \\
   The population size $\lambda$ defines the number of samples which are drawn from the search distribution for each episode. For all our solutions we used the calculation for $\lambda$ suggested by \cite{Wierstra14}. \smallskip
