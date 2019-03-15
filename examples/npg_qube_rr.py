@@ -91,8 +91,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if benchmark:
         # check the results in a benchmark test
         # Unchanged, 100 trials will be run on the environment and
-        # plotted for
-        # evaluation
+        # plotted for evaluation
         print("{:-^50s}".format(' Benchmark '))
         agent.run_benchmark(episodes=5)
 
