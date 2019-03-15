@@ -2,9 +2,9 @@
 This project implements Natural Policy Gradients and Natural Evolution
 Strategies algorithm for gym environments as well as quanser robot
 environments. Various examples are provided applying these algorithms to
-different platforms, however, not all of them have been solved yet. Using the main
-module you can apply these algorithms to different platforms and adjust the
-parameters to try to solve the platforms.
+different platforms, however, not all of them have been solved yet. Using the
+main module you can apply these algorithms to different platforms and adjust
+the parameters to try to solve the platforms.
 
 ## Getting Started
 ### Prerequisites
@@ -33,7 +33,11 @@ Navigate to quanser-robots package *.../clients/*
 $ source activate nes-npg
 $ pip install -e .
 ```
-
+or
+```bash
+$ conda activate nes-npg
+$ pip install -e .
+```
 ##### Install this project to environment
 Navigate to this package *.../reinf/* and call
 ```bash
@@ -43,9 +47,11 @@ $ pip install -e .
 ## Usage
 To run any of the given examples please simply execute the respective file.
 The examples are set to run a benchmark test on an already trained policy.
-Alternatively, adjust the [main.py](./main.py) to run the code on any platforms with
-continuous action spaces. The algorithms are not implemented for discrete
+Alternatively, adjust the [main.py](./main.py) to run the code on any platforms
+with continuous action spaces. The algorithms are not implemented for discrete
 action spaces.
+Please be aware that the hardware can have a huge impact on the convergence due
+to slight mathematical errors between different hardware setups.
 
 ##### A short example
 ```python
