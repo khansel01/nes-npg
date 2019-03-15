@@ -57,7 +57,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     gym_env = 'CartpoleSwingShort-v0'
 
     # create environment using Environment wrapper
-    env = Environment(gym_env, horizon=2500)
+    env = Environment(gym_env)
     print("{:-^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
