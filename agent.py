@@ -209,11 +209,10 @@ class Agent:
 
     def run_benchmark(self, episodes: int = 100, render: bool = False):
         """Runs a benchmark test with a set amount of simulations
-        (episodes) and plots results. There are three plots generated:
+        (episodes) and plots results. There are two plots generated:
          1. Reward per episode
-         2. Reward per time step of the first three episodes
          3. Reward per time step for all episodes
-         The second and third plot do not take the mean but rather plot
+         The third plot does not take the mean but rather plots
          a curve for each episode.
 
         :param episodes: Number of episodes for the benchmark
@@ -264,25 +263,6 @@ class Agent:
         plt.ylim(bottom=0)
         plt.ylabel('Total reward')
         plt.title("Benchmark Result for " + self.env.name + "\n"
-                  + "with " + self.algorithm.title
-                  + ", Policy: {}".format(self.policy.hidden_dim))
-        plt.show()
-
-        # 2. Plot: reward per time step for only first 3 runs
-        plt.plot(np.arange(trajectories[0]["time_steps"]),
-                 trajectories[0]["rewards"],
-                 label='1. Run', color='green')
-        plt.plot(np.arange(trajectories[1]["time_steps"]),
-                 trajectories[1]["rewards"],
-                 label='2. Run', color='blue')
-        plt.plot(np.arange(trajectories[2]["time_steps"]),
-                 trajectories[2]["rewards"],
-                 label='3. Run', color='red')
-        plt.legend(["All Trials"])
-        plt.xlabel('Time steps')
-        plt.ylabel('Reward')
-        plt.title("Reward per time step during benchmark of "
-                  + self.env.name + "\n"
                   + "with " + self.algorithm.title
                   + ", Policy: {}".format(self.policy.hidden_dim))
         plt.show()
