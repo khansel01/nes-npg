@@ -97,6 +97,15 @@ reinf/
             ...
 ```
 
+## TODO
+The NES CartpoleSwingUp-v0 example is not optimally retrained for the new 
+state space introduced recently in the Quanser package. The same goes for 
+the real robot version. Both were initially trained on 0.9x. The new 
+version works with 0.814x. We started retraining on the simulation but have 
+not finished in time. The policy for the real system has not been retrained 
+at all.
+
+
 ## Developers
 - Janosch Moos
 - Kay Hansel

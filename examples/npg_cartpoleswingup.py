@@ -57,13 +57,13 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     gym_env = 'CartpoleSwingShort-v0'
 
     # create environment using Environment wrapper
-    env = Environment(gym_env, horizon=2000)
+    env = Environment(gym_env, horizon=2500)
     print("{:-^50s}".format(' Start {} '.format(gym_env)))
 
     if load:
         # load pre trained policy and algorithm from data
         print("{:-^50s}".format(' Load '))
-        path = os.getcwd() + "/trained_data/{}_NPG.p".format(env.to_string())
+        path = os.getcwd() + "/trained_data/{}_NPG_example.p".format(gym_env)
 
         pickle_in = open(path, "rb")
 
