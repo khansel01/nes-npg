@@ -61,9 +61,10 @@ class DQN:
                                     render=False,
                                     normalizer=self.normalizer)
 
-        self.__add_to_memory(trajectories)
+        np.concatenate(self.__memory, trajectories)
         batch = self.__experience_replay()
-        # update baseline
+
+        # update value net
         estimate_value(trajectories, self.__gamma)
         self.__baseline.train(trajectories)
 
@@ -75,6 +76,9 @@ class DQN:
         :rtype Array_like
         """
 
+        memory = []
+        for item in self.__memory:
+            np.concatenate(memory, item)
         if len(self.__memory) < self.__batch_size:
             return self.__memory
         else:
@@ -88,8 +92,7 @@ class DQN:
         :type trajectories: Array of dict
         """
 
-        for i in trajectories:
-            np.concatenate(self.__memory, trajectories[i])
+
 
     @property
     def title(self):
