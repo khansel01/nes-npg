@@ -211,7 +211,7 @@ class Agent:
         """Runs a benchmark test with a set amount of simulations
         (episodes) and plots results. There are two plots generated:
          1. Reward per episode
-         3. Reward per time step for all episodes
+         2. Reward per time step for all episodes
          The third plot does not take the mean but rather plots
          a curve for each episode.
 
