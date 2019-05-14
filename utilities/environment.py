@@ -10,6 +10,7 @@ functions
 """
 
 import numpy as np
+import roboschool
 import gym
 from gym.spaces.discrete import Discrete
 from gym.spaces.box import Box

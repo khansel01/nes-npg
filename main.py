@@ -55,7 +55,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     tr.manual_seed(0)
 
     # define the environment
-    gym_env = 'Pendulum-v0'
+    # gym_env = 'Pendulum-v0'
     # gym_env = 'Qube-v0'
     # gym_env = 'Levitation-v0'
     # gym_env = 'Walker2d-v2'
@@ -63,6 +63,8 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     # gym_env = 'Cartpole-v0'
     # gym_env = 'CartpoleSwingShort-v0'
     # gym_env = 'CartpoleSwingLong-v0'
+    gym_env = 'RoboschoolAtlasForwardWalk-v1'
+    # gym_env = 'RoboschoolAnt-v1'
 
     # create environment using Environment wrapper
     env = Environment(gym_env)
@@ -84,14 +86,14 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
         # create NPG-algorithm, baseline and normalizer
         # NPG needs a baseline, however normalizer can be used at own
         # will
-        baseline = Baseline(env, hidden_dim=(10, 10), epochs=10)
-        normalizer = Normalizer(env)
-        algorithm = NPG(baseline, 0.05, _gamma=0.999999, normalizer=normalizer)
+        # baseline = Baseline(env, hidden_dim=(10, 10), epochs=10)
+        # normalizer = Normalizer(env)
+        # algorithm = NPG(baseline, 0.05, _gamma=0.999999, normalizer=normalizer)
 
         # create NES-algorithm
         # NES does not use a baseline or normalizer as such they do not
         # need to be defined in for this case
-        # algorithm = NES(policy.length, sigma_init=1.0)
+        algorithm = NES(policy.length, sigma_init=1.0)
 
     # create agent for controlling the training and benchmark process
     agent = Agent(env, policy, algorithm)
@@ -99,7 +101,7 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
     if train:
         # train the policy
         print("{:-^50s}".format(' Train '))
-        agent.train_policy(episodes=500, n_roll_outs=1, save=save)
+        agent.train_policy(episodes=100, n_roll_outs=1, save=save)
 
     if benchmark:
         # check the results in a benchmark test
@@ -116,4 +118,4 @@ def main(load: bool = False, train: bool = False, benchmark: bool = False,
 
 
 if __name__ == '__main__':
-    main(load=False, train=True, benchmark=True, save=True, render=True)
+    main(load=False, train=True, benchmark=True, save=False, render=True)
