@@ -1,3 +1,6 @@
+# Benchmarking the Natural Gradient in Policy Gradient Methods and Evolution Strategies
+This repository is the official implementation of [Benchmarking the Natural Gradient in Policy Gradient Methods and Evolution Strategies](https://doi.org/10.1007/978-3-030-41188-6_7).
+
 # Reinforcement Learning
 This project implements Natural Policy Gradients and Natural Evolution
 Strategies algorithm for gym environments as well as quanser robot
@@ -110,6 +113,20 @@ at all.
 - Janosch Moos
 - Kay Hansel
 - Cedric Derstroff
+
+## Cite as
+@Inbook{Hansel2021,
+    author="Hansel, Kay and Moos, Janosch and Derstroff, Cedric",
+    editor="Belousov, Boris and Abdulsamad, Hany and Klink, Pascal and Parisi, Simone and Peters, Jan",
+    title="Benchmarking the Natural Gradient in Policy Gradient Methods and Evolution Strategies",
+    bookTitle="Reinforcement Learning Algorithms: Analysis and Applications",
+    year="2021",
+    publisher="Springer International Publishing",
+    pages="69--84",
+    isbn="978-3-030-41188-6",
+    doi="10.1007/978-3-030-41188-6_7",
+    url="https://doi.org/10.1007/978-3-030-41188-6_7"
+}
 
 ## Bibliography
 [1] Rajeswaran, A., Lowrey, K., Todorov, E., Kakade, S.: Towards
