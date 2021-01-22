@@ -115,7 +115,8 @@ at all.
 - Cedric Derstroff
 
 ## Cite as
-```@Inbook{Hansel2021,
+```
+@Inbook{Hansel2021,
     author="Hansel, Kay and Moos, Janosch and Derstroff, Cedric",
     editor="Belousov, Boris and Abdulsamad, Hany and Klink, Pascal and Parisi, Simone and Peters, Jan",
     title="Benchmarking the Natural Gradient in Policy Gradient Methods and Evolution Strategies",
