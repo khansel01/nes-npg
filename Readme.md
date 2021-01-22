@@ -115,7 +115,7 @@ at all.
 - Cedric Derstroff
 
 ## Cite as
-```
+```bibtex
 @Inbook{Hansel2021,
     author="Hansel, Kay and Moos, Janosch and Derstroff, Cedric",
     editor="Belousov, Boris and Abdulsamad, Hany and Klink, Pascal and Parisi, Simone and Peters, Jan",
@@ -132,17 +132,17 @@ at all.
 
 ## Bibliography
 [1] Rajeswaran, A., Lowrey, K., Todorov, E., Kakade, S.: Towards
-    Generalization and Sim-plicity  in  Continuous  Control  (Nips)
+    Generalization and Simplicity  in  Continuous  Control  (Nips)
     (2017). DOI  10.1016/j.acra.2014.04.006.
     URL http://arxiv.org/abs/1703.02660
 
 [2] Kakade, S.: A Natural Policy Gradient. In: NIPS’01 Proceedings
-    of the 14th InternationalConference on Neural Information
+    of the 14th International Conference on Neural Information
     Processing Systems: Natural and Synthetic, pp. 1531–1538 (2001)
 
 [3] Schulman, J., Levine, S., Moritz, P., Jordan, M.I.,
     Abbeel, P.: Trust Region Policy Optimization.
-    CoRR abs/1502.0(2015). URL http://arxiv.org/abs/1502.0547711.
+    CoRR abs/1502.0 (2015). URL http://arxiv.org/abs/1502.0547711.
 
 [4] Wierstra, D., Schaul, T., Glasmachers, T., Sun, Y., Peters, J.,
     Schmidhuber, J.: Natural Evolution Strategies.  Journal of
